@@ -5,32 +5,30 @@ export const ThemeContext = createContext();
 const app_url = import.meta.env.VITE_API_URL;
 
 export const ThemeContextProvider = ({ children }) => {
-    const [theme, setTheme] = useState("light");
+  const [theme, setTheme] = useState("light");
 
-    useEffect(() => {
-        const storedTheme = localStorage.getItem("theme");
-        if (storedTheme === "dark" || storedTheme === "light") {
-            setTheme(storedTheme);
-            document.documentElement.classList.add(storedTheme);
-        } else {
-            setTheme("light");
-            document.documentElement.classList.add("light");
-        }
-    }, []);
+  const handleTheme = async () => {
+    const result = await api.post(`${app_url}/user/setTheme`);
+    setTheme(result.data.theme);
+    document.documentElement.classList.remove("light", "dark");
+    document.documentElement.classList.add(result.data.theme);
+  };
 
-    const handleTheme = async () => {
-        const result = await api.post(`${app_url}/user/setTheme`);
-    }
+  useEffect(() => {
+    const fetchTheme = async () => {
+      const result = await api.post(`${app_url}/user/getTheme`);
+      setTheme(result.data.theme);
 
-    useEffect(() => {
-        document.documentElement.classList.remove("light", "dark");
-        document.documentElement.classList.add(theme);
-        localStorage.setItem("theme", theme);
-    }, [theme]);
+      document.documentElement.classList.remove("light", "dark");
+      document.documentElement.classList.add(result.data.theme);
+    };
 
-    return (
-        <ThemeContext.Provider value={{ theme, setTheme, handleTheme }}>
-            {children}
-        </ThemeContext.Provider>
-    );
+    fetchTheme();
+  }, []);
+
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme, handleTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
 };

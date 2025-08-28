@@ -3,8 +3,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
 const loginRoutes = require('./Routes/loginroutes');
-const userRoutes = require('./Routes/loginroutes');
+const userRoutes = require('./Routes/userroutes');
 const cors = require('cors');
+const middleware = require('./Middleware/Middleware');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -14,8 +15,11 @@ app.use(cors());
 app.use(helmet());
 app.use(express.json());
 
+
+const middlewares = [middleware.AuthMiddleware];
+
 app.use('/api/login', loginRoutes);
-app.use('/api/user/', userRoutes);
+app.use('/api/user', middlewares, userRoutes);
 
 mongoose.connect(DB_URL)
     .then(() => console.log('MongoDB connected!'))

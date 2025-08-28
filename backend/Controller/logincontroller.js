@@ -3,6 +3,7 @@ const user = require('../Model/User');
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const User = require('../Model/User');
 
 const store = async (req, res) => {
     await Promise.all([
@@ -39,9 +40,46 @@ const store = async (req, res) => {
 }
 
 const setTheme = async (req, res) => {
-    
+    try {
+        const loggedUser = await User.findById(req.user.id);
+        if (!loggedUser) {
+            res.status(401).json({ message: "User not Found" });
+        }
+
+        loggedUser.theme = loggedUser.theme === "light" ? "dark" : "light";
+        await loggedUser.save();
+        res.json({ message: "Theme updated successfully", theme: loggedUser.theme });
+    } catch (Err) {
+        res.status(500).json({ message: "Server Error" });
+    }
+}
+
+const getTheme = async (req, res) => {
+    try {
+        const loggedUser = await User.findById(req.user.id);
+        if (!loggedUser) {
+            res.status(401).json({ message: "User not Found" });
+        }
+        res.json({ message: "Theme updated successfully", theme: loggedUser.theme });
+    } catch (Err) {
+        res.status(500).json({ message: "Server Error" });
+    }
+}
+const loggedUser = async (req, res) => {
+    try {
+        const loggedUser = await User.findById(req.user.id);
+        if (!loggedUser) {
+            res.status(401).json({ message: "User not Found" });
+        }
+        res.json({ message: "User Fetched successfully", user: loggedUser });
+    } catch (Err) {
+        res.status(500).json({ message: "Server Error" });
+    }
 }
 
 module.exports = {
     store,
+    setTheme,
+    getTheme,
+    loggedUser
 }

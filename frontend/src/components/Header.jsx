@@ -6,7 +6,7 @@ import { AuthContext } from "../context/AuthContext";
 
 const AppHeader = () => {
     const { theme, setTheme, handleTheme } = useContext(ThemeContext);
-    const { logout } = useContext(AuthContext);
+    const { logout, username } = useContext(AuthContext);
     const [open, setOpen] = useState(false);
 
 
@@ -50,7 +50,7 @@ const AppHeader = () => {
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                         <circle cx="12" cy="7" r="4"></circle>
                     </svg>
-                    <span>Sowndar</span>
+                    <span>{username}</span>
                 </div>
 
                 {open && (
