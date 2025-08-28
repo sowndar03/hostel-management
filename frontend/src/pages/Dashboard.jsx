@@ -3,7 +3,7 @@ import LeftMenu from '../components/LeftMenu'
 
 const Dashboard = () => {
     return (
-        <div className="min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white p-6">
+        <div className="min-h-screen">
             <h1 className="text-2xl font-bold">Dashboard</h1>
         </div>
     )

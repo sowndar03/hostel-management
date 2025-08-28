@@ -38,6 +38,10 @@ const store = async (req, res) => {
 
 }
 
+const setTheme = async (req, res) => {
+    
+}
+
 module.exports = {
     store,
 }

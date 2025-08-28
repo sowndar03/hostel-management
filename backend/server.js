@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
 const loginRoutes = require('./Routes/loginroutes');
+const userRoutes = require('./Routes/loginroutes');
 const cors = require('cors');
 
 const app = express();
@@ -14,6 +15,7 @@ app.use(helmet());
 app.use(express.json());
 
 app.use('/api/login', loginRoutes);
+app.use('/api/user/', userRoutes);
 
 mongoose.connect(DB_URL)
     .then(() => console.log('MongoDB connected!'))

@@ -5,21 +5,15 @@ import { useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 
 const AppHeader = () => {
-    const { theme, setTheme } = useContext(ThemeContext);
+    const { theme, setTheme, handleTheme } = useContext(ThemeContext);
     const { logout } = useContext(AuthContext);
     const [open, setOpen] = useState(false);
 
-    // const handleLogout = () => {
-    //     logout();
-    //     setOpen(false);  // close dropdown
-    //     navigate("/login");
-    // };
-
 
     return (
-        <header className="flex items-center justify-end gap-5 px-6 py-3 border-b border-[#d1cfff] bg-white dark:bg-gray-800 text-black dark:text-white">
+        <header className="fixed top-0 w-full flex items-center justify-end gap-5 px-6 py-3 border-b border-[#d1cfff] bg-white dark:bg-gray-800 text-black dark:text-white">
             <button
-                onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+                onClick={handleTheme}
                 className="mr-4"
             >
                 {theme === "dark" ? (
