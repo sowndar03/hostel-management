@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+ 
+body {
+    font-family: Calibri, Arial, sans-serif;
+}
+
+.input-style {
+    padding: 0.5rem 1rem;
+    border: 1px solid #f1f0ff;
+    border-radius: 0.5rem;
+    outline: none;
+    transition: all 0.2s ease-in-out;
+} 
