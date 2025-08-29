@@ -29,10 +29,10 @@ const LoginForm = () => {
     }
     return (
         <div className="flex w-screen h-screen bg-[#f1f0ff]">
-            <div
+            {/* <div
                 className="w-3/5 h-full bg-contain bg-center bg-no-repeat relative z-20 hidden sm:block"
                 style={{ backgroundImage: `url(${loginbg})` }}
-            ></div>
+            ></div> */}
 
             <div className="sm:w-2/5 w-full h-full flex items-center justify-center relative md:-ml-16 z-20">
                 <div className='bg-white p-2 rounded-lg  p-5 min-h-[400px] py-10 ' >

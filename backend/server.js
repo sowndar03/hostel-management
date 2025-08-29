@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const helmet = require('helmet');
 const loginRoutes = require('./Routes/loginroutes');
 const userRoutes = require('./Routes/userroutes');
+const notificationRoutes = require('./Routes/notificationroutes');
 const cors = require('cors');
 const middleware = require('./Middleware/Middleware');
 
@@ -20,6 +21,7 @@ const middlewares = [middleware.AuthMiddleware];
 
 app.use('/api/login', loginRoutes);
 app.use('/api/user', middlewares, userRoutes);
+app.use('/api/notification', middlewares, notificationRoutes);
 
 mongoose.connect(DB_URL)
     .then(() => console.log('MongoDB connected!'))

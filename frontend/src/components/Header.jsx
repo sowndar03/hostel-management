@@ -1,14 +1,50 @@
 import { FiBell, FiSun, FiMoon } from "react-icons/fi";
-import { useContext } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { ThemeContext } from "../context/ThemeContext";
 import { useState } from "react";
+import api from "../api";
 import { AuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const AppHeader = () => {
-    const { theme, setTheme, handleTheme } = useContext(ThemeContext);
-    const { logout, username } = useContext(AuthContext);
-    const [open, setOpen] = useState(false);
+    const api_url = import.meta.env.VITE_API_URL;
+    const navigate = useNavigate();
 
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (
+                notificationRef.current &&
+                !notificationRef.current.contains(event.target)
+            ) {
+                setNotificationOpen(false);
+            }
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setOpen(false);
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
+    const handleNotification = async (id) => {
+        try {
+            const res = await api.post(`${api_url}/notification/markasread`, { id });
+            const web_link = res.data.notifications.web_link;
+            navigate(`/${web_link}`)
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    const { theme, setTheme, handleTheme } = useContext(ThemeContext);
+    const { logout, username, notification, unreadCount } = useContext(AuthContext);
+    const [open, setOpen] = useState(false);
+    const [notificationOpen, setNotificationOpen] = useState(false);
+    const notificationRef = useRef(null);
+    const menuRef = useRef(null);
 
     return (
         <header className="fixed top-0 w-full flex items-center justify-end gap-5 px-6 py-3 border-b border-[#d1cfff] bg-white dark:bg-gray-800 text-black dark:text-white">
@@ -23,14 +59,68 @@ const AppHeader = () => {
                 )}
             </button>
 
-            <button className="mr-4 relative">
-                <FiBell size={20} className="text-[#6b63c7] dark:text-gray-300" />
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                    3
-                </span>
-            </button>
+            <div className="relative" ref={notificationRef}>
+                <button
+                    className="mr-4 relative"
+                    onClick={() => setNotificationOpen(!notificationOpen)}
+                >
+                    <FiBell size={20} className="text-[#6b63c7] dark:text-gray-300" />
+                    {notification.length > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                            {unreadCount}
+                        </span>
+                    )}
+                </button>
 
-            <div className="relative">
+                {notificationOpen && (
+                    <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl max-h-96 overflow-y-auto">
+
+                        <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+                            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                                Notifications
+                            </h3>
+                            {notification.length > 0 && (
+                                <span className="bg-indigo-600 text-white text-xs px-2 py-0.5 rounded-full">
+                                    {unreadCount} Unread
+                                </span>
+                            )}
+                        </div>
+
+                        {notification.length > 0 ? (
+                            <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+                                {notification.map((n, i) => (
+                                    <li key={i} onClick={() => handleNotification(n._id)}>
+                                        <div
+                                            className="block px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                            onClick={() => setNotificationOpen(false)}
+                                        >
+                                            <p className="text-sm font-semibold text-gray-900 dark:text-gray-200">
+                                                {n.title}
+                                            </p>
+
+                                            <p className="text-sm text-gray-800 dark:text-gray-100">
+                                                {n.message}
+                                            </p>
+
+                                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                                                {n.timeAgo}
+                                            </span>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+
+                        ) : (
+                            <div className="px-4 py-6 text-center text-sm text-gray-500">
+                                No notifications
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+
+
+            <div className="relative" ref={menuRef}>
                 <div
                     className="flex items-center space-x-2 cursor-pointer"
                     onClick={() => setOpen(!open)}

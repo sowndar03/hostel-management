@@ -15,6 +15,8 @@ export const ThemeContextProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    const token = localStorage.getItem("logintoken");
+    if (!token) return;
     const fetchTheme = async () => {
       const result = await api.post(`${app_url}/user/getTheme`);
       setTheme(result.data.theme);
