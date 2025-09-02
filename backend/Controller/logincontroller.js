@@ -29,11 +29,11 @@ const store = async (req, res) => {
         const { email, password } = req.body;
         const foundUser = await user.findOne({ email });
         if (!foundUser) {
-            res.status(400).json({ message: "User not Found!" });
+            return res.status(400).json({ message: "User not Found!" });
         }
         const isMatch = await bcrypt.compare(password, foundUser.password);
         if (!isMatch) {
-            return res.status(400).json({ message: "Invalid credentials" });
+            return res.status(400).json({ message: "Invalid Password" });
         }
         const token = jwt.sign({ id: foundUser._id }, "SECRET_KEY", { expiresIn: "1h" });
         res.json({ message: "Login successful", token });

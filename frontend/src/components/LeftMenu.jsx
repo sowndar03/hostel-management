@@ -1,12 +1,30 @@
+import { useEffect, useState, useContext } from "react";
 import { Sidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar";
 import { FiHome, FiUser, FiMenu, FiX } from "react-icons/fi";
-import { useContext } from "react";
 import { NavLink } from "react-router-dom";
 import { ThemeContext } from "../context/ThemeContext";
 
-const LeftMenu = ({ collapsed, setCollapsed }) => {
+const LeftMenu = () => {
     const { theme } = useContext(ThemeContext);
     const app_name = import.meta.env.VITE_APP_NAME;
+
+    const [collapsed, setCollapsed] = useState(false);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth < 768) {
+                setIsMobile(true);
+                setCollapsed(true); 
+            } else {
+                setIsMobile(false);
+                setCollapsed(false);
+            }
+        };
+
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     const colors = theme === "dark"
         ? {
@@ -27,7 +45,7 @@ const LeftMenu = ({ collapsed, setCollapsed }) => {
             collapsed={collapsed}
             backgroundColor={colors.sidebarBg}
             rootStyles={{
-                height: "100vh",  
+                height: "100vh",
                 position: "fixed",
                 left: 0,
                 width: collapsed ? "80px" : "250px",
@@ -37,12 +55,16 @@ const LeftMenu = ({ collapsed, setCollapsed }) => {
             }}
         >
             <div className="flex items-center justify-between px-4 py-3 text-[#6b63c7] dark:text-white">
-                {!collapsed && (
+                {!collapsed && !isMobile && (
                     <span className="font-bold text-lg ps-5 font-serif">{app_name}</span>
                 )}
-                <button onClick={() => setCollapsed(!collapsed)}>
-                    {collapsed ? <FiMenu size={22} /> : <FiX size={22} />}
-                </button>
+
+                {/* Show toggle button only on desktop */}
+                {!isMobile && (
+                    <button onClick={() => setCollapsed(!collapsed)}>
+                        {collapsed ? <FiMenu size={22} /> : <FiX size={22} />}
+                    </button>
+                )}
             </div>
 
             <Menu

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import viteLogo from '/vite.svg'
+import { ToastContainer } from "react-toastify";
 import LoginForm from './pages/login/LoginForm'
 import { Route, Routes } from 'react-router-dom'
 import Dashboard from './pages/dashboard'
@@ -8,8 +9,9 @@ import PublicRoutes from './Routes/PublicRoutes'
 import PrivateRoutes from './Routes/PrivateRoutes'
 import MainLayout from './layout/MainLayout'
 import Home from './pages/Home'
-import Location from './pages/Master/location'
 import { ThemeContextProvider } from './context/ThemeContext'
+import List from './pages/Master/Location/List'
+import Add from './pages/Master/Location/Add'
 
 
 function App() {
@@ -24,9 +26,11 @@ function App() {
             <Route element={<PrivateRoutes><MainLayout /></PrivateRoutes>}>
               <Route path='/dashboard' element={<Dashboard />} />
               <Route path='/home' element={<Home />} />
-              <Route path='/master/location/list' element={<Location />} />
+              <Route path='/master/location/list' element={<List />} />
+              <Route path='/master/location/add' element={<Add />} />
             </Route>
           </Routes>
+          <ToastContainer position="top-right" autoClose={3000} />
         </div>
       </AuthProvider >
     </ThemeContextProvider>

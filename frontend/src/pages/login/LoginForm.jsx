@@ -14,6 +14,7 @@ const api_url = import.meta.env.VITE_API_URL;
 const LoginForm = () => {
     const { register, reset, handleSubmit, formState: { errors, isSubmitting } } = useForm();
     const [showPassword, setShowPassword] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
     const navigate = useNavigate();
     const { login } = useContext(AuthContext);
 
@@ -24,9 +25,14 @@ const LoginForm = () => {
             reset();
             navigate("/dashboard");
         } catch (err) {
-            console.log(err);
+            if (err.response && err.response.data && err.response.data.message) {
+                setErrorMessage(err.response.data.message);
+            } else {
+                setErrorMessage("Something went wrong");
+            }
         }
     }
+
     return (
         <div className="flex w-screen h-screen bg-[#f1f0ff]">
             {/* <div
@@ -77,6 +83,10 @@ const LoginForm = () => {
                                 </span>
                             </div>
                             {errors.password && <p className="text-red-500 mt-1">{errors.password.message}</p>}
+                            {errorMessage && (
+                                <p className="text-red-500 text-sm text-center my-3">{errorMessage}</p>
+                            )}
+
                         </div>
 
                         <div className='flex justify-end m-2'>
