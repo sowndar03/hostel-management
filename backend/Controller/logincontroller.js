@@ -84,7 +84,6 @@ const loggedUser = async (req, res) => {
     }
 }
 
-
 //Notification
 const notification = async (req, res) => {
     try {

@@ -1,30 +1,12 @@
-import { useEffect, useState, useContext } from "react";
+import { useContext } from "react";
 import { Sidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar";
 import { FiHome, FiUser, FiMenu, FiX } from "react-icons/fi";
 import { NavLink } from "react-router-dom";
 import { ThemeContext } from "../context/ThemeContext";
 
-const LeftMenu = () => {
+const LeftMenu = ({ collapsed, setCollapsed, isMobile }) => {
     const { theme } = useContext(ThemeContext);
     const app_name = import.meta.env.VITE_APP_NAME;
-
-    const [collapsed, setCollapsed] = useState(false);
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-    useEffect(() => {
-        const handleResize = () => {
-            if (window.innerWidth < 768) {
-                setIsMobile(true);
-                setCollapsed(true); 
-            } else {
-                setIsMobile(false);
-                setCollapsed(false);
-            }
-        };
-
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
 
     const colors = theme === "dark"
         ? {
@@ -59,7 +41,6 @@ const LeftMenu = () => {
                     <span className="font-bold text-lg ps-5 font-serif">{app_name}</span>
                 )}
 
-                {/* Show toggle button only on desktop */}
                 {!isMobile && (
                     <button onClick={() => setCollapsed(!collapsed)}>
                         {collapsed ? <FiMenu size={22} /> : <FiX size={22} />}

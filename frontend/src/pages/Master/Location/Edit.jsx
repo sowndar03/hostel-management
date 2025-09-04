@@ -1,24 +1,26 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import api from '../../../api';
 
-const Add = () => {
+const Edit = () => {
     const {
         register,
         handleSubmit,
         reset,
-        setError,
+        setValue,
         formState: { errors, isSubmitting },
     } = useForm();
 
     const navigate = useNavigate();
     const api_url = import.meta.env.VITE_API_URL;
+    const { id } = useParams(); // id from route param
+    const [editId, setEditId] = useState("");
 
     const onSubmit = async (data) => {
         try {
-            const res = await api.post(`${api_url}/master/location/add`, data);
+            const res = await api.post(`${api_url}/master/location/edit/submit`, data);
             toast.success(res.data.message);
             navigate('/master/location/list');
         } catch (err) {
@@ -35,6 +37,22 @@ const Add = () => {
         reset();
     };
 
+    useEffect(() => {
+        const fetchLocation = async () => {
+            try {
+                const res = await api.get(`${api_url}/master/location/view/${id}`);
+                const loc = res.data.data;
+                setValue('location', loc.location_name);
+                setValue('id', loc._id);
+                setEditId(loc._id);
+            } catch (err) {
+                console.error("Error fetching location:", err);
+            }
+        };
+
+        fetchLocation();
+    }, [id, setValue]);
+
     return (
         <div className="min-h-screen bg-white dark:bg-[#101828]">
             <form
@@ -43,7 +61,7 @@ const Add = () => {
                 className=" shadow rounded-lg p-6"
             >
                 <div className="flex justify-between items-center border-b pb-3 mb-4">
-                    <h2 className="text-lg font-bold text-gray-700 dark:text-white">Location</h2>
+                    <h2 className="text-lg font-bold text-gray-700 dark:text-white">Edit Location</h2>
                     <button
                         type="button"
                         className="px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700 transition"
@@ -53,28 +71,30 @@ const Add = () => {
                     </button>
                 </div>
 
-                {/* Input */}
                 <div className="mb-4">
                     <label
                         htmlFor="location"
-                        className="block mb-2 text-gray-700 dark:text-white font-semibold"
+                        className="block mb-2 text-gray-700 font-semibold dark:text-white"
                     >
                         Location <span className="text-red-500">*</span>
                     </label>
                     <input
                         type="text"
                         placeholder="Enter Location Name"
-                        className="w-75 md:w-100 input-style  focus:outline-none focus:ring-2 focus:ring-[#f1f0ff] focus:border-[#f1f0ff] transition"
+                        className="w-75 md:w-100 input-style focus:outline-none focus:ring-2 focus:ring-[#f1f0ff] focus:border-[#f1f0ff] transition"
                         {...register('location', {
                             required: 'Location is required',
                             validate: async (value) => {
                                 try {
                                     const res = await api.post(
                                         `${api_url}/master/location/uniqueCheck`,
-                                        { location: value }
+                                        {
+                                            location: value,
+                                            id: editId, // 👈 send id for uniqueness check
+                                        }
                                     );
                                     if (res.data.message === 'Available') {
-                                        return true; 
+                                        return true;
                                     }
                                     return res.data.message;
                                 } catch (err) {
@@ -83,6 +103,8 @@ const Add = () => {
                             },
                         })}
                     />
+                    {/* hidden input to include id in form submit */}
+                    <input type="hidden" {...register('id')} />
                     {errors.location && (
                         <p className="text-red-500 text-sm mt-1 font-bold">
                             {errors.location.message}
@@ -90,7 +112,6 @@ const Add = () => {
                     )}
                 </div>
 
-                {/* Buttons */}
                 <div className="flex space-x-3">
                     <button
                         type="reset"
@@ -112,4 +133,4 @@ const Add = () => {
     );
 };
 
-export default Add;
+export default Edit;

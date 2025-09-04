@@ -4,33 +4,37 @@ import { Outlet } from "react-router-dom";
 import AppHeader from "../components/Header";
 
 const MainLayout = () => {
-    const [sidebarWidth, setSidebarWidth] = useState(250);
+    const [collapsed, setCollapsed] = useState(false);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
     useEffect(() => {
         const handleResize = () => {
             if (window.innerWidth < 768) {
-                setSidebarWidth(80); 
+                setIsMobile(true);
+                setCollapsed(true);
             } else {
-                setSidebarWidth(250); 
+                setIsMobile(false);
+                setCollapsed(false);
             }
         };
 
         handleResize();
         window.addEventListener("resize", handleResize);
-
         return () => window.removeEventListener("resize", handleResize);
     }, []);
+
+    const sidebarWidth = collapsed ? 80 : 250;
 
     return (
         <div className="bg-white dark:bg-gray-900 text-black dark:text-white">
             <AppHeader />
 
             <div className="flex">
-                <LeftMenu />
+                <LeftMenu collapsed={collapsed} setCollapsed={setCollapsed} isMobile={isMobile} />
 
                 <main
                     className="flex-1 pt-[60px] p-6 bg-white dark:bg-gray-900 text-black dark:text-white transition-all duration-300"
-                    style={{ marginLeft: sidebarWidth }}
+                    style={{ marginLeft: isMobile ? 70 : sidebarWidth }}
                 >
                     <Outlet />
                 </main>

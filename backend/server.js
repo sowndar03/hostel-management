@@ -25,7 +25,7 @@ app.use('/api/user', middlewares, userRoutes);
 app.use('/api/notification', middlewares, notificationRoutes);
 
 //Master Data
-app.use('/api/master', masterRoutes);
+app.use('/api/master', middlewares, masterRoutes);
 
 mongoose.connect(DB_URL)
     .then(() => console.log('MongoDB connected!'))
