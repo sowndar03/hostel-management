@@ -1,5 +1,6 @@
 const express = require('express');
 const User = require('../Model/User');
+const Location = require('../Model/Master/Location');
 
 const string_to_array = (string, seperator = ",") => {
     if (typeof string !== 'string') {
@@ -22,8 +23,20 @@ const getUsername = async (id) => {
     }
 };
 
+const getLocationName = async (id) => {
+    try {
+        const location = await Location.findById(id).lean();
+        return location ? location.location_name : "N/A";
+    } catch (err) {
+        console.error("Error fetching location:", err.message);
+        return "eror";
+    }
+};
+
+
 
 module.exports = {
     string_to_array,
-    getUsername
+    getUsername,
+    getLocationName
 }

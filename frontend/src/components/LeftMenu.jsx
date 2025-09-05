@@ -35,6 +35,7 @@ const LeftMenu = ({ collapsed, setCollapsed, isMobile }) => {
                 color: colors.text,
                 transition: "width 0.3s ease",
             }}
+
         >
             <div className="flex items-center justify-between px-4 py-3 text-[#6b63c7] dark:text-white">
                 {!collapsed && !isMobile && (
@@ -74,14 +75,14 @@ const LeftMenu = ({ collapsed, setCollapsed, isMobile }) => {
                     <MenuItem component={<NavLink to="/master/location/list" />}>
                         Location
                     </MenuItem>
-                    <MenuItem component={<NavLink to="/master/hostel" />}>Hostel</MenuItem>
+                    <MenuItem component={<NavLink to="/master/hostel/list" />}>Hostel</MenuItem>
                     <MenuItem component={<NavLink to="/master/building" />}>
                         Building
                     </MenuItem>
                     <MenuItem component={<NavLink to="/master/rooms" />}>Rooms</MenuItem>
                 </SubMenu>
             </Menu>
-        </Sidebar>
+        </Sidebar >
     );
 };
 

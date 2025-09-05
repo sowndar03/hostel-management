@@ -1,35 +1,39 @@
 const express = require('express');
-const Location = require('../../Model/Master/Location');
+const Hostel = require('../../Model/Master/Hostel');
 const { body, validationResult } = require('express-validator');
 const helper = require('../../utils/helper');
 
 
 const list = async (req, res) => {
     try {
-        const locations = await Location.find({
-            trash: 'NO'
-        })
-        const locationlist = await Promise.all(
-            locations.map(async (location) => ({
-                id: location._id,
-                name: location.location_name,
-                created_by: await helper.getUsername(location.created_by),
-                status: location.status,
+        const hostels = await Hostel.find({ trash: "NO" });
+
+        const hostelList = await Promise.all(
+            hostels.map(async (hostel) => ({
+                id: hostel._id,
+                location_name: await helper.getLocationName(hostel.location_id),
+                hostel_name: hostel.hostel_name,
+                created_by: await helper.getUsername(hostel.created_by),
+                status: hostel.status,
             }))
         );
 
-        res.status(200).json({ data: locationlist });
+        res.status(200).json({ data: hostelList });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
-}
+};
 
 
 const store = async (req, res) => {
     await Promise.all([
-        body("location")
+        body("location_id")
             .trim()
             .notEmpty().withMessage("Location is Required")
+            .run(req),
+        body("hostel")
+            .trim()
+            .notEmpty().withMessage("Hostel is Required")
             .run(req),
     ]);
     const errors = validationResult(req);
@@ -38,16 +42,16 @@ const store = async (req, res) => {
     }
 
     try {
-        const { location } = req.body;
-
-        const result = new Location({
-            location_name: location,
+        const { location_id, hostel } = req.body;
+        const result = new Hostel({
+            location_id,
+            hostel_name: hostel,
             created_by: req.user.id,
         });
 
         await result.save();
         res.status(201).json({
-            message: 'Location Added Successfully',
+            message: 'Hostel Added Successfully',
             data: result,
         })
 
@@ -61,15 +65,15 @@ const store = async (req, res) => {
 
 const uniqueCheck = async (req, res) => {
     try {
-        const { location, id } = req.body;
+        const { location_id, hostel_name, id } = req.body;
 
-        const result = await Location.findOne({ location_name: location });
+        const result = await Hostel.findOne({ hostel_name, location_id });
 
         if (result) {
             if (id && result._id.toString === id) {
                 return res.json({ message: "Available" });
             }
-            return res.json({ message: "Location Already Exists" });
+            return res.json({ message: "Hostel Already Exists" });
         }
         return res.json({ message: "Available" });
 
@@ -84,7 +88,7 @@ const statusChange = async (req, res) => {
         const changedStatus = status == 0 ? 1 : 0;
 
         try {
-            const result = await Location.findByIdAndUpdate(
+            const result = await Hostel.findByIdAndUpdate(
                 id,
                 { status: changedStatus },
                 { new: true }
@@ -107,12 +111,12 @@ const statusChange = async (req, res) => {
     }
 }
 
-const deleteLocation = async (req, res) => {
+const deleteHostel = async (req, res) => {
     try {
         const { id } = req.body;
 
         try {
-            const result = await Location.findByIdAndUpdate(
+            const result = await Hostel.findByIdAndUpdate(
                 id,
                 { trash: 'YES' },
                 { new: true }
@@ -140,7 +144,7 @@ const selectOne = async (req, res) => {
         const { id } = req.params;
 
         try {
-            const result = await Location.findById(
+            const result = await Hostel.findById(
                 id,
             );
 
@@ -162,32 +166,15 @@ const selectOne = async (req, res) => {
 }
 
 const updates = async (req, res) => {
-    try {
-        const { location, id } = req.body;
 
-        const result = await Location.findByIdAndUpdate(
-            id,
-            { location_name: location },
-            { new: true }
-        );
-
-        if (!result) {
-            return res.status(404).json({ message: "Location not found" });
-        }
-
-        return res.json({ message: "Updated successfully", data: result });
-    } catch (err) {
-        return res.status(500).json({ message: err.message });
-    }
-};
-
+}
 
 module.exports = {
     list,
     store,
     uniqueCheck,
     statusChange,
-    deleteLocation,
+    deleteHostel,
     selectOne,
     updates
 }

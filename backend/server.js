@@ -17,7 +17,6 @@ app.use(cors());
 app.use(helmet());
 app.use(express.json());
 
-
 const middlewares = [middleware.AuthMiddleware];
 
 app.use('/api/login', loginRoutes);

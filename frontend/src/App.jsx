@@ -10,10 +10,16 @@ import PrivateRoutes from './Routes/PrivateRoutes'
 import MainLayout from './layout/MainLayout'
 import Home from './pages/Home'
 import { ThemeContextProvider } from './context/ThemeContext'
+
 import List from './pages/Master/Location/List'
 import Add from './pages/Master/Location/Add'
 import View from './pages/Master/Location/View';
 import Edit from './pages/Master/Location/Edit';
+
+import HostelList from './pages/Master/Hostel/List'
+import HostelAdd from './pages/Master/Hostel/Add'
+import HostelView from './pages/Master/Hostel/View'
+import HostelEdit from './pages/Master/Hostel/Edit'
 
 
 function App() {
@@ -28,10 +34,24 @@ function App() {
             <Route element={<PrivateRoutes><MainLayout /></PrivateRoutes>}>
               <Route path='/dashboard' element={<Dashboard />} />
               <Route path='/home' element={<Home />} />
-              <Route path='/master/location/list' element={<List />} />
-              <Route path='/master/location/add' element={<Add />} />
-              <Route path='/master/location/view/:id' element={<View />} />
-              <Route path='/master/location/edit/:id' element={<Edit />} />
+
+              <Route path="/master">
+                <Route path='location'>
+                  <Route path="list" element={<List />} />
+                  <Route path="add" element={<Add />} />
+                  <Route path="view/:id" element={<View />} />
+                  <Route path="edit/:id" element={<Edit />} />
+                </Route>
+
+                <Route path='hostel'>
+                  <Route path="list" element={<HostelList />} />
+                  <Route path="add" element={<HostelAdd />} />
+                  <Route path="view/:id" element={<HostelView />} />
+                  <Route path="edit/:id" element={<HostelEdit />} />
+                </Route>
+
+              </Route>
+
             </Route>
           </Routes>
           <ToastContainer position="top-right" autoClose={3000} />
