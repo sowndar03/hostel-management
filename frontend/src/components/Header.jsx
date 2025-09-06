@@ -31,16 +31,28 @@ const AppHeader = () => {
 
     const handleNotification = async (id) => {
         try {
+            console.log('Marking notification as read:', id);
             const res = await api.post(`${api_url}/notification/markasread`, { id });
+            console.log('API response:', res.data);
+            
             const web_link = res.data.notifications.web_link;
+            const newUnreadCount = res.data.unread_count;
+            
+            console.log('New unread count:', newUnreadCount);
+            
+            // Update the unread count immediately in the context
+            setUnreadCount(newUnreadCount);
+            
+            // Refresh notifications to get updated list
+            notifications();
             navigate(`/${web_link}`)
         } catch (err) {
-            console.log(err);
+            console.error('Error marking notification as read:', err);
         }
     }
 
     const { theme, setTheme, handleTheme } = useContext(ThemeContext);
-    const { logout, username, notification, unreadCount } = useContext(AuthContext);
+    const { logout, username, notification, unreadCount, setUnreadCount, notifications } = useContext(AuthContext);
     const [open, setOpen] = useState(false);
     const [notificationOpen, setNotificationOpen] = useState(false);
     const notificationRef = useRef(null);
@@ -65,7 +77,7 @@ const AppHeader = () => {
                     onClick={() => setNotificationOpen(!notificationOpen)}
                 >
                     <FiBell size={20} className="text-[#6b63c7] dark:text-gray-300" />
-                    {notification.length > 0 && (
+                    {unreadCount > 0 && (
                         <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
                             {unreadCount}
                         </span>
@@ -79,7 +91,7 @@ const AppHeader = () => {
                             <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
                                 Notifications
                             </h3>
-                            {notification.length > 0 && (
+                            {unreadCount > 0 && (
                                 <span className="bg-indigo-600 text-white text-xs px-2 py-0.5 rounded-full">
                                     {unreadCount} Unread
                                 </span>

@@ -1,12 +1,15 @@
 const express = require('express');
 
-const string_to_array = (string, seperator = ",") => {
-    if (typeof string !== 'string') {
+const string_to_array = (string, separator = ",") => {
+    if (typeof string !== "string" || !string.trim()) {
         return [];
-    } else {
-        return string.split(seperator).map((str) => str.trim());
     }
-}
+    return string
+        .split(separator)
+        .map((str) => str.trim())
+        .filter(Boolean);
+};
+
 
 
 module.exports = {

@@ -116,12 +116,32 @@ const markasread = async (req, res) => {
 
         if (!viewed_user.includes(user_id.toString())) {
             viewed_user.push(user_id.toString());
-            notifications.viewed_user = viewed_user.join(',');
+            notifications.viewed_user = viewed_user.join(","); 
             await notifications.save();
+
             const log = new NotificationLog({ notification_id, user_id });
             await log.save();
         }
-        res.send({ message: "Updated Successfully", notifications });
+
+        const allNotifications = await Notification.find({
+            assigned_user: new RegExp(`(^|,)${user_id}(,|$)`)
+        });
+
+        const logs = await Promise.all(
+            allNotifications.map(notification =>
+                NotificationLog.findOne({
+                    notification_id: notification._id,
+                    user_id: user_id
+                })
+            )
+        );
+        const unread_count = logs.filter(log => !log).length;
+
+        res.send({
+            message: "Updated Successfully",
+            notifications,
+            unread_count
+        });
     } catch (err) {
         res.json({ message: err.message });
     }
