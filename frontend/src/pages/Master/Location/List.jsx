@@ -93,7 +93,6 @@ const List = () => {
                         "success"
                     );
                 } catch (err) {
-                    console.log(err.data);
                     Swal.fire("Oops...", "Something went wrong!", "error");
                 }
             }

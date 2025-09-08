@@ -92,7 +92,6 @@ const Add = () => {
 
     const selectStyles = useMemo(() => getSelectStyles(isDark), [isDark]);
 
-
     return (
         <div className="min-h-screen bg-white dark:bg-[#101828]">
             <form
@@ -125,23 +124,45 @@ const Add = () => {
                             name="location_id"
                             control={control}
                             defaultValue=""
-                            rules={{ required: "Location is required" }}
                             render={({ field }) => (
                                 <Select
-                                    options={locations.map((loc) => ({
-                                        value: loc.id,
-                                        label: loc.name,
-                                    }))}
+                                    options={locations.map((loc) => ({ value: loc.id, label: loc.name }))}
                                     placeholder="Select Location"
-                                    value={locations
-                                        .map((loc) => ({ value: loc.id, label: loc.name }))
-                                        .find((option) => option.value === field.value) || null}
-                                    onChange={(option) => field.onChange(option.value)}
+                                    value={
+                                        locations
+                                            .map((loc) => ({ value: loc.id, label: loc.name }))
+                                            .find((option) => option.value === field.value) || null
+                                    }
+                                    onChange={(option) => field.onChange(option?.value || "")}
+                                    styles={{
+                                        control: (base) => ({
+                                            ...base,
+                                            backgroundColor: isDark ? "#1f2937" : "#fff",
+                                            borderColor: isDark ? "#374151" : "#d1d5db",
+                                        }),
+                                        singleValue: (base) => ({
+                                            ...base,
+                                            color: "#fff",
+                                        }),
+                                        menu: (base) => ({
+                                            ...base,
+                                            backgroundColor: isDark ? "#111827" : "#fff",
+                                            color: "#fff",
+                                        }),
+                                        option: (base, { isFocused, isSelected }) => ({
+                                            ...base,
+                                            backgroundColor: isFocused
+                                                ? (isDark ? "#374151" : "#e5e7eb")
+                                                : isSelected
+                                                    ? (isDark ? "#4b5563" : "#d1d5db")
+                                                    : "transparent",
+                                            color: isDark ? '#fff' : '#1f2937',
+                                            cursor: "pointer",
+                                        }),
+                                    }}
                                 />
                             )}
                         />
-
-
                         {errors.location_id && (
                             <p className="text-red-500 text-sm mt-1 font-bold">
                                 {errors.location_id.message}
@@ -151,7 +172,7 @@ const Add = () => {
 
                     <div className="mb-4 flex-1">
                         <label
-                            htmlFor="location"
+                            htmlFor="hostel"
                             className="block mb-2 text-gray-700 dark:text-white font-semibold"
                         >
                             Hostel <span className="text-red-500">*</span>

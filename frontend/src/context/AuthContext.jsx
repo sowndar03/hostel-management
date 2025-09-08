@@ -26,12 +26,9 @@ export const AuthContextProvider = ({ children }) => {
 
     const notifications = async () => {
         try {
-            console.log('Fetching notifications...');
             const res = await api.post(`${api_url}/notification/getAll`);
-            console.log('Notifications response:', res.data);
             setNotification(res.data.notifications);
             setUnreadCount(res.data.unread_count);
-            console.log('Updated unread count to:', res.data.unread_count);
         } catch (err) {
             console.error("Error fetching notifications:", err);
         }

@@ -27,7 +27,7 @@ const MainLayout = () => {
 
     return (
         <div className="bg-white dark:bg-gray-900 text-black dark:text-white">
-            <AppHeader />
+            <AppHeader sidebarWidth={isMobile ? 70 : sidebarWidth} />
 
             <div className="flex">
                 <LeftMenu collapsed={collapsed} setCollapsed={setCollapsed} isMobile={isMobile} />

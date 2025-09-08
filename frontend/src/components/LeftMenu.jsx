@@ -29,11 +29,13 @@ const LeftMenu = ({ collapsed, setCollapsed, isMobile }) => {
             rootStyles={{
                 height: "100vh",
                 position: "fixed",
+                top: 0,
                 left: 0,
                 width: collapsed ? "80px" : "250px",
                 borderRight: "1px solid #d1cfff",
                 color: colors.text,
                 transition: "width 0.3s ease",
+                zIndex: 60,
             }}
 
         >

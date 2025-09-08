@@ -114,7 +114,7 @@ const deleteLocation = async (req, res) => {
         try {
             const result = await Location.findByIdAndUpdate(
                 id,
-                { trash: 'YES' },
+                { trash: 'YES', status: '0' },
                 { new: true }
             );
 

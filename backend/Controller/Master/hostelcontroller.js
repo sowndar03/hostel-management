@@ -70,7 +70,7 @@ const uniqueCheck = async (req, res) => {
         const result = await Hostel.findOne({ hostel_name, location_id });
 
         if (result) {
-            if (id && result._id.toString === id) {
+            if (id && result._id.toString() === id) {
                 return res.json({ message: "Available" });
             }
             return res.json({ message: "Hostel Already Exists" });
@@ -118,7 +118,7 @@ const deleteHostel = async (req, res) => {
         try {
             const result = await Hostel.findByIdAndUpdate(
                 id,
-                { trash: 'YES' },
+                { trash: 'YES', status: '0' },
                 { new: true }
             );
 
@@ -140,33 +140,63 @@ const deleteHostel = async (req, res) => {
 }
 
 const selectOne = async (req, res) => {
+    const { id } = req.params;
+
     try {
-        const { id } = req.params;
+        const result = await Hostel.findById(id).lean();
 
-        try {
-            const result = await Hostel.findById(
-                id,
-            );
-
-            res.status(200).json({
-                success: true,
-                message: "Fetched successfully",
-                data: result
-            });
-        } catch (err) {
-            res.status(500).json({
+        if (!result) {
+            return res.status(404).json({
                 success: false,
-                message: err.message
+                message: "Hostel not found",
             });
         }
 
+        const locationName = await helper.getLocationName(result.location_id);
+
+        const hostelData = {
+            location_name: locationName,
+            location_id: result.location_id,
+            hostel_name: result.hostel_name,
+            status: result.status,
+            id: result._id,
+        };
+
+        res.status(200).json({
+            success: true,
+            message: "Fetched successfully",
+            data: hostelData,
+        });
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        res.status(500).json({
+            success: false,
+            message: err.message,
+        });
     }
+
 }
 
 const updates = async (req, res) => {
+    try {
+        const { hostel, location_id, id } = req.body;
 
+        const result = await Hostel.findByIdAndUpdate(
+            id,
+            {
+                location_id,
+                hostel_name: hostel
+            },
+            { new: true }
+        );
+
+        if (!result) {
+            return res.status(404).json({ message: "Location not found" });
+        }
+
+        return res.json({ message: "Updated successfully", data: result });
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
 }
 
 module.exports = {

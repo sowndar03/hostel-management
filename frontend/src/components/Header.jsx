@@ -6,7 +6,7 @@ import api from "../api";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-const AppHeader = () => {
+const AppHeader = ({ sidebarWidth = 250 }) => {
     const api_url = import.meta.env.VITE_API_URL;
     const navigate = useNavigate();
 
@@ -59,7 +59,7 @@ const AppHeader = () => {
     const menuRef = useRef(null);
 
     return (
-        <header className="fixed top-0 w-full flex items-center justify-end gap-5 px-6 py-3 border-b border-[#d1cfff] bg-white dark:bg-gray-800 text-black dark:text-white">
+        <header className="fixed top-0 h-[60px] z-50 flex items-center justify-end gap-5 px-6 border-b border-[#d1cfff] bg-white dark:bg-gray-800 text-black dark:text-white" style={{ left: sidebarWidth, right: 0 }}>
             <button
                 onClick={handleTheme}
                 className="mr-4"

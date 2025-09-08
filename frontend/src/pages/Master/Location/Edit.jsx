@@ -90,7 +90,7 @@ const Edit = () => {
                                         `${api_url}/master/location/uniqueCheck`,
                                         {
                                             location: value,
-                                            id: editId, // 👈 send id for uniqueness check
+                                            id: editId, 
                                         }
                                     );
                                     if (res.data.message === 'Available') {
