@@ -114,6 +114,7 @@ const statusChange = async (req, res) => {
 const deleteHostel = async (req, res) => {
     try {
         const { id } = req.body;
+        console.log(id);
 
         try {
             const result = await Hostel.findByIdAndUpdate(
@@ -199,6 +200,47 @@ const updates = async (req, res) => {
     }
 }
 
+const searchValues = async (req, res) => {
+
+    const { location, hostel, status } = req.body;
+
+    let query = {};
+
+    if (location && location !== "") {
+        query.location_id = location;
+    }
+
+    if (hostel && hostel !== "") {
+        query.hostel_name = hostel;
+    }
+
+    if (status && status !== "") {
+        query.status = status;
+    }
+    query.trash = 'NO';
+
+    try {
+        const hostels = await Hostel.find(query);
+
+        const hostelList = await Promise.all(
+            hostels.map(async (hostel) => ({
+                id: hostel._id,
+                location_name: await helper.getLocationName(hostel.location_id),
+                hostel_name: hostel.hostel_name,
+                created_by: await helper.getUsername(hostel.created_by),
+                status: hostel.status,
+            }))
+        );
+
+
+        res.json({ success: true, data: hostelList });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+
+}
+
 module.exports = {
     list,
     store,
@@ -206,5 +248,6 @@ module.exports = {
     statusChange,
     deleteHostel,
     selectOne,
-    updates
+    updates,
+    searchValues
 }

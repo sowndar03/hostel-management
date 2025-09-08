@@ -107,24 +107,13 @@ const List = () => {
     getAllLocations();
   }, []);
 
-  const handleSearch = (data) => {
-    let filtered = [...originalList];
-
-    if (data.location) {
-      filtered = filtered.filter((item) => item.location_id === data.location);
+  const handleSearch = async (data) => {
+    try {
+      const result = await api.post(`${api_url}/master/hostel/searchValues`, data);
+      setList(result.data.data);
+    } catch (err) {
+      console.log(err);
     }
-
-    if (data.hostel) {
-      filtered = filtered.filter((item) =>
-        item.hostel_name.toLowerCase().includes(data.hostel.toLowerCase())
-      );
-    }
-
-    if (data.status !== undefined && data.status !== "") {
-      filtered = filtered.filter((item) => String(item.status) === String(data.status));
-    }
-
-    setList(filtered);
   };
 
   const handleReset = () => {
@@ -270,12 +259,12 @@ const List = () => {
                             }),
                             singleValue: (base) => ({
                               ...base,
-                              color: "#fff",
+                              color: isDark ? "#f9fafb" : "#111827",
                             }),
                             menu: (base) => ({
                               ...base,
                               backgroundColor: isDark ? "#111827" : "#fff",
-                              color: "#fff",
+                              color: isDark ? "#f9fafb" : "#111827",
                             }),
                             option: (base, { isFocused, isSelected }) => ({
                               ...base,
@@ -314,37 +303,55 @@ const List = () => {
                         <Select
                           options={statusOptions}
                           placeholder="Select Status"
-                          value={statusOptions.find(option => option.value === field.value) || null}
-                          onChange={(option) => field.onChange(option?.value || "")}
+                          className="w-full"
+                          value={statusOptions.find((opt) => opt.value === field.value) || null} // ✅ bind value
+                          onChange={(option) => field.onChange(option ? option.value : "")} // ✅ connect to field
                           styles={{
-                            control: (base) => ({
+                            control: (base, state) => ({
                               ...base,
                               backgroundColor: isDark ? "#1f2937" : "#fff",
-                              borderColor: isDark ? "#374151" : "#d1d5db",
+                              borderColor: state.isFocused
+                                ? "#a78bfa"
+                                : isDark
+                                  ? "#374151"
+                                  : "#d1d5db",
+                              boxShadow: state.isFocused
+                                ? "0 0 0 2px rgba(167, 139, 250, 0.5)"
+                                : "none",
+                              "&:hover": { borderColor: "#a78bfa" },
+                              color: isDark ? "#f9fafb" : "#111827",
                             }),
                             singleValue: (base) => ({
                               ...base,
-                              color: "#fff",
+                              color: isDark ? "#f9fafb" : "#111827",
                             }),
                             menu: (base) => ({
                               ...base,
-                              backgroundColor: isDark ? "#111827" : "#fff",
-                              color: "#fff",
+                              backgroundColor: isDark ? "#111827" : "white",
+                              color: isDark ? "#f9fafb" : "black",
+                              zIndex: 20,
                             }),
-                            option: (base, { isFocused, isSelected }) => ({
+                            option: (base, state) => ({
                               ...base,
-                              backgroundColor: isFocused
-                                ? (isDark ? "#374151" : "#e5e7eb")
-                                : isSelected
-                                  ? (isDark ? "#4b5563" : "#d1d5db")
+                              backgroundColor: state.isSelected
+                                ? "#a78bfa"
+                                : state.isFocused
+                                  ? isDark
+                                    ? "#374151"
+                                    : "#ede9fe"
                                   : "transparent",
-                              color: isDark ? '#fff' : '#1f2937',
+                              color: state.isSelected
+                                ? "white"
+                                : isDark
+                                  ? "#f9fafb"
+                                  : "#111827",
                               cursor: "pointer",
                             }),
                           }}
                         />
                       )}
                     />
+
                   </div>
                 </div>
 

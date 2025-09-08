@@ -123,7 +123,7 @@ const Add = () => {
                         <Controller
                             name="location_id"
                             control={control}
-                            defaultValue=""
+                            defaultValue={null}
                             render={({ field }) => (
                                 <Select
                                     options={locations.map((loc) => ({ value: loc.id, label: loc.name }))}
@@ -142,12 +142,12 @@ const Add = () => {
                                         }),
                                         singleValue: (base) => ({
                                             ...base,
-                                            color: "#fff",
+                                              color: isDark ? "#f9fafb" : "#111827",
                                         }),
                                         menu: (base) => ({
                                             ...base,
                                             backgroundColor: isDark ? "#111827" : "#fff",
-                                            color: "#fff",
+                                             color: isDark ? "#f9fafb" : "#111827",
                                         }),
                                         option: (base, { isFocused, isSelected }) => ({
                                             ...base,

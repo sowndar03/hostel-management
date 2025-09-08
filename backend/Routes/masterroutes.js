@@ -18,5 +18,6 @@ router.post('/hostel/statusChange', hostelController.statusChange);
 router.post('/hostel/delete', hostelController.deleteHostel);
 router.get('/hostel/view/:id', hostelController.selectOne);
 router.post('/hostel/edit/submit', hostelController.updates);
+router.post('/hostel/searchValues', hostelController.searchValues);
 
 module.exports = router;

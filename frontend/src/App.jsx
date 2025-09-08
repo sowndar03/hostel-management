@@ -49,9 +49,7 @@ function App() {
                   <Route path="view/:id" element={<HostelView />} />
                   <Route path="edit/:id" element={<HostelEdit />} />
                 </Route>
-
               </Route>
-
             </Route>
           </Routes>
           <ToastContainer position="top-right" autoClose={3000} />
