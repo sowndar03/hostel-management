@@ -9,4 +9,4 @@ const UserSchema = mongoose.Schema({
     trash: { type: String, enum: ["YES", "NO"], default: "NO" },
 }, { timestamps: true });
 
-module.exports = mongoose.model("users", UserSchema);
+module.exports = mongoose.model("User", UserSchema);

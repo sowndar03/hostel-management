@@ -21,6 +21,10 @@ import HostelAdd from './pages/Master/Hostel/Add'
 import HostelView from './pages/Master/Hostel/View'
 import HostelEdit from './pages/Master/Hostel/Edit'
 
+import BuildingList from './pages/Master/Building/List';
+import BuildingAdd from './pages/Master/Building/Add';
+import BuildingView from './pages/Master/Building/View';
+import BuildingEdit from './pages/Master/Building/Edit';
 
 function App() {
 
@@ -48,6 +52,12 @@ function App() {
                   <Route path="add" element={<HostelAdd />} />
                   <Route path="view/:id" element={<HostelView />} />
                   <Route path="edit/:id" element={<HostelEdit />} />
+                </Route>
+                <Route path='building'>
+                  <Route path="list" element={<BuildingList />} />
+                  <Route path="add" element={<BuildingAdd />} />
+                  <Route path="view/:id" element={<BuildingView />} />
+                  <Route path="edit/:id" element={<BuildingEdit />} />
                 </Route>
               </Route>
             </Route>

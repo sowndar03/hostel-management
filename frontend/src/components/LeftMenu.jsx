@@ -78,10 +78,10 @@ const LeftMenu = ({ collapsed, setCollapsed, isMobile }) => {
                         Location
                     </MenuItem>
                     <MenuItem component={<NavLink to="/master/hostel/list" />}>Hostel</MenuItem>
-                    <MenuItem component={<NavLink to="/master/building" />}>
+                    <MenuItem component={<NavLink to="/master/building/list" />}>
                         Building
                     </MenuItem>
-                    <MenuItem component={<NavLink to="/master/rooms" />}>Rooms</MenuItem>
+                    <MenuItem component={<NavLink to="/master/rooms/list" />}>Rooms</MenuItem>
                 </SubMenu>
             </Menu>
         </Sidebar >

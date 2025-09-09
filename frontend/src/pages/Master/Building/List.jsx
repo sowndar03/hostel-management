@@ -1,48 +1,43 @@
-import React, { useEffect, useState, useContext } from "react";
-import { Controller, useForm } from "react-hook-form";
-import Select from "react-select";
+import React, { useContext, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import api from "../../../api";
-import { ThemeContext } from "../../../context/ThemeContext";
-import DataTable from "react-data-table-component";
-import { getStatus } from "../../../utils/helper";
-import { IoEye } from "react-icons/io5";
-import { AiTwotoneDelete } from "react-icons/ai";
-import { BiSolidEdit } from "react-icons/bi";
-import Swal from "sweetalert2";
-
+import { useForm, Controller } from 'react-hook-form';
+import api from '../../../api';
+import Select from 'react-select';
+import { ThemeContext } from '../../../context/ThemeContext';
+import DataTable from 'react-data-table-component';
+import { IoEye } from 'react-icons/io5';
+import { BiSolidEdit } from 'react-icons/bi';
+import { AiTwotoneDelete } from 'react-icons/ai';
+import { getStatus } from '../../../utils/helper';
+import Swal from 'sweetalert2';
 
 const List = () => {
+  const [list, setList] = useState();
+  const [filterToggle, setFilterToggle] = useState(false);
+  const [locations, setLocations] = useState([]);
+  const [hostels, setHostel] = useState([]);
+  const navigate = useNavigate();
+  const { handleSubmit, reset, control, register } = useForm();
+  const api_url = import.meta.env.VITE_API_URL;
   const { theme } = useContext(ThemeContext);
   const [isDark, setIsDark] = useState(theme === "dark");
-
-  const api_url = import.meta.env.VITE_API_URL;
-
-  const [lists, setList] = useState([]);
-  const [originalList, setOriginalList] = useState([]);
-  const [locations, setLocations] = useState([]);
-  const [filterToggle, setFilterToggle] = useState(false);
-  const navigate = useNavigate();
-
-  const { register, handleSubmit, reset, setValue, control, formState: { errors } } = useForm();
 
   const statusOptions = [
     { value: "1", label: "Active" },
     { value: "0", label: "Inactive" },
   ];
 
-  const getAllHostels = async () => {
+  const getAllBuildings = async () => {
     try {
-      const res = await api.get(`${api_url}/master/hostel/list`);
+      const res = await api.get(`${api_url}/master/building/list`);
       setList(res.data.data);
-      setOriginalList(res.data.data);
     } catch (err) {
       console.log(err);
     }
   };
 
-  const getAllLocations = async () => {
+  const getallLocation = async () => {
     try {
       const res = await api.get(`${api_url}/master/location/list`);
       setLocations(res.data.data);
@@ -50,16 +45,99 @@ const List = () => {
       console.log(err);
     }
   };
+  const getAllHostels = async (location_id) => {
+    try {
+      const res = await api.get(`${api_url}/master/hostel/getHostel/${location_id}`);
+      setHostel(res.data.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleSearch = async (data) => {
+    try {
+      const result = await api.post(`${api_url}/master/building/searchValues`, data);
+      setList(result.data.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleReset = () => {
+    reset();
+  }
+
+  const columns = [
+    {
+      name: "SNO", selector: (row, index) => (index + 1)
+    },
+    {
+      name: "Location",
+      selector: (row) => row.location_id?.location_name || "-",
+      sortable: true,
+    },
+    {
+      name: "Hostel",
+      selector: (row) => row.hostel_id?.hostel_name || "-",
+      sortable: true,
+    },
+    {
+      name: "Building", selector: (row) => row.building_name, sortable: true,
+    },
+    {
+      name: "Status",
+      cell: (row) => (
+        <span
+          onClick={() => handleStatusClick(row._id, row.status)}
+          className="cursor-pointer text-blue-600 focus:outline-none active:outline-none"
+        >
+          {getStatus(row.status)}
+        </span>
+      ),
+      sortable: true,
+      ignoreRowClick: true,
+    },
+    {
+      name: "Created By",
+      selector: (row) => row.created_by?.name || "-",
+      sortable: true,
+    },
+    {
+      name: "Action",
+      cell: (row) => (
+        <div className="flex gap-2">
+          <IoEye
+            onClick={() => handleView(row._id)}
+            size={20}
+            className="text-green-600  hover:text-green-800 cursor-pointer"
+          />
+          <BiSolidEdit
+            size={20}
+            onClick={() => handleEdit(row._id)}
+            className="text-blue-600  hover:text-blue-800 cursor-pointer"
+          />
+          <AiTwotoneDelete
+            size={20}
+            className="text-red-600 hover:text-red-800 cursor-pointer"
+            onClick={() => handleDelete(row._id)}
+          />
+        </div>
+      ),
+      ignoreRowClick: true,
+    },
+  ];
+
+  const arrowColor = isDark ? "#ffffff" : "#111827";
 
   const handleStatusClick = async (id, status) => {
     let text = "";
     let button = "";
 
     if (status === 1) {
-      text = "Do you want to Inactivate the Hostel?";
+      text = "Do you want to Inactivate the Building?";
       button = "Yes, Inactivate!";
     } else {
-      text = "Do you want to Activate the Hostel?";
+      text = "Do you want to Activate the Building?";
       button = "Yes, Activate!";
     }
     Swal.fire({
@@ -73,13 +151,13 @@ const List = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const result = await api.post(`${api_url}/master/hostel/statusChange`, {
+          const result = await api.post(`${api_url}/master/building/statusChange`, {
             id,
             status,
           });
           setList((prevList) =>
             prevList.map((item) =>
-              item.id === id
+              item._id === id
                 ? { ...item, status: item.status === 1 ? 0 : 1 }
                 : item
             )
@@ -87,8 +165,8 @@ const List = () => {
           Swal.fire(
             "Updated!",
             status === 1
-              ? "Hostel has been inactivated."
-              : "Hostel has been activated.",
+              ? "Building has been inactivated."
+              : "Building has been activated.",
             "success"
           );
         } catch (err) {
@@ -98,30 +176,10 @@ const List = () => {
     });
   };
 
-  useEffect(() => {
-    getAllHostels();
-    getAllLocations();
-    setIsDark(theme === "dark");
-  }, [theme]);
-
-  const handleSearch = async (data) => {
-    try {
-      const result = await api.post(`${api_url}/master/hostel/searchValues`, data);
-      setList(result.data.data);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const handleReset = () => {
-    reset();
-    setList(originalList);
-  };
-
   const handleDelete = (id) => {
     Swal.fire({
       title: "Are you sure?",
-      text: "Do you want to Delete the Hostel?",
+      text: "Do you want to Delete the Building?",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
@@ -130,11 +188,11 @@ const List = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await api.post(`${api_url}/master/hostel/delete`, { id });
-          setList((prevList) => prevList.filter((item) => item.id !== id));
+          await api.post(`${api_url}/master/building/delete`, { id });
+          setList((prevList) => prevList.filter((item) => item._id !== id));
           Swal.fire(
             "Updated!",
-            "Hostel has been Deleted Successfully",
+            "Building has been Deleted Successfully",
             "success"
           );
         } catch (err) {
@@ -144,63 +202,22 @@ const List = () => {
     });
   };
   const handleView = (id) => {
-    navigate(`/master/hostel/view/${id}`);
+    navigate(`/master/building/view/${id}`);
   };
   const handleEdit = (id) => {
-    navigate(`/master/hostel/edit/${id}`);
+    navigate(`/master/building/edit/${id}`);
   };
 
-  const columns = [
-    { name: "SNO", selector: (row, index) => index + 1 },
-    { name: "Location", selector: (row) => row.location_name, sortable: true },
-    { name: "Hostel", selector: (row) => row.hostel_name, sortable: true },
-    {
-      name: "Status",
-      cell: (row) => (
-        <span
-          onClick={() => handleStatusClick(row.id, row.status)}
-          className="cursor-pointer text-blue-600 focus:outline-none active:outline-none"
-        >
-          {getStatus(row.status)}
-        </span>
-      ),
-      sortable: true,
-      ignoreRowClick: true,
-    },
-    { name: "Created By", selector: (row) => row.created_by, sortable: true },
-    {
-      name: "Action",
-      cell: (row) => (
-        <div className="flex gap-2">
-          <IoEye
-            onClick={() => handleView(row.id)}
-            size={20}
-            className="text-green-600  hover:text-green-800 cursor-pointer"
-          />
-          <BiSolidEdit
-            size={20}
-            onClick={() => handleEdit(row.id)}
-            className="text-blue-600  hover:text-blue-800 cursor-pointer"
-          />
-          <AiTwotoneDelete
-            size={20}
-            className="text-red-600 hover:text-red-800 cursor-pointer"
-            onClick={() => handleDelete(row.id)}
-          />
-        </div>
-      ),
-      ignoreRowClick: true,
-    },
-  ];
-
-
-  const arrowColor = isDark ? "#ffffff" : "#111827";
-
+  useEffect(() => {
+    getAllBuildings();
+    getallLocation();
+    setIsDark(theme === "dark");
+  }, [theme]);
   return (
-    <div className="min-h-screen bg-white dark:bg-[#101828] p-4">
+    <div className='min-h-screen bg-white dark:bg-[#101828] p-4'>
       <div className="border-b pb-3 mb-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-lg font-bold text-gray-700 dark:text-white">Hostel List</h2>
+          <h2 className="text-lg font-bold text-gray-700 dark:text-white">Building List</h2>
           <div>
             <button
               type="button"
@@ -212,13 +229,12 @@ const List = () => {
             <button
               type="button"
               className="px-3 py-1 bg-blue-400 text-white rounded hover:bg-blue-700 transition"
-              onClick={() => navigate("/master/hostel/add")}
+              onClick={() => navigate("/master/building/add")}
             >
               Add
             </button>
           </div>
         </div>
-
         <form onSubmit={handleSubmit(handleSearch)}>
           <AnimatePresence>
             {filterToggle && (
@@ -234,16 +250,75 @@ const List = () => {
                   <div className="flex-1">
                     <label className="block mb-2 text-gray-700 dark:text-white font-semibold">Location</label>
                     <Controller
-                      name="location"
+                      name='location_id'
+                      defaultValue={null}
                       control={control}
-                      defaultValue=""
+                      rules={{ required: "Location is required" }}
                       render={({ field }) => (
                         <Select
-                          options={locations.map((loc) => ({ value: loc.id, label: loc.name }))}
+                          options={locations.map((location) => ({
+                            value: location.id,
+                            label: location.name
+                          }))}
                           placeholder="Select Location"
                           value={
                             locations
                               .map((loc) => ({ value: loc.id, label: loc.name }))
+                              .find((option) => option.value === field.value) || null
+                          }
+                          onChange={(option) => {
+                            field.onChange(option?.value || "");
+                            if (option?.value) {
+                              getAllHostels(option.value);
+                            }
+                          }}
+                          styles={{
+                            control: (base) => ({
+                              ...base,
+                              backgroundColor: isDark ? "#1f2937" : "#fff",
+                              borderColor: isDark ? "#374151" : "#d1d5db",
+                            }),
+                            singleValue: (base) => ({
+                              ...base,
+                              color: isDark ? "#f9fafb" : "#111827",
+                            }),
+                            menu: (base) => ({
+                              ...base,
+                              backgroundColor: isDark ? "#111827" : "#fff",
+                              color: isDark ? "#f9fafb" : "#111827",
+                            }),
+                            option: (base, { isFocused, isSelected }) => ({
+                              ...base,
+                              backgroundColor: isFocused
+                                ? (isDark ? "#374151" : "#e5e7eb")
+                                : isSelected
+                                  ? (isDark ? "#4b5563" : "#d1d5db")
+                                  : "transparent",
+                              color: isDark ? '#fff' : '#1f2937',
+                              cursor: "pointer",
+                            }),
+                          }}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="block mb-2 text-gray-700 dark:text-white font-semibold">Hostel</label>
+                    <Controller
+                      name='hostel_id'
+                      defaultValue={null}
+                      control={control}
+                      rules={{ required: "Hostel is required" }}
+                      render={({ field }) => (
+                        <Select
+                          options={hostels.map((hostel) => ({
+                            value: hostel.id,
+                            label: hostel.hostel_name
+                          }))}
+                          placeholder="Select Hostel"
+                          value={
+                            hostels
+                              .map((hostel) => ({ value: hostel.id, label: hostel.hostel_name }))
                               .find((option) => option.value === field.value) || null
                           }
                           onChange={(option) => field.onChange(option?.value || "")}
@@ -276,15 +351,14 @@ const List = () => {
                         />
                       )}
                     />
-
                   </div>
 
                   <div className="flex-1">
-                    <label className="block mb-2 text-gray-700 dark:text-white font-semibold">Hostel</label>
+                    <label className="block mb-2 text-gray-700 dark:text-white font-semibold">Building</label>
                     <input
                       type="text"
-                      placeholder="Enter Hostel Name"
-                      {...register("hostel")}
+                      placeholder="Enter Building Name"
+                      {...register("building")}
                       className="w-full input-style border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-200 dark:bg-gray-800 dark:text-white dark:border-gray-600"
                     />
                   </div>
@@ -371,9 +445,10 @@ const List = () => {
           </AnimatePresence>
         </form>
       </div>
+
       <DataTable
         columns={columns}
-        data={lists}
+        data={list}
         striped
         highlightOnHover
         pagination
@@ -412,9 +487,8 @@ const List = () => {
           },
         }}
       />
-
     </div>
-  );
-};
+  )
+}
 
-export default List;
+export default List

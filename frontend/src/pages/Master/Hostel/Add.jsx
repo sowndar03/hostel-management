@@ -58,7 +58,7 @@ const Add = () => {
 
     useEffect(() => {
         getallLocation();
-        setIsDark(theme === "dark");
+        setIsDark(theme);
     }, [theme]);
 
     const getSelectStyles = (isDark) => ({
@@ -90,10 +90,10 @@ const Add = () => {
         }),
     });
 
-    const selectStyles = useMemo(() => getSelectStyles(isDark), [isDark]);
+    const selectStyles = useMemo(() => getSelectStyles(isDark), []);
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#101828]">
+        <div className="min-h-screen bg-white dark:bg-[#101828] mt-5">
             <form
                 onSubmit={handleSubmit(onSubmit)}
                 autoComplete="off"
@@ -104,7 +104,7 @@ const Add = () => {
                     <button
                         type="button"
                         className="px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700 transition"
-                        onClick={() => navigate('/master/hostel/list')}
+                        onClick={() => navigate('/master/building/list')}
                     >
                         Back
                     </button>
@@ -124,6 +124,7 @@ const Add = () => {
                             name="location_id"
                             control={control}
                             defaultValue={null}
+                            rules={{ required: "Location is required" }}
                             render={({ field }) => (
                                 <Select
                                     options={locations.map((loc) => ({ value: loc.id, label: loc.name }))}
@@ -142,12 +143,12 @@ const Add = () => {
                                         }),
                                         singleValue: (base) => ({
                                             ...base,
-                                              color: isDark ? "#f9fafb" : "#111827",
+                                            color: isDark ? "#f9fafb" : "#111827",
                                         }),
                                         menu: (base) => ({
                                             ...base,
                                             backgroundColor: isDark ? "#111827" : "#fff",
-                                             color: isDark ? "#f9fafb" : "#111827",
+                                            color: isDark ? "#f9fafb" : "#111827",
                                         }),
                                         option: (base, { isFocused, isSelected }) => ({
                                             ...base,
