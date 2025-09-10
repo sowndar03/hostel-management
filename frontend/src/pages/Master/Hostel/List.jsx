@@ -197,7 +197,7 @@ const List = () => {
   const arrowColor = isDark ? "#ffffff" : "#111827";
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#101828] p-4">
+    <div className="min-h-screen bg-white dark:bg-[#101828] p-6">
       <div className="border-b pb-3 mb-4">
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-bold text-gray-700 dark:text-white">Hostel List</h2>

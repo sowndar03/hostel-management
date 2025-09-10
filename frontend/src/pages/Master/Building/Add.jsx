@@ -56,7 +56,7 @@ const Add = () => {
     setIsDark(theme === "dark");
   }, [theme])
   return (
-    <div className='min-h-screen bg-white dark:bg-[#101828] mt-5'>
+    <div className='min-h-screen bg-white dark:bg-[#101828] p-6'>
       <form onSubmit={handleSubmit(onSubmit)} className='rounded shadow-lg p-6'>
         <div className="flex justify-between items-center border-b pb-3 mb-4">
           <h2 className="text-lg font-bold text-gray-700 dark:text-white">Hostel</h2>

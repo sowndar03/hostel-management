@@ -174,7 +174,7 @@ const List = () => {
     }, []);
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#101828]">
+        <div className="min-h-screen bg-white dark:bg-[#101828] p-6">
             <div className="border-b">
                 <div className="flex justify-between items-center pb-3">
                     <h2 className="text-lg font-bold text-gray-700 dark:text-white">

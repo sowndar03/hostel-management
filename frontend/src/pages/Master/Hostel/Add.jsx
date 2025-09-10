@@ -58,8 +58,9 @@ const Add = () => {
 
     useEffect(() => {
         getallLocation();
-        setIsDark(theme);
+        setIsDark(theme === "dark");
     }, [theme]);
+
 
     const getSelectStyles = (isDark) => ({
         control: (base) => ({
@@ -93,7 +94,7 @@ const Add = () => {
     const selectStyles = useMemo(() => getSelectStyles(isDark), []);
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#101828] mt-5">
+        <div className="min-h-screen bg-white dark:bg-[#101828] p-6">
             <form
                 onSubmit={handleSubmit(onSubmit)}
                 autoComplete="off"

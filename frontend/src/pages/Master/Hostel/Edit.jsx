@@ -21,7 +21,8 @@ const Edit = () => {
   const api_url = import.meta.env.VITE_API_URL;
   const { id } = useParams();
   const [locations, setLocations] = useState([]);
-  const { isDark } = useContext(ThemeContext);
+  const { theme } = useContext(ThemeContext);
+  const [isDark, setIsDark] = useState(theme === "dark");
   const [loading, setLoading] = useState(true);
 
   // Fetch all locations
@@ -57,7 +58,8 @@ const Edit = () => {
   useEffect(() => {
     fetchHostel();
     getAllLocation();
-  }, [id]);
+    setIsDark(theme === "dark");
+  }, [id, theme]);
 
   const onSubmit = async (data) => {
     try {
@@ -83,7 +85,7 @@ const Edit = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#101828]">
+    <div className="min-h-screen bg-white dark:bg-[#101828] p-6">
       <form
         onSubmit={handleSubmit(onSubmit)}
         autoComplete="off"

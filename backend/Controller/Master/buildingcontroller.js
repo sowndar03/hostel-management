@@ -11,7 +11,6 @@ const list = async (req, res) => {
             .populate("hostel_id", "hostel_name")
             .populate("created_by", "name");
 
-
         res.status(200).json({ data: buildings });
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -171,19 +170,20 @@ const selectOne = async (req, res) => {
 
 const updates = async (req, res) => {
     try {
-        const { hostel, location_id, id } = req.body;
+        const { building, hostel_id, location_id, id } = req.body;
 
         const result = await Building.findByIdAndUpdate(
             id,
             {
                 location_id,
-                hostel_name: hostel
+                hostel_id: hostel_id,
+                building_name: building,
             },
             { new: true }
         );
 
         if (!result) {
-            return res.status(404).json({ message: "Location not found" });
+            return res.status(404).json({ message: "Building not found" });
         }
 
         return res.json({ message: "Updated successfully", data: result });
@@ -195,7 +195,6 @@ const updates = async (req, res) => {
 const searchValues = async (req, res) => {
 
     const { location_id, hostel_id, building, status } = req.body;
-
     let query = {};
 
     if (location_id && location_id !== "") {

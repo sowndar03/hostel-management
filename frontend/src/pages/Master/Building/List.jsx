@@ -65,6 +65,7 @@ const List = () => {
 
   const handleReset = () => {
     reset();
+    getAllBuildings();
   }
 
   const columns = [
@@ -214,7 +215,7 @@ const List = () => {
     setIsDark(theme === "dark");
   }, [theme]);
   return (
-    <div className='min-h-screen bg-white dark:bg-[#101828] p-4'>
+    <div className='min-h-screen bg-white dark:bg-[#101828] p-6'>
       <div className="border-b pb-3 mb-4">
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-bold text-gray-700 dark:text-white">Building List</h2>
@@ -235,7 +236,7 @@ const List = () => {
             </button>
           </div>
         </div>
-        <form onSubmit={handleSubmit(handleSearch)}>
+        <form onSubmit={handleSubmit(handleSearch)} autoComplete='off'>
           <AnimatePresence>
             {filterToggle && (
               <motion.div
@@ -253,7 +254,6 @@ const List = () => {
                       name='location_id'
                       defaultValue={null}
                       control={control}
-                      rules={{ required: "Location is required" }}
                       render={({ field }) => (
                         <Select
                           options={locations.map((location) => ({
@@ -308,7 +308,6 @@ const List = () => {
                       name='hostel_id'
                       defaultValue={null}
                       control={control}
-                      rules={{ required: "Hostel is required" }}
                       render={({ field }) => (
                         <Select
                           options={hostels.map((hostel) => ({

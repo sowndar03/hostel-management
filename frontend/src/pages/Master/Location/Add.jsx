@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -36,7 +36,7 @@ const Add = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#101828]">
+        <div className="min-h-screen bg-white dark:bg-[#101828] p-6">
             <form
                 onSubmit={handleSubmit(onSubmit)}
                 autoComplete="off"
@@ -74,7 +74,7 @@ const Add = () => {
                                         { location: value }
                                     );
                                     if (res.data.message === 'Available') {
-                                        return true; 
+                                        return true;
                                     }
                                     return res.data.message;
                                 } catch (err) {

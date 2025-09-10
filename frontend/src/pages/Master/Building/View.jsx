@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../../api";
+import { ThemeContext } from "../../../context/ThemeContext";
+import { useContext } from "react";
 
 const api_url = import.meta.env.VITE_API_URL;
 
 const View = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { theme } = useContext(ThemeContext);
+  const [isDark, setIsDark] = useState(theme === "dark");
 
   const [building, setBuilding] = useState([]);
 
@@ -19,12 +23,12 @@ const View = () => {
     }
   };
   useEffect(() => {
-
     fetchHostel();
-  }, [id]);
+    setIsDark(theme === "dark");
+  }, [id, theme]);
 
   return (
-    <div className="min-h-screen dark:bg-[#101828] p-4">
+    <div className="min-h-screen dark:bg-[#101828] p-6">
       <div className="flex justify-between items-center border-b pb-3 mb-4">
         <h2 className="text-lg font-bold text-black dark:text-white">Building View</h2>
         <button
@@ -41,7 +45,7 @@ const View = () => {
           <label className="block mb-2 text-black dark:text-white font-semibold">
             Location
           </label>
-          <p className="w-75 md:w-100 bg-gray-100 text-gray-700 px-3 py-2 rounded">
+          <p className="w-75 md:w-100 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 px-3 py-2 rounded">
             {building.location_id?.location_name}
           </p>
         </div>
@@ -50,7 +54,7 @@ const View = () => {
           <label className="block mb-2 text-black dark:text-white font-semibold">
             Hostel
           </label>
-          <p className="w-75 md:w-100 bg-gray-100 text-gray-700 px-3 py-2 rounded">
+          <p className="w-75 md:w-100 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 px-3 py-2 rounded">
             {building.hostel_id?.hostel_name}
           </p>
         </div>
@@ -58,7 +62,7 @@ const View = () => {
           <label className="block mb-2 text-black dark:text-white font-semibold">
             Hostel
           </label>
-          <p className="w-75 md:w-100 bg-gray-100 text-gray-700 px-3 py-2 rounded">
+          <p className="w-75 md:w-100 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 px-3 py-2 rounded">
             {building?.building_name}
           </p>
         </div>

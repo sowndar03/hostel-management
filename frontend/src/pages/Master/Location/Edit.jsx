@@ -54,7 +54,7 @@ const Edit = () => {
     }, [id, setValue]);
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#101828]">
+        <div className="min-h-screen bg-white dark:bg-[#101828] p-6">
             <form
                 onSubmit={handleSubmit(onSubmit)}
                 autoComplete="off"
