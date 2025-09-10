@@ -17,6 +17,7 @@ const Edit = () => {
   const { theme } = useContext(ThemeContext);
   const [isDark, setIsDark] = useState(theme === "dark");
   const [loading, setLoading] = useState(true);
+  const [buildings, setBuildings] = useState([]);
 
   const customSelectStyles = useMemo(() => ({
     control: (base) => ({
@@ -56,19 +57,31 @@ const Edit = () => {
     }
   };
 
-  const fetchBuilding = async () => {
+  const getBuildings = async (location_id, hostel_id) => {
     try {
-      const res = await api.get(`${api_url}/master/building/view/${id}`);
-      const building = res.data.data;
+      const res = await api.get(`${api_url}/master/building/getBuilding/${location_id}/${hostel_id}`);
+      setBuildings(res.data.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
+
+  const fetchHostel = async () => {
+    try {
+      const res = await api.get(`${api_url}/master/rooms/view/${id}`);
+      const rooms = res.data.data;
       reset({
-        id: building._id,
-        location_id: building.location_id._id,
-        hostel_id: building.hostel_id._id,
-        building: building.building_name,
+        id: rooms._id,
+        location_id: rooms.location_id._id,
+        hostel_id: rooms.hostel_id._id,
+        building_id: rooms.building_id._id,
+        room_no: rooms.room_no,
+        room_count: rooms.room_count,
       });
 
-      getAllHostels(building.location_id._id);
+      getAllHostels(rooms.location_id._id);
+      getBuildings(rooms.location_id._id, rooms.hostel_id._id);
     } catch (err) {
       console.error("Error fetching building:", err);
       toast.error("Failed to fetch building data");
@@ -79,9 +92,9 @@ const Edit = () => {
 
   const onSubmit = async (data) => {
     try {
-      const res = await api.post(`${api_url}/master/building/edit/submit`, data);
+      const res = await api.post(`${api_url}/master/rooms/edit/submit`, data);
       toast.success(res.data.message);
-      navigate("/master/building/list");
+      navigate("/master/room/list");
     } catch (err) {
       if (err.response?.data?.message) {
         toast.error(err.response.data.message);
@@ -102,7 +115,7 @@ const Edit = () => {
 
   useEffect(() => {
     getallLocation();
-    fetchBuilding();
+    fetchHostel();
     setIsDark(theme === "dark");
   }, [theme]);
 
@@ -122,7 +135,7 @@ const Edit = () => {
           <button
             type="button"
             className="px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700 transition"
-            onClick={() => navigate("/master/building/list")}
+            onClick={() => navigate("/master/room/list")}
           >
             Back
           </button>
@@ -188,38 +201,118 @@ const Edit = () => {
 
           {/* Building */}
           <div className="">
-            <label className="block mb-2 text-gray-700 dark:text-white font-semibold">
-              Building <span className='text-red-500'>*</span>
-            </label>
+            <label htmlFor="hostel_id" className='block mb-2 text-gray-700 dark:text-white font-semibold'>Building <span className='text-red-500'>*</span></label>
+            <Controller
+              name='building_id'
+              defaultValue={null}
+              control={control}
+              rules={{ required: "Building is required" }}
+              render={({ field }) => (
+                <Select
+                  options={buildings.map((building) => ({
+                    value: building._id,
+                    label: building.building_name
+                  }))}
+                  placeholder="Select Building"
+                  value={
+                    buildings
+                      .map((building) => ({ value: building._id, label: building.building_name }))
+                      .find((option) => option.value === field.value) || null
+                  }
+                  onChange={(option) => field.onChange(option?.value || "")}
+                  styles={{
+                    control: (base) => ({
+                      ...base,
+                      backgroundColor: isDark ? "#1f2937" : "#fff",
+                      borderColor: isDark ? "#374151" : "#d1d5db",
+                    }),
+                    singleValue: (base) => ({
+                      ...base,
+                      color: isDark ? "#f9fafb" : "#111827",
+                    }),
+                    menu: (base) => ({
+                      ...base,
+                      backgroundColor: isDark ? "#111827" : "#fff",
+                      color: isDark ? "#f9fafb" : "#111827",
+                    }),
+                    option: (base, { isFocused, isSelected }) => ({
+                      ...base,
+                      backgroundColor: isFocused
+                        ? (isDark ? "#374151" : "#e5e7eb")
+                        : isSelected
+                          ? (isDark ? "#4b5563" : "#d1d5db")
+                          : "transparent",
+                      color: isDark ? '#fff' : '#1f2937',
+                      cursor: "pointer",
+                    }),
+                  }}
+                />
+              )}
+            />
+            {errors.building_id && (
+              <p className="text-red-500 text-sm mt-1 font-bold">
+                {errors.building_id.message}
+              </p>
+            )}
+          </div>
+
+          <div className="">
+            <label htmlFor="building" className='block mb-2 text-gray-700 dark:text-white font-semibold'>Room <span className='text-red-500'>*</span></label>
             <input
               type="text"
-              placeholder="Enter Building Name"
-              className="w-full  input-style focus:outline-none focus:ring-2 focus:ring-[#f1f0ff] focus:border-[#f1f0ff] transition"
-              {...register('building', {
-                required: "Building Name is Required",
-                validate: async value => {
+              placeholder='Enter Room Number'
+              className='w-full input-style  focus:outline-none focus:ring-2 focus:ring-[#f1f0ff] focus:border-[#f1f0ff] transition' {
+              ...register('room_no', {
+                required: "Room Number is Required",
+                validate: async (value) => {
                   const location_id = getValues("location_id");
                   const hostel_id = getValues("hostel_id");
+                  const building_id = getValues("building_id");
                   if (!location_id || !hostel_id) return "Please select a location and Hostel";
-
                   try {
-                    const res = await api.post(`${api_url}/master/building/uniqueCheck`, {
-                      building: value,
-                      location_id,
-                      hostel_id,
-                      id
-                    });
-                    if (res.data.message === 'Available') return true;
+                    const res = await api.post(
+                      `${api_url}/master/rooms/uniqueCheck`,
+                      {
+                        room_no: value,
+                        building_id,
+                        location_id,
+                        hostel_id,
+                        id
+                      }
+                    );
+                    if (res.data.message === 'Available') {
+                      return true;
+                    }
                     return res.data.message;
                   } catch (err) {
                     return err.message;
                   }
-                }
-              })}
-            />
-            {errors.building && (
-              <p className="text-red-500 text-sm mt-1 font-bold">{errors.building.message}</p>
-            )}
+                },
+              })
+
+              } />
+            {
+              errors.room_no && <p className="text-red-500 text-sm mt-1 font-bold">
+                {errors.room_no.message}
+              </p>
+            }
+          </div>
+          <div className="">
+            <label htmlFor="building" className='block mb-2 text-gray-700 dark:text-white font-semibold'>People Count<span className='text-red-500'>*</span></label>
+            <input
+              type="text"
+              placeholder='Enter Room Count'
+              className='w-full input-style  focus:outline-none focus:ring-2 focus:ring-[#f1f0ff] focus:border-[#f1f0ff] transition' {
+              ...register('room_count', {
+                required: "Room Count is Required",
+              })
+
+              } />
+            {
+              errors.room_count && <p className="text-red-500 text-sm mt-1 font-bold">
+                {errors.room_count.message}
+              </p>
+            }
           </div>
         </div>
 

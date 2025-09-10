@@ -112,9 +112,9 @@ const Add = () => {
                 </div>
 
 
-                <div className="flex gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* Input */}
-                    <div className="mb-4 flex-1">
+                    <div className="mb-4">
                         <label
                             htmlFor="location"
                             className="block mb-2 text-gray-700 dark:text-white font-semibold"
@@ -172,7 +172,7 @@ const Add = () => {
                         )}
                     </div>
 
-                    <div className="mb-4 flex-1">
+                    <div className="mb-4">
                         <label
                             htmlFor="hostel"
                             className="block mb-2 text-gray-700 dark:text-white font-semibold"

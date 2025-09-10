@@ -26,6 +26,12 @@ import BuildingAdd from './pages/Master/Building/Add';
 import BuildingView from './pages/Master/Building/View';
 import BuildingEdit from './pages/Master/Building/Edit';
 
+import RoomList from './pages/Master/Rooms/List';
+import RoomAdd from './pages/Master/Rooms/Add';
+import RoomView from './pages/Master/Rooms/View';
+import RoomEdit from './pages/Master/Rooms/Edit';
+import Import from './pages/Master/Rooms/import';
+
 function App() {
 
   return (
@@ -58,6 +64,13 @@ function App() {
                   <Route path="add" element={<BuildingAdd />} />
                   <Route path="view/:id" element={<BuildingView />} />
                   <Route path="edit/:id" element={<BuildingEdit />} />
+                </Route>
+                <Route path='room'>
+                  <Route path="list" element={<RoomList />} />
+                  <Route path="add" element={<RoomAdd />} />
+                  <Route path="view/:id" element={<RoomView />} />
+                  <Route path="edit/:id" element={<RoomEdit />} />
+                  <Route path="import" element={<Import />} />
                 </Route>
               </Route>
             </Route>

@@ -1,17 +1,18 @@
 const express = require('express');
-const Building = require('../../Model/Master/Building');
+const Rooms = require('../../Model/Master/Rooms');
 const { body, validationResult } = require('express-validator');
 const helper = require('../../utils/helper');
 
 
 const list = async (req, res) => {
     try {
-        const buildings = await Building.find({ trash: "NO" })
+        const rooms = await Rooms.find({ trash: "NO" })
             .populate("location_id", "location_name")
             .populate("hostel_id", "hostel_name")
+            .populate("building_id", "building_name")
             .populate("created_by", "name");
 
-        res.status(200).json({ data: buildings });
+        res.status(200).json({ data: rooms });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -28,9 +29,17 @@ const store = async (req, res) => {
             .trim()
             .notEmpty().withMessage("Hostel is Required")
             .run(req),
-        body("building")
+        body("building_id")
             .trim()
             .notEmpty().withMessage("Building is Required")
+            .run(req),
+        body("room_no")
+            .trim()
+            .notEmpty().withMessage("Room Number is Required")
+            .run(req),
+        body("room_count")
+            .trim()
+            .notEmpty().withMessage("Room Count is Required")
             .run(req),
     ]);
     const errors = validationResult(req);
@@ -39,17 +48,19 @@ const store = async (req, res) => {
     }
 
     try {
-        const { location_id, hostel_id, building } = req.body;
-        const result = new Building({
+        const { location_id, hostel_id, building_id, room_no, room_count } = req.body;
+        const result = new Rooms({
             location_id,
             hostel_id,
-            building_name: building,
+            building_id,
+            room_count,
+            room_no,
             created_by: req.user.id,
         });
 
         await result.save();
         res.status(201).json({
-            message: 'Building Added Successfully',
+            message: 'Rooms Added Successfully',
             data: result,
         })
 
@@ -63,15 +74,15 @@ const store = async (req, res) => {
 
 const uniqueCheck = async (req, res) => {
     try {
-        const { location_id, hostel_id, building, id } = req.body;
+        const { location_id, hostel_id, building_id, room_no, id } = req.body;
 
-        const result = await Building.findOne({ location_id, hostel_id, building_name: building });
+        const result = await Rooms.findOne({ location_id, hostel_id, building_id, room_no });
 
         if (result) {
             if (id && result._id.toString() === id) {
                 return res.json({ message: "Available" });
             }
-            return res.json({ message: "Building Already Exists" });
+            return res.json({ message: "Rooms Already Exists" });
         }
         return res.json({ message: "Available" });
 
@@ -86,7 +97,7 @@ const statusChange = async (req, res) => {
         const changedStatus = status == 0 ? 1 : 0;
 
         try {
-            const result = await Building.findByIdAndUpdate(
+            const result = await Rooms.findByIdAndUpdate(
                 id,
                 { status: changedStatus },
                 { new: true }
@@ -114,7 +125,7 @@ const deleteHostel = async (req, res) => {
         const { id } = req.body;
 
         try {
-            const result = await Building.findByIdAndUpdate(
+            const result = await Rooms.findByIdAndUpdate(
                 id,
                 { trash: 'YES', status: '0' },
                 { new: true }
@@ -142,15 +153,16 @@ const selectOne = async (req, res) => {
 
     try {
 
-        const buildings = await Building.findOne({ _id: id, trash: "NO" })
+        const buildings = await Rooms.findOne({ _id: id, trash: "NO" })
             .populate("location_id", "location_name")
             .populate("hostel_id", "hostel_name")
+            .populate("building_id", "building_name")
             .populate("created_by", "name");
 
         if (!buildings) {
             return res.status(404).json({
                 success: false,
-                message: "Building not found",
+                message: "Rooms not found",
             });
         }
 
@@ -170,20 +182,22 @@ const selectOne = async (req, res) => {
 
 const updates = async (req, res) => {
     try {
-        const { building, hostel_id, location_id, id } = req.body;
+        const { building_id, hostel_id, location_id, room_no, room_count, id } = req.body;
 
-        const result = await Building.findByIdAndUpdate(
+        const result = await Rooms.findByIdAndUpdate(
             id,
             {
                 location_id,
-                hostel_id: hostel_id,
-                building_name: building,
+                hostel_id,
+                building_id,
+                room_count,
+                room_no,
             },
             { new: true }
         );
 
         if (!result) {
-            return res.status(404).json({ message: "Building not found" });
+            return res.status(404).json({ message: "Rooms not found" });
         }
 
         return res.json({ message: "Updated successfully", data: result });
@@ -194,7 +208,7 @@ const updates = async (req, res) => {
 
 const searchValues = async (req, res) => {
 
-    const { location_id, hostel_id, building, status } = req.body;
+    const { location_id, hostel_id, building_id, room_no, room_count, status } = req.body;
     let query = {};
 
     if (location_id && location_id !== "") {
@@ -205,18 +219,27 @@ const searchValues = async (req, res) => {
         query.hostel_id = hostel_id;
     }
 
-    if (building && building !== "") {
-        query.building_name = building;
+    if (building_id && building_id !== "") {
+        query.building_id = building_id;
     }
+    if (room_no && room_no !== "") {
+        query.room_no = room_no;
+    }
+    if (room_count && room_count !== "") {
+        query.room_count = room_count;
+    }
+
     if (status && status !== "") {
         query.status = status;
     }
     query.trash = 'NO';
 
     try {
-        const buildings = await Building.find(query).populate("location_id", "location_name")
-            .populate("hostel_id", "hostel_name")
-            .populate("created_by", "name");;
+        const buildings = await Rooms.find(query).
+            populate("location_id", "location_name")
+            .populate("hostel_id", "hostel_id")
+            .populate("building_id", "building_name")
+            .populate("created_by", "name");
 
         res.json({ success: true, data: buildings });
     } catch (err) {
@@ -231,7 +254,7 @@ const getBuilding = async (req, res) => {
         const location_id = req.params.location_id;
         const hostel_id = req.params.hostel_id;
 
-        const buildings = await Building.find({
+        const buildings = await Rooms.find({
             location_id,
             hostel_id,
             trash: "NO"
@@ -246,6 +269,10 @@ const getBuilding = async (req, res) => {
     }
 };
 
+const importSubmit = async (req, res) => {
+   
+}
+
 module.exports = {
     list,
     store,
@@ -256,4 +283,5 @@ module.exports = {
     updates,
     searchValues,
     getBuilding,
+    importSubmit
 }

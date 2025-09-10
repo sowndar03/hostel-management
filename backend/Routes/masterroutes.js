@@ -3,6 +3,7 @@ const router = express.Router();
 const locationController = require('../Controller/Master/locationcontroller');
 const hostelController = require('../Controller/Master/hostelcontroller');
 const buildingcontroller = require('../Controller/Master/buildingcontroller');
+const roomscontroller = require('../Controller/Master/roomscontroller');
 
 router.get('/location/list', locationController.list);
 router.post('/location/add', locationController.store);
@@ -30,6 +31,17 @@ router.post('/building/delete', buildingcontroller.deleteHostel);
 router.get('/building/view/:id', buildingcontroller.selectOne);
 router.post('/building/edit/submit', buildingcontroller.updates);
 router.post('/building/searchValues', buildingcontroller.searchValues);
-router.get('/building/getHostel/:id', buildingcontroller.getHostel);
+router.get('/building/getBuilding/:location_id/:hostel_id', buildingcontroller.getBuilding);
+
+router.get('/rooms/list', roomscontroller.list);
+router.post('/rooms/add', roomscontroller.store);
+router.post('/rooms/uniqueCheck', roomscontroller.uniqueCheck);
+router.post('/rooms/statusChange', roomscontroller.statusChange);
+router.post('/rooms/delete', roomscontroller.deleteHostel);
+router.get('/rooms/view/:id', roomscontroller.selectOne);
+router.post('/rooms/edit/submit', roomscontroller.updates);
+router.post('/rooms/searchValues', roomscontroller.searchValues);
+router.get('/rooms/getBuilding/:location_id/:hostel_id', roomscontroller.getBuilding);
+router.post('/rooms/import/submit', roomscontroller.importSubmit);
 
 module.exports = router;
