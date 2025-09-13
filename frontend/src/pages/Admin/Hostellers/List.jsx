@@ -1,138 +1,31 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from "framer-motion";
-import api from '../../../api';
-import DataTable from 'react-data-table-component';
-import { getStatus } from '../../../utils/helper';
-import { IoEye } from 'react-icons/io5';
-import { BiSolidEdit } from 'react-icons/bi';
-import { AiTwotoneDelete } from 'react-icons/ai';
-import { ThemeContext } from '../../../context/ThemeContext';
-import Swal from 'sweetalert2';
 import { useForm, Controller } from 'react-hook-form';
 import Select from 'react-select';
+import { ThemeContext } from '../../../context/ThemeContext';
+import { useNavigate } from 'react-router-dom';
+import api from '../../../api';
+import DataTable from 'react-data-table-component';
 
-const list = () => {
+const List = () => {
   const [filterToggle, setFilterToggle] = useState(false);
-  const navigate = useNavigate();
-  const [list, setList] = useState([]);
-  const api_url = import.meta.env.VITE_API_URL;
-  const { theme } = useContext(ThemeContext);
-  const [isDark, setIsDark] = useState(theme == "dark");
+  const { handleSubmit, control, register, getValues, setValue, formState: { errors, isSubmitting } } = useForm();
   const [locations, setLocations] = useState([]);
   const [hostels, setHostel] = useState([]);
   const [buildings, setBuildings] = useState([]);
+  const [list, setList] = useState([]);
+  const { theme } = useContext(ThemeContext);
+  const [isDark, setIsDark] = useState(theme === "dark");
+  const api_url = import.meta.env.VITE_API_URL;
+  const navigate = useNavigate();
 
-  const statusOptions = [
-    { value: "1", label: "Active" },
-    { value: "0", label: "Inactive" },
-  ];
+  const handleSearch = () => {
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    getValues,
-    control,
-    formState: { errors, isSubmitting },
-  } = useForm();
-
-  const getAllRooms = async () => {
-    try {
-      const res = await api.get(`${api_url}/master/rooms/list`);
-      setList(res.data.data);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const handleReset = () => {
-    reset();
-    getAllRooms();
   }
 
-  const handleSearch = async (data) => {
-    try {
-      const result = await api.post(`${api_url}/master/rooms/searchValues`, data);
-      setList(result.data.data);
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  const handleReset = () => {
 
-  const handleStatusClick = async (id, status) => {
-    let text = "";
-    let button = "";
-
-    if (status === 1) {
-      text = "Do you want to Inactivate the Rooms?";
-      button = "Yes, Inactivate!";
-    } else {
-      text = "Do you want to Activate the Rooms?";
-      button = "Yes, Activate!";
-    }
-    Swal.fire({
-      title: "Are you sure?",
-      text,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: button,
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          const result = await api.post(`${api_url}/master/rooms/statusChange`, {
-            id,
-            status,
-          });
-          setList((prevList) =>
-            prevList.map((item) =>
-              item._id === id
-                ? { ...item, status: item.status === 1 ? 0 : 1 }
-                : item
-            )
-          );
-          Swal.fire(
-            "Updated!",
-            status === 1
-              ? "Rooms has been inactivated."
-              : "Rooms has been activated.",
-            "success"
-          );
-        } catch (err) {
-          Swal.fire("Oops...", "Something went wrong!", "error");
-        }
-      }
-    });
-  };
-
-  const handleDelete = (id) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "Do you want to Delete the Room?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Delete",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          await api.post(`${api_url}/master/rooms/delete`, { id });
-          setList((prevList) => prevList.filter((item) => item._id !== id));
-          Swal.fire(
-            "Updated!",
-            "Room has been Deleted Successfully",
-            "success"
-          );
-        } catch (err) {
-          Swal.fire("Oops...", "Something went wrong!", "error");
-        }
-      }
-    });
-  };
+  }
 
   const getallLocation = async () => {
     try {
@@ -160,12 +53,6 @@ const list = () => {
     }
   };
 
-  const handleView = (id) => {
-    navigate(`/master/room/view/${id}`);
-  };
-  const handleEdit = (id) => {
-    navigate(`/master/room/edit/${id}`);
-  };
 
   const columns = [
     {
@@ -232,18 +119,18 @@ const list = () => {
       ignoreRowClick: true,
     },
   ];
+  
   const arrowColor = isDark ? "#ffffff" : "#111827";
   useEffect(() => {
-    getAllRooms();
     getallLocation();
     setIsDark(theme == "dark");
   }, [theme]);
 
   return (
-    <div className='min-h-screen bg-white dark:bg-[#101828] p-6'>
+    <div className='min-h-screen'>
       <div className="border-b pb-3 mb-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-lg font-bold text-gray-700 dark:text-white">Rooms List</h2>
+          <h2 className="text-lg font-bold text-gray-700 dark:text-white">Hostellers List</h2>
           <div>
             <button
               type="button"
@@ -255,16 +142,9 @@ const list = () => {
             <button
               type="button"
               className="px-3 py-1 bg-blue-400 text-white rounded hover:bg-blue-700 transition"
-              onClick={() => navigate("/master/room/add")}
+              onClick={() => navigate("/admin/master/hostellers/add")}
             >
               Add
-            </button>
-            <button
-              type="button"
-              className="px-3 py-1 m-2 bg-green-600 text-white rounded hover:bg-green-800 transition"
-              onClick={() => navigate("/master/room/import")}
-            >
-              Import
             </button>
           </div>
         </div>
@@ -485,6 +365,7 @@ const list = () => {
           </AnimatePresence>
         </form>
       </div>
+
       <div>
         <DataTable
           columns={columns}
@@ -541,4 +422,4 @@ const list = () => {
   )
 }
 
-export default list
+export default List

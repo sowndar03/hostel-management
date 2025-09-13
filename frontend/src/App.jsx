@@ -30,7 +30,15 @@ import RoomList from './pages/Master/Rooms/List';
 import RoomAdd from './pages/Master/Rooms/Add';
 import RoomView from './pages/Master/Rooms/View';
 import RoomEdit from './pages/Master/Rooms/Edit';
-import Import from './pages/Master/Rooms/import';
+import Import from './pages/Master/Rooms/Import';
+
+import HostellersList from './pages/Admin/Hostellers/List';
+import HostellersAdd from './pages/Admin/Hostellers/Add';
+import HostellersView from './pages/Admin/Hostellers/View';
+import HostellersEdit from './pages/Admin/Hostellers/Edit';
+
+import UploadList from './pages/Admin/Upload/List';
+import UploadView from './pages/Admin/Upload/View';
 
 function App() {
 
@@ -72,6 +80,16 @@ function App() {
                   <Route path="edit/:id" element={<RoomEdit />} />
                   <Route path="import" element={<Import />} />
                 </Route>
+              </Route>
+              <Route path='admin/master/hostellers'>
+                <Route path="list" element={<HostellersList />} />
+                <Route path="add" element={<HostellersAdd />} />
+                <Route path="view/:id" element={<HostellersView />} />
+                <Route path="edit/:id" element={<HostellersEdit />} />
+              </Route>
+              <Route path='administration/uploads'>
+                <Route path="list" element={<UploadList />} />
+                <Route path="view/:id" element={<UploadView />} />
               </Route>
             </Route>
           </Routes>

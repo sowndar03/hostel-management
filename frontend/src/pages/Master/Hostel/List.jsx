@@ -379,6 +379,15 @@ const List = () => {
         pagination
         fixedHeader
         fixedHeaderScrollHeight="500px"
+        noDataComponent={
+          <div
+            className={`p-4 text-center ${isDark ? "bg-gray-900 text-gray-300" : "bg-white text-gray-700"
+              }`}
+            style={{ width: "100%" }}
+          >
+            No records to display
+          </div>
+        }
         paginationIconPrevious={<span style={{ color: arrowColor, fontSize: 18, fontWeight: 700 }}>&lt;</span>}
         paginationIconNext={<span style={{ color: arrowColor, fontSize: 18, fontWeight: 700 }}>&gt;</span>}
         paginationIconFirstPage={<span style={{ color: arrowColor, fontSize: 18, fontWeight: 700 }}>«</span>}

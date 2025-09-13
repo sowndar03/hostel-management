@@ -20,11 +20,14 @@ const Import = () => {
                 },
             });
             toast.success(res.data.message);
-            navigate('/master/room/list');
         } catch (err) {
-            console.error(err);
-            toast.error("Something went wrong while saving");
+            if (err.status == 400) {
+                toast.error("Failed to Upload.. Check the Upload Logs");
+            } else {
+                toast.error("Something went wrong");
+            }
         }
+        navigate('/master/room/list');
     };
 
 

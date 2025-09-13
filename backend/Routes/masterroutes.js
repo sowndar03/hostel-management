@@ -4,6 +4,7 @@ const locationController = require('../Controller/Master/locationcontroller');
 const hostelController = require('../Controller/Master/hostelcontroller');
 const buildingcontroller = require('../Controller/Master/buildingcontroller');
 const roomscontroller = require('../Controller/Master/roomscontroller');
+const { importHandler } = require('../Middleware/Middleware');
 
 router.get('/location/list', locationController.list);
 router.post('/location/add', locationController.store);
@@ -41,7 +42,13 @@ router.post('/rooms/delete', roomscontroller.deleteHostel);
 router.get('/rooms/view/:id', roomscontroller.selectOne);
 router.post('/rooms/edit/submit', roomscontroller.updates);
 router.post('/rooms/searchValues', roomscontroller.searchValues);
-router.get('/rooms/getBuilding/:location_id/:hostel_id', roomscontroller.getBuilding);
-router.post('/rooms/import/submit', roomscontroller.importSubmit);
+router.get('/rooms/getRooms/:location_id/:hostel_id/:building_id', roomscontroller.getRooms);
+
+router.post(
+    '/rooms/import/submit',
+    importHandler('excel', 'rooms'),
+    roomscontroller.importSubmit
+);
+
 
 module.exports = router;

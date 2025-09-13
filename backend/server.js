@@ -6,9 +6,10 @@ const loginRoutes = require('./Routes/loginroutes');
 const userRoutes = require('./Routes/userroutes');
 const masterRoutes = require('./Routes/masterroutes');
 const notificationRoutes = require('./Routes/notificationroutes');
-const cors = require('cors');
+const adminRoutes = require('./Routes/adminroutes');
 const middleware = require('./Middleware/Middleware');
 
+const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 5000;
 const DB_URL = process.env.DB_URL;
@@ -36,6 +37,7 @@ const middlewares = [middleware.AuthMiddleware];
 app.use('/api/login', loginRoutes);
 app.use('/api/user', middlewares, userRoutes);
 app.use('/api/notification', middlewares, notificationRoutes);
+app.use('/api/admin', middlewares, adminRoutes);
 
 //Master Data
 app.use('/api/master', middlewares, masterRoutes);

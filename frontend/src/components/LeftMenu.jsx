@@ -3,6 +3,7 @@ import { Sidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar";
 import { FiHome, FiUser, FiMenu, FiX } from "react-icons/fi";
 import { NavLink } from "react-router-dom";
 import { ThemeContext } from "../context/ThemeContext";
+import { MdAdminPanelSettings } from "react-icons/md";
 
 const LeftMenu = ({ collapsed, setCollapsed, isMobile }) => {
     const { theme } = useContext(ThemeContext);
@@ -72,6 +73,11 @@ const LeftMenu = ({ collapsed, setCollapsed, isMobile }) => {
                 <MenuItem icon={<FiHome />} component={<NavLink to="/dashboard" />}>
                     Dashboard
                 </MenuItem>
+
+                <SubMenu icon={<MdAdminPanelSettings className="text-2xl mr-2" />} label="Administration">
+                    <MenuItem component={<NavLink to='/administration/uploads/list' />}>Upload Logs</MenuItem>
+                    <MenuItem component={<NavLink to='/admin/master/hostellers/list' />}>Hostellers</MenuItem>
+                </SubMenu>
 
                 <SubMenu icon={<FiUser />} label="Master">
                     <MenuItem component={<NavLink to="/master/location/list" />}>

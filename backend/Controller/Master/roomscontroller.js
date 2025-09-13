@@ -2,6 +2,10 @@ const express = require('express');
 const Rooms = require('../../Model/Master/Rooms');
 const { body, validationResult } = require('express-validator');
 const helper = require('../../utils/helper');
+const Hostel = require('../../Model/Master/Hostel');
+const Building = require('../../Model/Master/Building');
+const Location = require('../../Model/Master/Location');
+const Upload = require('../../Model/Administration/Upload');
 
 
 const list = async (req, res) => {
@@ -249,29 +253,170 @@ const searchValues = async (req, res) => {
 
 }
 
-const getBuilding = async (req, res) => {
+const getRooms = async (req, res) => {
     try {
         const location_id = req.params.location_id;
         const hostel_id = req.params.hostel_id;
+        const building_id = req.params.building_id;
 
-        const buildings = await Rooms.find({
+        const rooms = await Rooms.find({
             location_id,
             hostel_id,
+            building_id,
             trash: "NO"
         });
 
         res.status(200).json({
             message: "Data Fetched Successfully",
-            data: buildings,
+            data: rooms,
         });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
 };
-
 const importSubmit = async (req, res) => {
-   
-}
+    try {
+        const importedRows = req.importedData;
+        if (!importedRows || importedRows.length === 0) {
+            await Upload.create({
+                file_name: req.file?.originalname || "Unknown File",
+                errors_reason: JSON.stringify([{ error: "File is empty or contains no valid rows" }]),
+                created_by: req.user?.id,
+                status: 2,
+            });
+
+            return res.status(400).json({
+                message: "Validation failed. File is empty or contains no rows.",
+                errors: [{ error: "No data found in the file" }],
+            });
+        }
+
+        const errorsArray = [];
+        const validRows = [];
+
+        for (let row = 0; row < importedRows.length; row++) {
+            const currentRow = importedRows[row];
+            const rowErrors = {};
+
+            const locationName = currentRow.Location?.trim();
+            let location_id;
+            if (!locationName) {
+                rowErrors.Location = "Location is empty";
+            } else {
+                const locationExist = await Location.findOne({ location_name: locationName });
+                if (!locationExist) {
+                    rowErrors.Location = "Location not found";
+                } else {
+                    location_id = locationExist._id;
+                }
+            }
+
+            const hostelName = currentRow.Hostel?.trim();
+            let hostel_id;
+            if (!hostelName) {
+                rowErrors.Hostel = "Hostel is empty";
+            } else if (location_id) {
+                const hostelExist = await Hostel.findOne({ hostel_name: hostelName, location_id });
+                if (!hostelExist) {
+                    rowErrors.Hostel = "Hostel not found for this location";
+                } else {
+                    hostel_id = hostelExist._id;
+                }
+            }
+
+            const buildingName = currentRow.Building?.trim();
+            let building_id;
+            if (!buildingName) {
+                rowErrors.Building = "Building is empty";
+            } else if (location_id && hostel_id) {
+                const buildingExist = await Building.findOne({
+                    building_name: buildingName,
+                    location_id,
+                    hostel_id
+                });
+                if (!buildingExist) {
+                    rowErrors.Building = "Building not found for this hostel/location";
+                } else {
+                    building_id = buildingExist._id;
+                }
+            }
+
+            const roomNumber = currentRow['Room Number']?.trim();
+            if (!roomNumber) {
+                rowErrors['Room Number'] = "Room Number is empty";
+            } else if (building_id) {
+                const roomExist = await Rooms.findOne({
+                    room_no: roomNumber,
+                    location_id,
+                    hostel_id,
+                    building_id
+                });
+                if (roomExist) {
+                    rowErrors['Room Number'] = "Room already exists in this building";
+                }
+            }
+
+            const peopleCount = Number(currentRow['People Count'] || 0);
+
+            if (Object.keys(rowErrors).length > 0) {
+                errorsArray.push({
+                    row: row + 2,
+                    errors: rowErrors
+                });
+            } else {
+                validRows.push({
+                    location_id,
+                    hostel_id,
+                    building_id,
+                    room_no: roomNumber,
+                    room_count: peopleCount,
+                    created_by: req.user.id,
+                });
+            }
+        }
+
+        if (errorsArray.length > 0) {
+            await Upload.create({
+                file_name: req.file?.originalname || "Unknown File",
+                errors_reason: JSON.stringify(errorsArray, null, 2),
+                created_by: req.user.id,
+                status: 2,
+            });
+
+            return res.status(400).json({
+                message: "Validation failed. Some rows have errors.",
+                errors: errorsArray,
+            });
+        }
+
+        await Rooms.insertMany(validRows);
+
+        await Upload.create({
+            file_name: req.file?.originalname || "Unknown File",
+            errors_reason: null,
+            created_by: req.user.id,
+            status: 3,
+        });
+
+        return res.status(200).json({
+            message: `Upload successfully`,
+        });
+
+    } catch (err) {
+        console.error(err);
+
+        await Upload.create({
+            file_name: req.file?.originalname || "Unknown File",
+            errors_reason: JSON.stringify([{ error: err.message }]),
+            created_by: req.user?.id,
+            status: 1,
+        });
+
+        return res.status(500).json({ message: "Server error while importing" });
+    }
+};
+
+
 
 module.exports = {
     list,
@@ -282,6 +427,6 @@ module.exports = {
     selectOne,
     updates,
     searchValues,
-    getBuilding,
+    getRooms,
     importSubmit
 }
