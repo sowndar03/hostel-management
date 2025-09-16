@@ -2,6 +2,7 @@ import React from "react";
 import api from "../api";
 import moment from 'moment';
 const api_url = import.meta.env.VITE_API_URL;
+const backend_url = import.meta.env.VITE_BACKEND_URL;
 
 export const getStatus = (status) => {
     switch (status) {
@@ -12,6 +13,24 @@ export const getStatus = (status) => {
         default:
             return <p style={{ color: "gray" }}>UNKNOWN</p>;
     }
+};
+export const getWorkingProfessional = (status) => {
+    switch (status) {
+        case "1":
+            return "Job Seeker";
+        case "2":
+            return "Job";
+        case "3":
+            return "College";
+        default:
+            return "UNKNOWN";
+    }
+};
+
+
+export const getImageUrl = (filePath) => {
+    if (!filePath) return undefined;
+    return `${backend_url}/${filePath}`;
 };
 
 export const getAvailableCount = (seats) => {

@@ -15,7 +15,7 @@ const roomSchema = new mongoose.Schema({
     },
     room_no: { type: String },
     room_count: { type: String },
-    available_count: { type: String },
+    available_count: { type: Number, required: true, default: 0 },
     created_by: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     updated_by: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     status: { type: Number, required: true, default: 1 },

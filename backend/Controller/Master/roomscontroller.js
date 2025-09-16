@@ -347,6 +347,26 @@ const getRooms = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 };
+const AvailableSeats = async (req, res) => {
+    try {
+        const room_id = req.params.id;
+        console.log(room_id);
+
+        const rooms = await Roomstatus.find({
+            room_id,
+            seat_status: "1",
+            trash: "NO",
+            status: "1"
+        });
+
+        res.status(200).json({
+            message: "Data Fetched Successfully",
+            data: rooms,
+        });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
 const importSubmit = async (req, res) => {
     try {
         const importedRows = req.importedData;
@@ -500,5 +520,6 @@ module.exports = {
     updates,
     searchValues,
     getRooms,
-    importSubmit
+    importSubmit,
+    AvailableSeats
 }

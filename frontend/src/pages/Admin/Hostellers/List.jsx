@@ -6,6 +6,12 @@ import { ThemeContext } from '../../../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../../../api';
 import DataTable from 'react-data-table-component';
+import { getStatus } from "../../../utils/helper";
+import { IoEye } from 'react-icons/io5';
+import { BiSolidEdit } from 'react-icons/bi';
+import { AiTwotoneDelete } from 'react-icons/ai';
+import Swal from 'sweetalert2';
+
 
 const List = () => {
   const [filterToggle, setFilterToggle] = useState(false);
@@ -18,6 +24,7 @@ const List = () => {
   const [isDark, setIsDark] = useState(theme === "dark");
   const api_url = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
+
 
   const handleSearch = () => {
 
@@ -53,14 +60,109 @@ const List = () => {
     }
   };
 
+  const getAllHostellers = async () => {
+    try {
+      const res = await api.get(`${api_url}/admin/master/hostellers/list`);
+      setList(res.data.data);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  const handleView = (id) => {
+    navigate(`/admin/master/hostellers/view/${id}`);
+  };
+  const handleEdit = (id) => {
+    navigate(`/admin/master/hostellers/edit/${id}`);
+  };
+
+  const handleStatusClick = async (id, status) => {
+    let text = "";
+    let button = "";
+
+    if (status === 1) {
+      text = "Do you want to Inactivate the Hostellers?";
+      button = "Yes, Inactivate!";
+    } else {
+      text = "Do you want to Activate the Hostellers?";
+      button = "Yes, Activate!";
+    }
+    Swal.fire({
+      title: "Are you sure?",
+      text,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: button,
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const result = await api.post(`${api_url}/admin/master/hostellers/statusChange`, {
+            id,
+            status,
+          });
+          setList((prevList) =>
+            prevList.map((item) =>
+              item._id === id
+                ? { ...item, status: item.status === 1 ? 0 : 1 }
+                : item
+            )
+          );
+          Swal.fire(
+            "Updated!",
+            status === 1
+              ? "Hosteller has been inactivated."
+              : "Hosteller has been activated.",
+            "success"
+          );
+        } catch (err) {
+          Swal.fire("Oops...", "Something went wrong!", "error");
+        }
+      }
+    });
+  };
+
+
+  const handleDelete = (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to Delete the Hosteller?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Delete",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await api.post(`${api_url}/admin/master/hostellers/delete`, { id });
+          setList((prevList) => prevList.filter((item) => item._id !== id));
+          Swal.fire(
+            "Updated!",
+            "Hosteller has been Deleted Successfully",
+            "success"
+          );
+        } catch (err) {
+          Swal.fire("Oops...", "Something went wrong!", "error");
+        }
+      }
+    });
+  };
+
 
   const columns = [
     {
       name: "SNO", selector: (row, index) => (index + 1)
     },
     {
-      name: "Location",
-      selector: (row) => row.location_id?.location_name || "-",
+      name: "Name",
+      selector: (row) => row.name || "-",
+      sortable: true,
+    },
+    {
+      name: "Phone Number",
+      selector: (row) => row.phone_no || "-",
       sortable: true,
     },
     {
@@ -69,13 +171,10 @@ const List = () => {
       sortable: true,
     },
     {
-      name: "Building", selector: (row) => row.building_id?.building_name, sortable: true,
+      name: "Room Number", selector: (row) => row.room_id?.room_no, sortable: true,
     },
     {
-      name: "Room Number", selector: (row) => row.room_no, sortable: true,
-    },
-    {
-      name: "Count", selector: (row) => row.room_count, sortable: true,
+      name: "Seat Number", selector: (row) => row.seat_no?.seat_no, sortable: true,
     },
     {
       name: "Status",
@@ -119,10 +218,11 @@ const List = () => {
       ignoreRowClick: true,
     },
   ];
-  
+
   const arrowColor = isDark ? "#ffffff" : "#111827";
   useEffect(() => {
     getallLocation();
+    getAllHostellers();
     setIsDark(theme == "dark");
   }, [theme]);
 

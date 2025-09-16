@@ -1,0 +1,27 @@
+const mongoose = require('mongoose');
+
+const hostellerSchema = new mongoose.Schema({
+    user_id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    name: { type: String },
+    phone_no: { type: String },
+    dob: { type: Date },
+    parent_name: { type: String },
+    emergency_contact_no: { type: String },
+    working_professional: { type: String },
+    working_place: { type: String },
+    address: { type: String },
+    photo: { type: String },
+    id_proof: { type: String },
+    location_id: { type: mongoose.Schema.Types.ObjectId, ref: "Location" },
+    hostel_id: { type: mongoose.Schema.Types.ObjectId, ref: "Master_hostel" },
+    building_id: { type: mongoose.Schema.Types.ObjectId, ref: "Master_building" },
+    room_id: { type: mongoose.Schema.Types.ObjectId, ref: "Master_rooms" },
+    seat_no: { type: mongoose.Schema.Types.ObjectId, ref: "Master_rooms_status" },
+    created_by: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    updated_by: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    status: { type: Number, required: true, default: 1 },
+    trash: { type: String, enum: ["YES", "NO"], default: "NO" },
+}, { timestamps: true })
+
+
+module.exports = mongoose.model("Hosteller", hostellerSchema);

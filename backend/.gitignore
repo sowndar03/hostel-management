@@ -30,3 +30,6 @@ coverage/
 # Optional temp files
 *.tmp
 *.temp
+
+# Uploads folder
+uploads/

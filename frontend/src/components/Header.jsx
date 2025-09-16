@@ -37,13 +37,8 @@ const AppHeader = ({ sidebarWidth = 250 }) => {
             
             const web_link = res.data.notifications.web_link;
             const newUnreadCount = res.data.unread_count;
-            
-            console.log('New unread count:', newUnreadCount);
-            
-            // Update the unread count immediately in the context
             setUnreadCount(newUnreadCount);
             
-            // Refresh notifications to get updated list
             notifications();
             navigate(`/${web_link}`)
         } catch (err) {

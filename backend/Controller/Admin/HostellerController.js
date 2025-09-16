@@ -1,0 +1,188 @@
+const express = require('express');
+const Hosteller = require('../../Model/Administration/Hosteller');
+const Roomstatus = require('../../Model/Master/Roomstatus');
+const Rooms = require('../../Model/Master/Rooms');
+
+const list = async (req, res) => {
+    try {
+        const result = await Hosteller.find({ trash: "NO" })
+            .populate("location_id", "location_name")
+            .populate("hostel_id", "hostel_name")
+            .populate("building_id", "building_name")
+            .populate("room_id", "room_no")
+            .populate("seat_no", "seat_no")
+            .populate("created_by", "name");
+        res.status(200).json({ data: result });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+}
+
+const store = async (req, res) => {
+    try {
+        const {
+            location_id,
+            hostel_id,
+            building_id,
+            room_id,
+            seat_no,
+            name,
+            phone_no,
+            dob,
+            parent_name,
+            emergency_contact_no,
+            working_professional,
+            working_place,
+            address,
+        } = req.body;
+
+        const photo = req.importedFiles?.photo?.path || null;
+        const id_proof = req.importedFiles?.id_proof?.path || null;
+
+        const hosteller = await Hosteller.create({
+            location_id,
+            hostel_id,
+            building_id,
+            room_id,
+            seat_no,
+            name,
+            phone_no,
+            dob,
+            parent_name,
+            emergency_contact_no,
+            working_professional,
+            working_place,
+            address,
+            photo,
+            id_proof,
+            created_by: req.user.id,
+        });
+
+
+        const room_status = await Roomstatus.findOneAndUpdate(
+            { _id: seat_no },
+            { seat_status: 2, user_id: hosteller._id },
+            { new: true }
+        );
+
+        const room_update = await Rooms.findByIdAndUpdate(
+            room_id,
+            { $inc: { available_count: -1 } },
+            { new: true }
+        );
+
+
+        res.status(201).json({
+            message: "Hosteller added successfully",
+            data: { hosteller, hosteller },
+        });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+const selectOne = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const buildings = await Hosteller.findOne({ _id: id, trash: "NO" })
+            .populate("location_id", "location_name")
+            .populate("hostel_id", "hostel_name")
+            .populate("building_id", "building_name")
+            .populate("room_id", "room_no")
+            .populate("seat_no", "seat_no")
+            .populate("created_by", "name");
+
+        if (!buildings) {
+            return res.status(404).json({
+                success: false,
+                message: "Hosteller not found",
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Fetched successfully",
+            data: buildings,
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: err.message,
+        });
+    }
+
+}
+const statusChange = async (req, res) => {
+    try {
+        const { id, status } = req.body;
+        const changedStatus = status == 0 ? 1 : 0;
+
+        const result = await Hosteller.findByIdAndUpdate(
+            id,
+            { status: changedStatus },
+            { new: true }
+        );
+
+        const room_status = await Roomstatus.findByIdAndUpdate(
+            result.seat_no,
+            { seat_status: changedStatus === 0 ? 1 : 2 },
+            { new: true }
+        );
+
+        const incrementValue = changedStatus === 0 ? 1 : -1;
+
+        const room_count_update = await Rooms.findByIdAndUpdate(
+            result.room_id,
+            { $inc: { available_count: incrementValue } },
+            { new: true }
+        );
+
+        res.status(200).json({
+            success: true,
+            message: "Status updated successfully",
+            data: result
+        });
+
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+};
+
+const deleteHosteller = async (req, res) => {
+    try {
+        const { id } = req.body;
+
+        const result = await Hosteller.findByIdAndUpdate(
+            id,
+            { trash: 'YES', status: '0' },
+            { new: true }
+        );
+
+        await Roomstatus.findByIdAndUpdate(
+            result.seat_no,
+            { seat_status: 1 }, 
+            { new: true }
+        );
+
+        await Rooms.findByIdAndUpdate(
+            result.room_id,
+            { $inc: { available_count: 1 } },
+            { new: true }
+        );
+
+        res.status(200).json({
+            success: true,
+            message: "Deleted successfully",
+            data: result
+        });
+
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+};
+
+module.exports = {
+    list, store, selectOne, deleteHosteller, statusChange
+}
