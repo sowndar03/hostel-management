@@ -87,6 +87,8 @@ function App() {
                 <Route path="view/:id" element={<HostellersView />} />
                 <Route path="edit/:id" element={<HostellersEdit />} />
               </Route>
+
+              
               <Route path='administration/uploads'>
                 <Route path="list" element={<UploadList />} />
                 <Route path="view/:id" element={<UploadView />} />
