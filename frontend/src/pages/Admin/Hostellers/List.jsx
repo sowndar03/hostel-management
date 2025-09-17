@@ -11,6 +11,7 @@ import { IoEye } from 'react-icons/io5';
 import { BiSolidEdit } from 'react-icons/bi';
 import { AiTwotoneDelete } from 'react-icons/ai';
 import Swal from 'sweetalert2';
+import Modal from './Modal';
 
 
 const List = () => {
@@ -19,20 +20,29 @@ const List = () => {
   const [locations, setLocations] = useState([]);
   const [hostels, setHostel] = useState([]);
   const [buildings, setBuildings] = useState([]);
+  const [rooms, setRooms] = useState([]);
+  const [availableSeats, setAvailableSeats] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedHosteller, setSelectedHosteller] = useState(null);
   const [list, setList] = useState([]);
+  const [hosteller, setHosteller] = useState([]);
   const { theme } = useContext(ThemeContext);
   const [isDark, setIsDark] = useState(theme === "dark");
   const api_url = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
-
 
   const handleSearch = () => {
 
   }
 
   const handleReset = () => {
-
+    reset();
   }
+
+  const openSeatSelectionModal = (hostellerId) => {
+    setSelectedHosteller(hostellerId);
+    setShowModal(true);
+  };
 
   const getallLocation = async () => {
     try {
@@ -60,10 +70,43 @@ const List = () => {
     }
   };
 
+  const getRooms = async (location_id, hostel_id, building_id) => {
+    try {
+      const res = await api.get(`${api_url}/master/rooms/getRooms/${location_id}/${hostel_id}/${building_id}`);
+      setRooms(res.data.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const getAvailableSeats = async (room_id) => {
+    try {
+      const result = await api.get(
+        `${api_url}/admin/master/rooms/getHostellers/${room_id}`
+      );
+      setAvailableSeats(result.data.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const getHostellerBasedRoom = async (location_id, hostel_id, building_id, room_id) => {
+    try {
+      const result = await api.get(
+        `${api_url}/admin/master/rooms/getHostellers/${location_id}/${hostel_id}/${building_id}/${room_id}`
+      );
+      setHosteller(result.data.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+
   const getAllHostellers = async () => {
     try {
       const res = await api.get(`${api_url}/admin/master/hostellers/list`);
       setList(res.data.data);
+      setHosteller(res.data.data);
     } catch (err) {
       console.log(err);
     }
@@ -87,6 +130,7 @@ const List = () => {
       text = "Do you want to Activate the Hostellers?";
       button = "Yes, Activate!";
     }
+
     Swal.fire({
       title: "Are you sure?",
       text,
@@ -98,10 +142,11 @@ const List = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const result = await api.post(`${api_url}/admin/master/hostellers/statusChange`, {
+          const res = await api.post(`${api_url}/admin/master/hostellers/statusChange`, {
             id,
             status,
           });
+
           setList((prevList) =>
             prevList.map((item) =>
               item._id === id
@@ -109,6 +154,7 @@ const List = () => {
                 : item
             )
           );
+
           Swal.fire(
             "Updated!",
             status === 1
@@ -117,12 +163,28 @@ const List = () => {
             "success"
           );
         } catch (err) {
-          Swal.fire("Oops...", "Something went wrong!", "error");
+          const errorMsg = err.response?.data?.message || "Something went wrong!";
+
+          if (errorMsg === "Seat is already occupied") {
+            Swal.fire({
+              title: "Seat Occupied",
+              text: "Seats are already occupied. Please select new seats.",
+              icon: "warning",
+              confirmButtonText: "OK"
+            }).then((result) => {
+              if (result.isConfirmed) {
+                openSeatSelectionModal(
+                  id,
+                );
+              }
+            });
+          } else {
+            Swal.fire("Oops...", errorMsg, "error");
+          }
         }
       }
     });
   };
-
 
   const handleDelete = (id) => {
     Swal.fire({
@@ -227,7 +289,7 @@ const List = () => {
   }, [theme]);
 
   return (
-    <div className='min-h-screen'>
+    <div className='min-h-screen p-6  '>
       <div className="border-b pb-3 mb-4">
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-bold text-gray-700 dark:text-white">Hostellers List</h2>
@@ -260,13 +322,14 @@ const List = () => {
                 transition={{ duration: 0.3 }}
                 className="pb-3 mb-4"
               >
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3   gap-6 mb-4">
                   <div className="">
                     <label htmlFor="location_id" className='block mb-2 text-gray-700 dark:text-white font-semibold'>Location </label>
                     <Controller
                       name='location_id'
                       defaultValue={null}
                       control={control}
+                      rules={{ required: "Location is required" }}
                       render={({ field }) => (
                         <Select
                           options={locations.map((location) => ({
@@ -326,6 +389,7 @@ const List = () => {
                       name='hostel_id'
                       defaultValue={null}
                       control={control}
+                      rules={{ required: "Hostel is required" }}
                       render={({ field }) => (
                         <Select
                           options={hostels.map((hostel) => ({
@@ -387,6 +451,7 @@ const List = () => {
                       name='building_id'
                       defaultValue={null}
                       control={control}
+                      rules={{ required: "Building is required" }}
                       render={({ field }) => (
                         <Select
                           options={buildings.map((building) => ({
@@ -399,7 +464,14 @@ const List = () => {
                               .map((building) => ({ value: building._id, label: building.building_name }))
                               .find((option) => option.value === field.value) || null
                           }
-                          onChange={(option) => field.onChange(option?.value || "")}
+                          onChange={(option) => {
+                            field.onChange(option?.value || "");
+                            const location_id = getValues('location_id');
+                            const hostel_id = getValues('hostel_id');
+                            if (option?.value) {
+                              getRooms(location_id, hostel_id, option.value);
+                            }
+                          }}
                           styles={{
                             control: (base) => ({
                               ...base,
@@ -435,15 +507,175 @@ const List = () => {
                       </p>
                     )}
                   </div>
+                  <div className="">
+                    <label htmlFor="room_id" className='block mb-2 text-gray-700 dark:text-white font-semibold'>Room No. </label>
+                    <Controller
+                      name='room_id'
+                      defaultValue={null}
+                      control={control}
+                      rules={{ required: "Room No is required" }}
+                      render={({ field }) => (
+                        <Select
+                          options={rooms.map((room) => ({
+                            value: room._id,
+                            label: room.room_no
+                          }))}
+                          placeholder="Select Room"
+                          value={
+                            rooms
+                              .map((room) => ({ value: room._id, label: room.room_no }))
+                              .find((option) => option.value === field.value) || null
+                          }
+                          onChange={(option) => {
+                            const location_id = getValues('location_id');
+                            const hostel_id = getValues('hostel_id');
+                            const building_id = getValues('building_id');
+                            field.onChange(option?.value || "");
+                            if (option?.value) {
+                              getAvailableSeats(option.value);
+                              getHostellerBasedRoom(location_id, hostel_id, building_id, option.value);
+                            }
+                          }}
+                          styles={{
+                            control: (base) => ({
+                              ...base,
+                              backgroundColor: isDark ? "#1f2937" : "#fff",
+                              borderColor: isDark ? "#374151" : "#d1d5db",
+                            }),
+                            singleValue: (base) => ({
+                              ...base,
+                              color: isDark ? "#f9fafb" : "#111827",
+                            }),
+                            menu: (base) => ({
+                              ...base,
+                              backgroundColor: isDark ? "#111827" : "#fff",
+                              color: isDark ? "#f9fafb" : "#111827",
+                            }),
+                            option: (base, { isFocused, isSelected }) => ({
+                              ...base,
+                              backgroundColor: isFocused
+                                ? (isDark ? "#374151" : "#e5e7eb")
+                                : isSelected
+                                  ? (isDark ? "#4b5563" : "#d1d5db")
+                                  : "transparent",
+                              color: isDark ? '#fff' : '#1f2937',
+                              cursor: "pointer",
+                            }),
+                          }}
+                        />
+                      )}
+                    />
+                    {errors.room_id && (
+                      <p className="text-red-500 text-sm mt-1 font-bold">
+                        {errors.room_id.message}
+                      </p>
+                    )}
+                  </div>
+                  <div className="">
+                    <label htmlFor="seat_no" className='block mb-2 text-gray-700 dark:text-white font-semibold'>Select Seat</label>
+                    <Controller
+                      name='seat_no'
+                      defaultValue={null}
+                      control={control}
+                      rules={{ required: "Seta No. is required" }}
+                      render={({ field }) => (
+                        <Select
+                          options={availableSeats.map((availablSeat) => ({
+                            value: availablSeat._id,
+                            label: availablSeat.seat_no
+                          }))}
+                          placeholder="Select Seat No."
+                          value={
+                            availableSeats
+                              .map((availablSeat) => ({ value: availablSeat._id, label: availablSeat.seat_no }))
+                              .find((option) => option.value === field.value) || null
+                          }
+                          onChange={(option) => {
+                            field.onChange(option?.value);
+                          }}
+                          styles={{
+                            control: (base) => ({
+                              ...base,
+                              backgroundColor: isDark ? "#1f2937" : "#fff",
+                              borderColor: isDark ? "#374151" : "#d1d5db",
+                            }),
+                            singleValue: (base) => ({
+                              ...base,
+                              color: isDark ? "#f9fafb" : "#111827",
+                            }),
+                            menu: (base) => ({
+                              ...base,
+                              backgroundColor: isDark ? "#111827" : "#fff",
+                              color: isDark ? "#f9fafb" : "#111827",
+                            }),
+                            option: (base, { isFocused, isSelected }) => ({
+                              ...base,
+                              backgroundColor: isFocused
+                                ? (isDark ? "#374151" : "#e5e7eb")
+                                : isSelected
+                                  ? (isDark ? "#4b5563" : "#d1d5db")
+                                  : "transparent",
+                              color: isDark ? '#fff' : '#1f2937',
+                              cursor: "pointer",
+                            }),
+                          }}
+                        />
+                      )}
+                    />
+                    {errors.seat_no && (
+                      <p className="text-red-500 text-sm mt-1 font-bold">
+                        {errors.seat_no.message}
+                      </p>
+                    )}
+                  </div>
 
                   <div className="">
-                    <label htmlFor="building" className='block mb-2 text-gray-700 dark:text-white font-semibold'>Room <span className='text-red-500'>*</span></label>
-                    <input
-                      type="text"
-                      placeholder='Enter Room Number'
-                      className='w-full input-style  focus:outline-none focus:ring-2 focus:ring-[#f1f0ff] focus:border-[#f1f0ff] transition' {
-                      ...register('room_no')
-                      } />
+                    <label htmlFor="hosteller" className='block mb-2 text-gray-700 dark:text-white font-semibold'>Hosteller </label>
+                    <Controller
+                      name="hosteller"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          options={hosteller.map((ls) => ({
+                            value: ls.id,
+                            label: ls.name,
+                          }))}
+                          placeholder="Select Hosteller"
+                          value={field.value}
+                          onChange={(option) => field.onChange(option)}
+                          styles={{
+                            control: (base) => ({
+                              ...base,
+                              backgroundColor: isDark ? "#1f2937" : "#fff",
+                              borderColor: isDark ? "#374151" : "#d1d5db",
+                            }),
+                            singleValue: (base) => ({
+                              ...base,
+                              color: isDark ? "#f9fafb" : "#111827",
+                            }),
+                            menu: (base) => ({
+                              ...base,
+                              backgroundColor: isDark ? "#111827" : "#fff",
+                              color: isDark ? "#f9fafb" : "#111827",
+                            }),
+                            option: (base, { isFocused, isSelected }) => ({
+                              ...base,
+                              backgroundColor: isFocused
+                                ? isDark
+                                  ? "#374151"
+                                  : "#e5e7eb"
+                                : isSelected
+                                  ? isDark
+                                    ? "#4b5563"
+                                    : "#d1d5db"
+                                  : "transparent",
+                              color: isDark ? "#fff" : "#1f2937",
+                              cursor: "pointer",
+                            }),
+                          }}
+                        />
+                      )}
+                    />
                   </div>
                 </div>
 
@@ -518,6 +750,15 @@ const List = () => {
           }}
         />
       </div>
+
+      <Modal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        hostellerId={selectedHosteller}
+        getAllHostellers={getAllHostellers}
+        setShowModal={setShowModal}
+      />
+
     </div>
   )
 }

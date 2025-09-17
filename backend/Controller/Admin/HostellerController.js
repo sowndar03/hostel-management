@@ -119,25 +119,56 @@ const statusChange = async (req, res) => {
         const { id, status } = req.body;
         const changedStatus = status == 0 ? 1 : 0;
 
-        const result = await Hosteller.findByIdAndUpdate(
-            id,
-            { status: changedStatus },
-            { new: true }
-        );
+        if (changedStatus == 1) {
+            const hosteller = await Hosteller.findById(id);
+            if (!hosteller) {
+                return res.status(404).json({ message: "Hosteller not found" });
+            }
 
-        const room_status = await Roomstatus.findByIdAndUpdate(
-            result.seat_no,
-            { seat_status: changedStatus === 0 ? 1 : 2 },
-            { new: true }
-        );
+            const seat_details = await Roomstatus.findById(hosteller.seat_no);
+            if (!seat_details) {
+                return res.status(404).json({ message: "Seat not found" });
+            }
 
-        const incrementValue = changedStatus === 0 ? 1 : -1;
+            if (seat_details.seat_status !== "1") {
+                return res.status(400).json({ message: "Seat is already occupied" });
+            }
 
-        const room_count_update = await Rooms.findByIdAndUpdate(
-            result.room_id,
-            { $inc: { available_count: incrementValue } },
-            { new: true }
-        );
+            const result = await Hosteller.findByIdAndUpdate(
+                id,
+                { status: changedStatus },
+                { new: true }
+            );
+
+            await Roomstatus.findByIdAndUpdate(
+                result.seat_no,
+                { seat_status: 2 },
+                { new: true }
+            );
+
+            return res.status(200).json({ message: "Hosteller activated", data: result });
+
+        } else if (changedStatus == 0) {
+            const result = await Hosteller.findByIdAndUpdate(
+                id,
+                { status: changedStatus },
+                { new: true }
+            );
+
+            await Roomstatus.findByIdAndUpdate(
+                result.seat_no,
+                { seat_status: 1 },
+                { new: true }
+            );
+
+            await Rooms.findByIdAndUpdate(
+                result.room_id,
+                { $inc: { available_count: 1 } },
+                { new: true }
+            );
+
+            return res.status(200).json({ message: "Hosteller deactivated", data: result });
+        }
 
         res.status(200).json({
             success: true,
@@ -145,6 +176,39 @@ const statusChange = async (req, res) => {
             data: result
         });
 
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+};
+
+const statusUpdate = async (req, res) => {
+    try {
+        var { id, building_id, room_id, seat_no } = req.body;
+        const changedStatus = 1;
+        building_id = building_id.value;
+
+        const hosteller = await Hosteller.findById(id);
+        const seat_details = await Roomstatus.findById(seat_no);
+
+        console.log(seat_details);
+        const result = await Hosteller.findByIdAndUpdate(
+            id,
+            {
+                status: changedStatus,
+                building_id,
+                room_id,
+                seat_no
+            },
+            { new: true }
+        );
+
+        await Roomstatus.findByIdAndUpdate(
+            result.seat_no,
+            { seat_status: 2, user_id: hosteller._id },
+            { new: true }
+        );
+
+        return res.status(200).json({ message: "Hosteller activated", data: result });
     } catch (err) {
         return res.status(500).json({ message: err.message });
     }
@@ -162,13 +226,7 @@ const deleteHosteller = async (req, res) => {
 
         await Roomstatus.findByIdAndUpdate(
             result.seat_no,
-            { seat_status: 1 }, 
-            { new: true }
-        );
-
-        await Rooms.findByIdAndUpdate(
-            result.room_id,
-            { $inc: { available_count: 1 } },
+            { seat_status: 1 },
             { new: true }
         );
 
@@ -183,6 +241,39 @@ const deleteHosteller = async (req, res) => {
     }
 };
 
+const getPeoples = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const result = await Roomstatus.find({ room_id: id }).populate('user_id', 'name').populate('room_id', 'room_no');
+
+        res.status(200).json({
+            success: true,
+            message: "Fetched successfully",
+            data: result
+        });
+
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+}
+const getHosteller = async (req, res) => {
+    try {
+        const { location_id, hostel_id, building_id, room_id } = req.params;
+
+        const result = await Hosteller.find({ room_id, building_id, hostel_id, location_id }).populate('user_id', 'name').populate('room_id', 'room_no');
+
+        res.status(200).json({
+            success: true,
+            message: "Fetched successfully",
+            data: result
+        });
+
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+}
+
 module.exports = {
-    list, store, selectOne, deleteHosteller, statusChange
+    list, store, selectOne, deleteHosteller, statusChange, statusUpdate, getPeoples, getHosteller
 }

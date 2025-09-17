@@ -10,7 +10,7 @@ const roomStatusSchema = new mongoose.Schema({
     },
     user_id: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        ref: "Hosteller",
     },
     seat_status: {
         type: String,

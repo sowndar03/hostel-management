@@ -39,6 +39,7 @@ import HostellersEdit from './pages/Admin/Hostellers/Edit';
 
 import UploadList from './pages/Admin/Upload/List';
 import UploadView from './pages/Admin/Upload/View';
+import HostllerRoomList from './pages/Master/Rooms/Hostellerslist';
 
 function App() {
 
@@ -87,8 +88,8 @@ function App() {
                 <Route path="view/:id" element={<HostellersView />} />
                 <Route path="edit/:id" element={<HostellersEdit />} />
               </Route>
+              <Route path="master/room/hostellers/list/:id" element={<HostllerRoomList />} />
 
-              
               <Route path='administration/uploads'>
                 <Route path="list" element={<UploadList />} />
                 <Route path="view/:id" element={<UploadView />} />

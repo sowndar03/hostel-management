@@ -17,7 +17,22 @@ const list = async (req, res) => {
             .populate("building_id", "building_name")
             .populate("created_by", "name");
 
-        res.status(200).json({ data: rooms });
+        const roomsWithCount = await Promise.all(
+            rooms.map(async (room) => {
+                const count = await Roomstatus.countDocuments({
+                    room_id: room._id,
+                    seat_status: "1",
+                });
+                return {
+                    ...room.toObject(),
+                    availableSeats: count,
+                };
+            })
+        );
+
+        res.status(200).json({ data: roomsWithCount });
+
+        res.status(200).json({ data: roomsWithCount });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -205,14 +220,7 @@ const updates = async (req, res) => {
 
         const result = await Rooms.findByIdAndUpdate(
             id,
-            {
-                location_id,
-                hostel_id,
-                building_id,
-                room_count,
-                available_count: room_count,
-                room_no,
-            },
+            { location_id, hostel_id, building_id, room_count, room_no },
             { new: true }
         );
 
@@ -220,68 +228,61 @@ const updates = async (req, res) => {
             return res.status(404).json({ message: "Room not found" });
         }
 
-        const room = await Rooms.findById(id);
         const rooms_status = await Roomstatus.find({ room_id: id, trash: { $ne: "YES" } });
 
-        if (room_count === rooms_status.length) {
-        } else {
-            if (room_count < rooms_status.length) {
-                const extraSeats = rooms_status.length - room_count;
+        if (room_count < rooms_status.length) {
+            const extraSeats = rooms_status.length - room_count;
+            const seatsToRemove = await Roomstatus.find({ room_id: id, trash: { $ne: "YES" } })
+                .sort({ seat_no: -1 })
+                .limit(extraSeats);
 
-                const seatsToRemove = await Roomstatus.find({ room_id: id, trash: { $ne: "YES" } })
-                    .sort({ seat_no: -1 })
-                    .limit(extraSeats);
+            const seatIds = seatsToRemove.map(s => s._id);
+            await Roomstatus.updateMany(
+                { _id: { $in: seatIds } },
+                { $set: { trash: "YES", status: 0 } }
+            );
 
-                const seatIds = seatsToRemove.map(s => s._id);
+        } else if (room_count > rooms_status.length) {
+            const needSeats = room_count - rooms_status.length;
 
-                await Roomstatus.updateMany(
-                    { _id: { $in: seatIds } },
-                    { $set: { trash: "YES", status: 0 } }
-                );
-            } else if (room_count > rooms_status.length) {
-                const existingTrashed = await Roomstatus.find({ room_id: id, trash: "YES" })
-                    .sort({ seat_no: 1 });
+            const existingTrashed = await Roomstatus.find({ room_id: id, trash: "YES" }).sort({ seat_no: 1 });
+            const seatsToReuse = existingTrashed.slice(0, needSeats);
 
-                const needSeats = room_count - rooms_status.length;
-                const seatsToReuse = existingTrashed.slice(0, needSeats);
-
+            if (seatsToReuse.length > 0) {
                 const reuseIds = seatsToReuse.map(s => s._id);
-                if (reuseIds.length > 0) {
-                    await Roomstatus.updateMany(
-                        { _id: { $in: reuseIds } },
-                        { $set: { trash: "NO", status: 1 } }
-                    );
+                await Roomstatus.updateMany(
+                    { _id: { $in: reuseIds } },
+                    { $set: { trash: "NO", status: 1 } }
+                );
+            }
+
+            const stillNeed = needSeats - seatsToReuse.length;
+            if (stillNeed > 0) {
+                const lastSeat = await Roomstatus.findOne({ room_id: id }).sort({ seat_no: -1 });
+                let startNo = lastSeat ? Number(lastSeat.seat_no) + 1 : 1;
+
+                const newSeats = [];
+                for (let i = 0; i < stillNeed; i++) {
+                    newSeats.push({
+                        room_id: id,
+                        seat_no: String(startNo + i),
+                        seat_status: 1,
+                        user_id: null,
+                        trash: "NO",
+                        created_by: req.user.id,
+                    });
                 }
 
-                const stillNeed = needSeats - seatsToReuse.length;
-                if (stillNeed > 0) {
-                    const lastSeat = await Roomstatus.findOne({ room_id: id })
-                        .sort({ seat_no: -1 });
-
-                    let startNo = lastSeat ? lastSeat.seat_no + 1 : 1;
-
-                    const newSeats = [];
-                    for (let i = 0; i < stillNeed; i++) {
-                        newSeats.push({
-                            room_id: room._id,
-                            seat_no: startNo + i,
-                            seat_status: 1,
-                            user_id: null,
-                            trash: "NO",
-                            created_by: req.user.id,
-                        });
-                    }
-                    await Roomstatus.insertMany(newSeats);
-                }
+                await Roomstatus.insertMany(newSeats);
             }
         }
 
         return res.json({ message: "Updated successfully", data: result });
     } catch (err) {
+        console.error(err);
         return res.status(500).json({ message: err.message });
     }
 };
-
 
 const searchValues = async (req, res) => {
 

@@ -7,6 +7,7 @@ import { getAvailableCount, getStatus } from '../../../utils/helper';
 import { IoEye } from 'react-icons/io5';
 import { BiSolidEdit } from 'react-icons/bi';
 import { AiTwotoneDelete } from 'react-icons/ai';
+import { FaUsersViewfinder } from "react-icons/fa6";
 import { ThemeContext } from '../../../context/ThemeContext';
 import Swal from 'sweetalert2';
 import { useForm, Controller } from 'react-hook-form';
@@ -166,6 +167,9 @@ const list = () => {
   const handleEdit = (id) => {
     navigate(`/master/room/edit/${id}`);
   };
+  const handlehostellerList = (id) => {
+    navigate(`/master/room/hostellers/list/${id}`);
+  };
 
   const columns = [
     {
@@ -191,7 +195,7 @@ const list = () => {
       name: "Count", selector: (row) => row.room_count, sortable: true,
     },
     {
-      name: "Available Seats", selector: (row) => getAvailableCount(row.available_count), sortable: true, wrap: true, style: {
+      name: "Available Seats", selector: (row) => getAvailableCount(row.availableSeats), sortable: true, wrap: true, style: {
         paddingTop: "6px",
         paddingBottom: "6px",
         paddingLeft: "8px",
@@ -234,6 +238,11 @@ const list = () => {
             size={20}
             className="text-red-600 hover:text-red-800 cursor-pointer"
             onClick={() => handleDelete(row._id)}
+          />
+          <FaUsersViewfinder
+            size={25}
+            className="text-green-600 hover:text-green-800 cursor-pointer"
+            onClick={() => handlehostellerList(row._id)}
           />
         </div>
       ),
