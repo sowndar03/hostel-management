@@ -15,6 +15,7 @@ router.post('/master/hostellers/statusUpdate', hostellerController.statusUpdate)
 router.post('/master/hostellers/delete', hostellerController.deleteHosteller);
 router.get('/master/rooms/getHostellers/:id', hostellerController.getPeoples);
 router.get('/master/rooms/getHostellers/:location_id/:hostel_id/:building_id/:room_id', hostellerController.getHosteller)
+router.post('/master/hostellers/searchValues', hostellerController.searchValues)
 
 
 module.exports = router;

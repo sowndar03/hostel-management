@@ -274,6 +274,49 @@ const getHosteller = async (req, res) => {
     }
 }
 
+const searchValues = async (req, res) => {
+
+    const { location_id, hostel_id, building_id, room_id, hosteller } = req.body;
+    let query = {};
+
+    if (location_id && location_id !== "") {
+        query.location_id = location_id;
+    }
+
+    if (hostel_id && hostel_id !== "") {
+        query.hostel_id = hostel_id;
+    }
+
+    if (building_id && building_id !== "") {
+        query.building_id = building_id;
+    }
+    if (room_id && room_id !== "") {
+        query.room_id = room_id;
+    }
+    if (hosteller && hosteller !== "") {
+        query._id = hosteller;
+    }
+
+    query.trash = 'NO';
+
+    try {
+
+        const result = await Hosteller.find(query)
+            .populate("location_id", "location_name")
+            .populate("hostel_id", "hostel_name")
+            .populate("building_id", "building_name")
+            .populate("room_id", "room_no")
+            .populate("seat_no", "seat_no")
+            .populate("created_by", "name");
+
+        res.json({ success: true, data: result });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+
+}
+
 module.exports = {
-    list, store, selectOne, deleteHosteller, statusChange, statusUpdate, getPeoples, getHosteller
+    list, store, selectOne, deleteHosteller, statusChange, statusUpdate, getPeoples, getHosteller, searchValues
 }

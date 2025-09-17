@@ -16,7 +16,7 @@ import Modal from './Modal';
 
 const List = () => {
   const [filterToggle, setFilterToggle] = useState(false);
-  const { handleSubmit, control, register, getValues, setValue, formState: { errors, isSubmitting } } = useForm();
+  const { handleSubmit, control, register, getValues, setValue, reset, formState: { errors, isSubmitting } } = useForm();
   const [locations, setLocations] = useState([]);
   const [hostels, setHostel] = useState([]);
   const [buildings, setBuildings] = useState([]);
@@ -31,12 +31,28 @@ const List = () => {
   const api_url = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
 
-  const handleSearch = () => {
-
+  const handleSearch = async (data) => {
+    try {
+      const result = await api.post(`${api_url}/admin/master/hostellers/searchValues`, data);
+      setList(result.data.data);
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   const handleReset = () => {
-    reset();
+    reset({
+      location_id: "",
+      hostel_id: "",
+      building_id: "",
+      room_id: "",
+      hosteller: "",
+    });
+    setHostel([]);
+    setBuildings([]);
+    setRooms([]);
+    setAvailableSeats([]);
+    setHosteller([]);
   }
 
   const openSeatSelectionModal = (hostellerId) => {
@@ -281,6 +297,38 @@ const List = () => {
     },
   ];
 
+  const selectStyles = (isDark) => ({
+    control: (base) => ({
+      ...base,
+      backgroundColor: isDark ? "#1f2937" : "#fff",
+      borderColor: isDark ? "#374151" : "#d1d5db",
+    }),
+    singleValue: (base) => ({
+      ...base,
+      color: isDark ? "#f9fafb" : "#111827",
+    }),
+    menu: (base) => ({
+      ...base,
+      backgroundColor: isDark ? "#111827" : "#fff",
+      color: isDark ? "#f9fafb" : "#111827",
+    }),
+    option: (base, { isFocused, isSelected }) => ({
+      ...base,
+      backgroundColor: isFocused
+        ? isDark
+          ? "#374151"
+          : "#e5e7eb"
+        : isSelected
+          ? isDark
+            ? "#4b5563"
+            : "#d1d5db"
+          : "transparent",
+      color: isDark ? "#fff" : "#1f2937",
+      cursor: "pointer",
+    }),
+  });
+
+
   const arrowColor = isDark ? "#ffffff" : "#111827";
   useEffect(() => {
     getallLocation();
@@ -322,357 +370,179 @@ const List = () => {
                 transition={{ duration: 0.3 }}
                 className="pb-3 mb-4"
               >
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3   gap-6 mb-4">
-                  <div className="">
-                    <label htmlFor="location_id" className='block mb-2 text-gray-700 dark:text-white font-semibold'>Location </label>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-4">
+
+                  {/* Location */}
+                  <div>
+                    <label
+                      htmlFor="location_id"
+                      className="block mb-2 text-gray-700 dark:text-white font-semibold"
+                    >
+                      Location
+                    </label>
                     <Controller
-                      name='location_id'
-                      defaultValue={null}
+                      name="location_id"
                       control={control}
-                      rules={{ required: "Location is required" }}
+                      defaultValue=""
                       render={({ field }) => (
                         <Select
-                          options={locations.map((location) => ({
-                            value: location.id,
-                            label: location.name
+                          options={locations.map((loc) => ({
+                            value: loc.id,
+                            label: loc.name,
                           }))}
                           placeholder="Select Location"
                           value={
                             locations
                               .map((loc) => ({ value: loc.id, label: loc.name }))
-                              .find((option) => option.value === field.value) || null
+                              .find((opt) => opt.value === field.value) || null
                           }
-                          onChange={(option) => {
-                            field.onChange(option?.value || "");
-                            if (option?.value) {
-                              getAllHostels(option.value);
-                            }
+                          onChange={(opt) => {
+                            field.onChange(opt ? opt.value : "");
+                            if (opt?.value) getAllHostels(opt.value);
                           }}
-                          styles={{
-                            control: (base) => ({
-                              ...base,
-                              backgroundColor: isDark ? "#1f2937" : "#fff",
-                              borderColor: isDark ? "#374151" : "#d1d5db",
-                            }),
-                            singleValue: (base) => ({
-                              ...base,
-                              color: isDark ? "#f9fafb" : "#111827",
-                            }),
-                            menu: (base) => ({
-                              ...base,
-                              backgroundColor: isDark ? "#111827" : "#fff",
-                              color: isDark ? "#f9fafb" : "#111827",
-                            }),
-                            option: (base, { isFocused, isSelected }) => ({
-                              ...base,
-                              backgroundColor: isFocused
-                                ? (isDark ? "#374151" : "#e5e7eb")
-                                : isSelected
-                                  ? (isDark ? "#4b5563" : "#d1d5db")
-                                  : "transparent",
-                              color: isDark ? '#fff' : '#1f2937',
-                              cursor: "pointer",
-                            }),
-                          }}
+                          styles={selectStyles(isDark)}
                         />
                       )}
                     />
-                    {errors.location_id && (
-                      <p className="text-red-500 text-sm mt-1 font-bold">
-                        {errors.location_id.message}
-                      </p>
-                    )}
                   </div>
-                  <div className="">
-                    <label htmlFor="hostel_id" className='block mb-2 text-gray-700 dark:text-white font-semibold'>Hostel </label>
+
+                  {/* Hostel */}
+                  <div>
+                    <label
+                      htmlFor="hostel_id"
+                      className="block mb-2 text-gray-700 dark:text-white font-semibold"
+                    >
+                      Hostel
+                    </label>
                     <Controller
-                      name='hostel_id'
-                      defaultValue={null}
+                      name="hostel_id"
                       control={control}
-                      rules={{ required: "Hostel is required" }}
+                      defaultValue=""
                       render={({ field }) => (
                         <Select
-                          options={hostels.map((hostel) => ({
-                            value: hostel.id,
-                            label: hostel.hostel_name
+                          options={hostels.map((h) => ({
+                            value: h.id,
+                            label: h.hostel_name,
                           }))}
                           placeholder="Select Hostel"
                           value={
                             hostels
-                              .map((hostel) => ({ value: hostel.id, label: hostel.hostel_name }))
-                              .find((option) => option.value === field.value) || null
+                              .map((h) => ({ value: h.id, label: h.hostel_name }))
+                              .find((opt) => opt.value === field.value) || null
                           }
-                          onChange={(option) => {
-                            field.onChange(option?.value || "");
-                            const location_id = getValues('location_id');
-                            if (option?.value) {
-                              getBuildings(location_id, option.value);
-                            }
+                          onChange={(opt) => {
+                            field.onChange(opt ? opt.value : "");
+                            const location_id = getValues("location_id");
+                            if (opt?.value) getBuildings(location_id, opt.value);
                           }}
-                          styles={{
-                            control: (base) => ({
-                              ...base,
-                              backgroundColor: isDark ? "#1f2937" : "#fff",
-                              borderColor: isDark ? "#374151" : "#d1d5db",
-                            }),
-                            singleValue: (base) => ({
-                              ...base,
-                              color: isDark ? "#f9fafb" : "#111827",
-                            }),
-                            menu: (base) => ({
-                              ...base,
-                              backgroundColor: isDark ? "#111827" : "#fff",
-                              color: isDark ? "#f9fafb" : "#111827",
-                            }),
-                            option: (base, { isFocused, isSelected }) => ({
-                              ...base,
-                              backgroundColor: isFocused
-                                ? (isDark ? "#374151" : "#e5e7eb")
-                                : isSelected
-                                  ? (isDark ? "#4b5563" : "#d1d5db")
-                                  : "transparent",
-                              color: isDark ? '#fff' : '#1f2937',
-                              cursor: "pointer",
-                            }),
-                          }}
+                          styles={selectStyles(isDark)}
                         />
                       )}
                     />
-                    {errors.hostel_id && (
-                      <p className="text-red-500 text-sm mt-1 font-bold">
-                        {errors.hostel_id.message}
-                      </p>
-                    )}
                   </div>
 
-                  <div className="">
-                    <label htmlFor="hostel_id" className='block mb-2 text-gray-700 dark:text-white font-semibold'>Building </label>
+                  {/* Building */}
+                  <div>
+                    <label
+                      htmlFor="building_id"
+                      className="block mb-2 text-gray-700 dark:text-white font-semibold"
+                    >
+                      Building
+                    </label>
                     <Controller
-                      name='building_id'
-                      defaultValue={null}
+                      name="building_id"
                       control={control}
-                      rules={{ required: "Building is required" }}
+                      defaultValue=""
                       render={({ field }) => (
                         <Select
-                          options={buildings.map((building) => ({
-                            value: building._id,
-                            label: building.building_name
+                          options={buildings.map((b) => ({
+                            value: b._id,
+                            label: b.building_name,
                           }))}
                           placeholder="Select Building"
                           value={
                             buildings
-                              .map((building) => ({ value: building._id, label: building.building_name }))
-                              .find((option) => option.value === field.value) || null
+                              .map((b) => ({ value: b._id, label: b.building_name }))
+                              .find((opt) => opt.value === field.value) || null
                           }
-                          onChange={(option) => {
-                            field.onChange(option?.value || "");
-                            const location_id = getValues('location_id');
-                            const hostel_id = getValues('hostel_id');
-                            if (option?.value) {
-                              getRooms(location_id, hostel_id, option.value);
-                            }
+                          onChange={(opt) => {
+                            field.onChange(opt ? opt.value : "");
+                            const location_id = getValues("location_id");
+                            const hostel_id = getValues("hostel_id");
+                            if (opt?.value) getRooms(location_id, hostel_id, opt.value);
                           }}
-                          styles={{
-                            control: (base) => ({
-                              ...base,
-                              backgroundColor: isDark ? "#1f2937" : "#fff",
-                              borderColor: isDark ? "#374151" : "#d1d5db",
-                            }),
-                            singleValue: (base) => ({
-                              ...base,
-                              color: isDark ? "#f9fafb" : "#111827",
-                            }),
-                            menu: (base) => ({
-                              ...base,
-                              backgroundColor: isDark ? "#111827" : "#fff",
-                              color: isDark ? "#f9fafb" : "#111827",
-                            }),
-                            option: (base, { isFocused, isSelected }) => ({
-                              ...base,
-                              backgroundColor: isFocused
-                                ? (isDark ? "#374151" : "#e5e7eb")
-                                : isSelected
-                                  ? (isDark ? "#4b5563" : "#d1d5db")
-                                  : "transparent",
-                              color: isDark ? '#fff' : '#1f2937',
-                              cursor: "pointer",
-                            }),
-                          }}
+                          styles={selectStyles(isDark)}
                         />
                       )}
                     />
-                    {errors.building_id && (
-                      <p className="text-red-500 text-sm mt-1 font-bold">
-                        {errors.building_id.message}
-                      </p>
-                    )}
                   </div>
-                  <div className="">
-                    <label htmlFor="room_id" className='block mb-2 text-gray-700 dark:text-white font-semibold'>Room No. </label>
+
+                  {/* Room */}
+                  <div>
+                    <label
+                      htmlFor="room_id"
+                      className="block mb-2 text-gray-700 dark:text-white font-semibold"
+                    >
+                      Room No.
+                    </label>
                     <Controller
-                      name='room_id'
-                      defaultValue={null}
+                      name="room_id"
                       control={control}
-                      rules={{ required: "Room No is required" }}
+                      defaultValue=""
                       render={({ field }) => (
                         <Select
-                          options={rooms.map((room) => ({
-                            value: room._id,
-                            label: room.room_no
+                          options={rooms.map((r) => ({
+                            value: r._id,
+                            label: r.room_no,
                           }))}
                           placeholder="Select Room"
                           value={
                             rooms
-                              .map((room) => ({ value: room._id, label: room.room_no }))
-                              .find((option) => option.value === field.value) || null
+                              .map((r) => ({ value: r._id, label: r.room_no }))
+                              .find((opt) => opt.value === field.value) || null
                           }
-                          onChange={(option) => {
-                            const location_id = getValues('location_id');
-                            const hostel_id = getValues('hostel_id');
-                            const building_id = getValues('building_id');
-                            field.onChange(option?.value || "");
-                            if (option?.value) {
-                              getAvailableSeats(option.value);
-                              getHostellerBasedRoom(location_id, hostel_id, building_id, option.value);
+                          onChange={(opt) => {
+                            field.onChange(opt ? opt.value : "");
+                            const location_id = getValues("location_id");
+                            const hostel_id = getValues("hostel_id");
+                            const building_id = getValues("building_id");
+                            if (opt?.value) {
+                              getAvailableSeats(opt.value);
+                              getHostellerBasedRoom(location_id, hostel_id, building_id, opt.value);
                             }
                           }}
-                          styles={{
-                            control: (base) => ({
-                              ...base,
-                              backgroundColor: isDark ? "#1f2937" : "#fff",
-                              borderColor: isDark ? "#374151" : "#d1d5db",
-                            }),
-                            singleValue: (base) => ({
-                              ...base,
-                              color: isDark ? "#f9fafb" : "#111827",
-                            }),
-                            menu: (base) => ({
-                              ...base,
-                              backgroundColor: isDark ? "#111827" : "#fff",
-                              color: isDark ? "#f9fafb" : "#111827",
-                            }),
-                            option: (base, { isFocused, isSelected }) => ({
-                              ...base,
-                              backgroundColor: isFocused
-                                ? (isDark ? "#374151" : "#e5e7eb")
-                                : isSelected
-                                  ? (isDark ? "#4b5563" : "#d1d5db")
-                                  : "transparent",
-                              color: isDark ? '#fff' : '#1f2937',
-                              cursor: "pointer",
-                            }),
-                          }}
+                          styles={selectStyles(isDark)}
                         />
                       )}
                     />
-                    {errors.room_id && (
-                      <p className="text-red-500 text-sm mt-1 font-bold">
-                        {errors.room_id.message}
-                      </p>
-                    )}
-                  </div>
-                  <div className="">
-                    <label htmlFor="seat_no" className='block mb-2 text-gray-700 dark:text-white font-semibold'>Select Seat</label>
-                    <Controller
-                      name='seat_no'
-                      defaultValue={null}
-                      control={control}
-                      rules={{ required: "Seta No. is required" }}
-                      render={({ field }) => (
-                        <Select
-                          options={availableSeats.map((availablSeat) => ({
-                            value: availablSeat._id,
-                            label: availablSeat.seat_no
-                          }))}
-                          placeholder="Select Seat No."
-                          value={
-                            availableSeats
-                              .map((availablSeat) => ({ value: availablSeat._id, label: availablSeat.seat_no }))
-                              .find((option) => option.value === field.value) || null
-                          }
-                          onChange={(option) => {
-                            field.onChange(option?.value);
-                          }}
-                          styles={{
-                            control: (base) => ({
-                              ...base,
-                              backgroundColor: isDark ? "#1f2937" : "#fff",
-                              borderColor: isDark ? "#374151" : "#d1d5db",
-                            }),
-                            singleValue: (base) => ({
-                              ...base,
-                              color: isDark ? "#f9fafb" : "#111827",
-                            }),
-                            menu: (base) => ({
-                              ...base,
-                              backgroundColor: isDark ? "#111827" : "#fff",
-                              color: isDark ? "#f9fafb" : "#111827",
-                            }),
-                            option: (base, { isFocused, isSelected }) => ({
-                              ...base,
-                              backgroundColor: isFocused
-                                ? (isDark ? "#374151" : "#e5e7eb")
-                                : isSelected
-                                  ? (isDark ? "#4b5563" : "#d1d5db")
-                                  : "transparent",
-                              color: isDark ? '#fff' : '#1f2937',
-                              cursor: "pointer",
-                            }),
-                          }}
-                        />
-                      )}
-                    />
-                    {errors.seat_no && (
-                      <p className="text-red-500 text-sm mt-1 font-bold">
-                        {errors.seat_no.message}
-                      </p>
-                    )}
                   </div>
 
-                  <div className="">
-                    <label htmlFor="hosteller" className='block mb-2 text-gray-700 dark:text-white font-semibold'>Hosteller </label>
+                  {/* Hosteller */}
+                  <div>
+                    <label
+                      htmlFor="hosteller"
+                      className="block mb-2 text-gray-700 dark:text-white font-semibold"
+                    >
+                      Hosteller
+                    </label>
                     <Controller
                       name="hosteller"
                       control={control}
+                      defaultValue=""
                       render={({ field }) => (
                         <Select
-                          options={hosteller.map((ls) => ({
-                            value: ls.id,
-                            label: ls.name,
+                          options={hosteller.map((h) => ({
+                            value: h._id,
+                            label: h.name,
                           }))}
                           placeholder="Select Hosteller"
-                          value={field.value}
-                          onChange={(option) => field.onChange(option)}
-                          styles={{
-                            control: (base) => ({
-                              ...base,
-                              backgroundColor: isDark ? "#1f2937" : "#fff",
-                              borderColor: isDark ? "#374151" : "#d1d5db",
-                            }),
-                            singleValue: (base) => ({
-                              ...base,
-                              color: isDark ? "#f9fafb" : "#111827",
-                            }),
-                            menu: (base) => ({
-                              ...base,
-                              backgroundColor: isDark ? "#111827" : "#fff",
-                              color: isDark ? "#f9fafb" : "#111827",
-                            }),
-                            option: (base, { isFocused, isSelected }) => ({
-                              ...base,
-                              backgroundColor: isFocused
-                                ? isDark
-                                  ? "#374151"
-                                  : "#e5e7eb"
-                                : isSelected
-                                  ? isDark
-                                    ? "#4b5563"
-                                    : "#d1d5db"
-                                  : "transparent",
-                              color: isDark ? "#fff" : "#1f2937",
-                              cursor: "pointer",
-                            }),
-                          }}
+                          value={
+                            hosteller
+                              .map((h) => ({ value: h._id, label: h.name }))
+                              .find((opt) => opt.value === field.value) || null
+                          }
+                          onChange={(opt) => field.onChange(opt ? opt.value : "")}
+                          styles={selectStyles(isDark)}
                         />
                       )}
                     />
@@ -695,7 +565,7 @@ const List = () => {
               </motion.div>
             )}
           </AnimatePresence>
-        </form>
+        </form> 
       </div>
 
       <div>
