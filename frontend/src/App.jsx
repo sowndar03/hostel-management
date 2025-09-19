@@ -41,6 +41,8 @@ import UploadList from './pages/Admin/Upload/List';
 import UploadView from './pages/Admin/Upload/View';
 import HostllerRoomList from './pages/Master/Rooms/Hostellerslist';
 
+import CurrentMonthList from './pages/RentManagement/CurrentMonthRent/List';
+
 function App() {
 
   return (
@@ -93,6 +95,10 @@ function App() {
               <Route path='administration/uploads'>
                 <Route path="list" element={<UploadList />} />
                 <Route path="view/:id" element={<UploadView />} />
+              </Route>
+
+              <Route path='rent-management'>
+                <Route path='hostellers/list' element={<CurrentMonthList />}></Route>
               </Route>
             </Route>
           </Routes>

@@ -99,6 +99,7 @@ const Modal = ({ isOpen, onClose, hostellerId, getAllHostellers, setShowModal })
             <form
                 onSubmit={handleSubmit(onSubmit)}
                 className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-3xl shadow-2xl border border-gray-200 dark:border-gray-700"
+                autoComplete="off"
             >
                 <h2 className="text-xl font-semibold mb-6 text-gray-800 dark:text-gray-100 border-b pb-3">
                     Select Room & Seat

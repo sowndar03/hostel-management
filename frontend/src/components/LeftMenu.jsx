@@ -4,6 +4,7 @@ import { FiHome, FiUser, FiMenu, FiX } from "react-icons/fi";
 import { NavLink } from "react-router-dom";
 import { ThemeContext } from "../context/ThemeContext";
 import { MdAdminPanelSettings } from "react-icons/md";
+import { FaFileInvoiceDollar } from "react-icons/fa";
 
 const LeftMenu = ({ collapsed, setCollapsed, isMobile }) => {
     const { theme } = useContext(ThemeContext);
@@ -79,15 +80,14 @@ const LeftMenu = ({ collapsed, setCollapsed, isMobile }) => {
                     <MenuItem component={<NavLink to='/admin/master/hostellers/list' />}>Hostellers</MenuItem>
                 </SubMenu>
 
-                <SubMenu icon={<FiUser />} label="Master">
-                    <MenuItem component={<NavLink to="/master/location/list" />}>
-                        Location
-                    </MenuItem>
+                <SubMenu icon={<FiUser  className="text-xl mr-2" />} label="Master">
+                    <MenuItem component={<NavLink to="/master/location/list" />}>Location</MenuItem>
                     <MenuItem component={<NavLink to="/master/hostel/list" />}>Hostel</MenuItem>
-                    <MenuItem component={<NavLink to="/master/building/list" />}>
-                        Building
-                    </MenuItem>
+                    <MenuItem component={<NavLink to="/master/building/list" />}>Building</MenuItem>
                     <MenuItem component={<NavLink to="/master/room/list" />}>Rooms</MenuItem>
+                </SubMenu>
+                <SubMenu icon={<FaFileInvoiceDollar className="text-xl mr-2" />} label="Rent Management">
+                    <MenuItem component={<NavLink to='/rent-management/hostellers/list' />}>Current Month Rent</MenuItem>
                 </SubMenu>
             </Menu>
         </Sidebar >

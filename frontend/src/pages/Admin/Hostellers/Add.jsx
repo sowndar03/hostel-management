@@ -476,6 +476,23 @@ const Add = () => {
                 </p>
               }
             </div>
+            <div className="">
+              <label htmlFor="rent" className='block mb-2 text-gray-700 dark:text-white font-semibold'>Rent<span className='text-red-500'>*</span></label>
+              <input
+                type="text"
+                placeholder='Enter Rent'
+                className='w-full input-style  focus:outline-none focus:ring-2 focus:ring-[#f1f0ff] focus:border-[#f1f0ff] transition' {
+                ...register('rent', {
+                  required: "Rent is Required",
+                })
+
+                } />
+              {
+                errors.rent && <p className="text-red-500 text-sm mt-1 font-bold">
+                  {errors.rent.message}
+                </p>
+              }
+            </div>
 
           </div>
           <h6 className="bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 font-bold p-2 rounded-lg mb-3">

@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const uploadController = require('../Controller/Admin/Uploadcontroller');
 const hostellerController = require('../Controller/Admin/HostellerController');
+const rentManagementController = require('../Controller/RentMangement/Rentmanagement');
+
 const { createImageHandler } = require('../Middleware/Middleware');
 
 router.get('/upload/list', uploadController.list);
@@ -16,7 +18,9 @@ router.post('/master/hostellers/statusUpdate', hostellerController.statusUpdate)
 router.post('/master/hostellers/delete', hostellerController.deleteHosteller);
 router.get('/master/rooms/getHostellers/:id', hostellerController.getPeoples);
 router.get('/master/rooms/getHostellers/:location_id/:hostel_id/:building_id/:room_id', hostellerController.getHosteller)
-router.post('/master/hostellers/searchValues', hostellerController.searchValues)
+router.post('/master/hostellers/searchValues', hostellerController.searchValues);
+
+router.post('/rent-management/hostellers/rentPaidStatus', rentManagementController.paidStatusUpdate);
 
 
 module.exports = router;

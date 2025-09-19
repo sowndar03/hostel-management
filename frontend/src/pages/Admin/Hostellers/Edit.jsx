@@ -45,6 +45,7 @@ const Edit = () => {
       const id_proof = result.data.data.id_proof;
       const advance_amount = result.data.data.advance_amount;
       const total_advance_amount = result.data.data.total_advance_amount;
+      const rent = result.data.data.rent;
       setValue('location_id', location_id);
       setValue('hostel_id', hostel_id);
       setValue('building_id', building_id);
@@ -61,6 +62,7 @@ const Edit = () => {
       setValue('address', address);
       setValue('advance_amount', advance_amount);
       setValue('total_advance_amount', total_advance_amount);
+      setValue('rent', rent);
       setPreview(getImageUrl(photo));
       setIdProof(getImageUrl(id_proof));
       getAllHostels(location_id);
@@ -528,6 +530,24 @@ const Edit = () => {
               {
                 errors.advance_amount && <p className="text-red-500 text-sm mt-1 font-bold">
                   {errors.advance_amount.message}
+                </p>
+              }
+            </div>
+
+            <div className="">
+              <label htmlFor="rent" className='block mb-2 text-gray-700 dark:text-white font-semibold'>Rent<span className='text-red-500'>*</span></label>
+              <input
+                type="text"
+                placeholder='Enter Rent'
+                className='w-full input-style  focus:outline-none focus:ring-2 focus:ring-[#f1f0ff] focus:border-[#f1f0ff] transition' {
+                ...register('rent', {
+                  required: "Rent is Required",
+                })
+
+                } />
+              {
+                errors.rent && <p className="text-red-500 text-sm mt-1 font-bold">
+                  {errors.rent.message}
                 </p>
               }
             </div>
