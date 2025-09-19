@@ -29,6 +29,8 @@ const store = async (req, res) => {
             name,
             phone_no,
             dob,
+            advance_amount,
+            total_advance_amount,
             parent_name,
             emergency_contact_no,
             working_professional,
@@ -52,12 +54,13 @@ const store = async (req, res) => {
             emergency_contact_no,
             working_professional,
             working_place,
+            total_advance_amount,
+            advance_amount,
             address,
             photo,
             id_proof,
             created_by: req.user.id,
         });
-
 
         const room_status = await Roomstatus.findOneAndUpdate(
             { _id: seat_no },
@@ -75,6 +78,74 @@ const store = async (req, res) => {
         res.status(201).json({
             message: "Hosteller added successfully",
             data: { hosteller, hosteller },
+        });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+const updates = async (req, res) => {
+    try {
+        const {
+            id,
+            location_id,
+            hostel_id,
+            building_id,
+            room_id,
+            seat_no,
+            name,
+            phone_no,
+            dob,
+            parent_name,
+            emergency_contact_no,
+            working_professional,
+            working_place,
+            advance_amount,
+            total_advance_amount,
+            address,
+        } = req.body;
+
+        const existing = await Hosteller.findById(id);
+        if (!existing) {
+            return res.status(404).json({ message: "Hosteller not found" });
+        }
+        const existing_seat_no = existing.seat_no;
+
+        const photo = req.importedFiles?.photo?.path || existing.photo;
+        const id_proof = req.importedFiles?.id_proof?.path || existing.id_proof;
+
+        existing.set({
+            location_id,
+            hostel_id,
+            building_id,
+            room_id,
+            seat_no,
+            name,
+            phone_no,
+            dob,
+            parent_name,
+            advance_amount,
+            emergency_contact_no,
+            working_professional,
+            working_place,
+            total_advance_amount,
+            address,
+            photo,
+            id_proof,
+            updated_by: req.user.id,
+        });
+
+        await existing.save();
+
+        if (existing_seat_no != seat_no) {
+            await Roomstatus.findByIdAndUpdate(existing_seat_no, { seat_status: 1, user_id: null });
+            await Roomstatus.findByIdAndUpdate(seat_no, { seat_status: 2, user_id: existing._id });
+        }
+
+        res.status(200).json({
+            message: "Hosteller updated successfully",
+            data: existing,
         });
     } catch (err) {
         console.error(err.message);
@@ -318,5 +389,5 @@ const searchValues = async (req, res) => {
 }
 
 module.exports = {
-    list, store, selectOne, deleteHosteller, statusChange, statusUpdate, getPeoples, getHosteller, searchValues
+    list, store, selectOne, deleteHosteller, statusChange, statusUpdate, getPeoples, getHosteller, searchValues, updates
 }

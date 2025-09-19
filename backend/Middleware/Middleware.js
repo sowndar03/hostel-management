@@ -4,6 +4,11 @@ const path = require("path");
 const XLSX = require("xlsx");
 const fs = require("fs");
 
+const allowedExtensions = {
+    excel: [".xlsx", ".xls"],
+    image: [".jpg", ".jpeg", ".png", ".gif", ".webp"],
+};
+
 const AuthMiddleware = (req, res, next) => {
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) {
@@ -17,11 +22,6 @@ const AuthMiddleware = (req, res, next) => {
     } catch (err) {
         res.status(401).json({ message: "Invalid or expired token" });
     }
-}
-
-const allowedExtensions = {
-    excel: [".xlsx", ".xls"],
-    image: [".jpg", ".jpeg", ".png"],
 };
 
 const importExcelHandler = (moduleName) => {
@@ -42,10 +42,12 @@ const importExcelHandler = (moduleName) => {
         upload.single("file"),
         (req, res, next) => {
             if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+
             const ext = path.extname(req.file.originalname).toLowerCase();
             if (!allowedExtensions.excel.includes(ext)) {
                 return res.status(400).json({ message: "Only Excel files allowed" });
             }
+
             try {
                 const workbook = XLSX.readFile(req.file.path);
                 const sheetName = workbook.SheetNames[0];
@@ -54,6 +56,7 @@ const importExcelHandler = (moduleName) => {
                 req.importMeta = { type: "excel", moduleName };
                 req.importedData = data;
 
+                // delete file after reading
                 fs.unlinkSync(req.file.path);
                 next();
             } catch (error) {
@@ -64,7 +67,7 @@ const importExcelHandler = (moduleName) => {
     ];
 };
 
-const importImageHandler = (moduleName) => {
+const createImageHandler = (moduleName, isUpdate = false) => {
     const storage = multer.diskStorage({
         destination: (req, file, cb) => {
             const folder = path.join("uploads", moduleName, file.fieldname);
@@ -84,19 +87,27 @@ const importImageHandler = (moduleName) => {
             { name: "id_proof", maxCount: 1 },
         ]),
         (req, res, next) => {
-            if (!req.files || Object.keys(req.files).length === 0)
-                return res.status(400).json({ message: "No files uploaded" });
-
             req.importedFiles = {};
 
+            if (!isUpdate && (!req.files || Object.keys(req.files).length === 0)) {
+                return res.status(400).json({ message: "No files uploaded" });
+            }
+
             ["photo", "id_proof"].forEach((field) => {
-                if (req.files[field]) {
+                if (req.files && req.files[field]) {
                     const file = req.files[field][0];
                     const ext = path.extname(file.originalname).toLowerCase();
-                    if (!allowedExtensions.image.includes(ext))
-                        return res.status(400).json({ message: `Only images allowed for ${field}` });
 
-                    req.importedFiles[field] = file;
+                    if (!allowedExtensions.image.includes(ext)) {
+                        return res
+                            .status(400)
+                            .json({ message: `Only images allowed for ${field}` });
+                    }
+
+                    req.importedFiles[field] = {
+                        filename: file.filename,
+                        path: file.path.replace(/\\/g, "/"),
+                    };
                 }
             });
 
@@ -105,10 +116,8 @@ const importImageHandler = (moduleName) => {
     ];
 };
 
-
-
 module.exports = {
     AuthMiddleware,
     importExcelHandler,
-    importImageHandler
+    createImageHandler,
 };

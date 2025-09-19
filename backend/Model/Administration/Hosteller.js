@@ -10,6 +10,8 @@ const hostellerSchema = new mongoose.Schema({
     working_professional: { type: String },
     working_place: { type: String },
     address: { type: String },
+    advance_amount: { type: Number },
+    total_advance_amount: { type: Number },
     photo: { type: String },
     id_proof: { type: String },
     location_id: { type: mongoose.Schema.Types.ObjectId, ref: "Location" },

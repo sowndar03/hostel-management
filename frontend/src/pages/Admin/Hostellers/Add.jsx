@@ -442,7 +442,40 @@ const Add = () => {
                 </p>
               )}
             </div>
+            <div className="">
+              <label htmlFor="total_advance_amount" className='block mb-2 text-gray-700 dark:text-white font-semibold'>Total Advance<span className='text-red-500'>*</span></label>
+              <input
+                type="text"
+                placeholder='Enter Total Advance Amount'
+                className='w-full input-style  focus:outline-none focus:ring-2 focus:ring-[#f1f0ff] focus:border-[#f1f0ff] transition' {
+                ...register('total_advance_amount', {
+                  required: "Total Advance Amount is Required",
+                })
 
+                } />
+              {
+                errors.total_advance_amount && <p className="text-red-500 text-sm mt-1 font-bold">
+                  {errors.total_advance_amount.message}
+                </p>
+              }
+            </div>
+            <div className="">
+              <label htmlFor="advance_amount" className='block mb-2 text-gray-700 dark:text-white font-semibold'>Advance Amount(Paid)<span className='text-red-500'>*</span></label>
+              <input
+                type="text"
+                placeholder='Enter Advance Amount'
+                className='w-full input-style  focus:outline-none focus:ring-2 focus:ring-[#f1f0ff] focus:border-[#f1f0ff] transition' {
+                ...register('advance_amount', {
+                  required: "Advance Amount is Required",
+                })
+
+                } />
+              {
+                errors.advance_amount && <p className="text-red-500 text-sm mt-1 font-bold">
+                  {errors.advance_amount.message}
+                </p>
+              }
+            </div>
 
           </div>
           <h6 className="bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 font-bold p-2 rounded-lg mb-3">
@@ -648,7 +681,7 @@ const Add = () => {
           <h6 className="bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 font-bold p-2 rounded-lg mb-3">
             Identity Verification
           </h6>
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-6 mb-4'>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-6 mb-4'>
             <div className="">
               <label
                 htmlFor="photo"

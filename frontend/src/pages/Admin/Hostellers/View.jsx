@@ -81,6 +81,18 @@ const View = () => {
               {hosteller.seat_no?.seat_no}
             </p>
           </div>
+          <div className="mb-4">
+            <label className="block mb-2 text-black dark:text-white font-semibold">Total Advance Amount</label>
+            <p className="w-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 px-3 py-2 rounded">
+              {hosteller.total_advance_amount}
+            </p>
+          </div>
+          <div className="mb-4">
+            <label className="block mb-2 text-black dark:text-white font-semibold">Advance Amount</label>
+            <p className="w-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 px-3 py-2 rounded">
+              {hosteller.advance_amount}
+            </p>
+          </div>
         </div>
 
         <h6 className="bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 font-bold p-2 rounded-lg mb-3">

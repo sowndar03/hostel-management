@@ -43,14 +43,8 @@ router.get('/rooms/view/:id', roomscontroller.selectOne);
 router.post('/rooms/edit/submit', roomscontroller.updates);
 router.post('/rooms/searchValues', roomscontroller.searchValues);
 router.get('/rooms/availableSeats/:id', roomscontroller.AvailableSeats);
+router.get('/rooms/availableSeats/:id/:seat_no', roomscontroller.AvailableSeats);
 router.get('/rooms/getRooms/:location_id/:hostel_id/:building_id', roomscontroller.getRooms);
-router.post(
-    '/rooms/import/submit',
-    importExcelHandler('rooms'),
-    roomscontroller.importSubmit
-);
-
-
-
+router.post('/rooms/import/submit', importExcelHandler('rooms'), roomscontroller.importSubmit);
 
 module.exports = router;

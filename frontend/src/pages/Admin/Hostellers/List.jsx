@@ -53,6 +53,8 @@ const List = () => {
     setRooms([]);
     setAvailableSeats([]);
     setHosteller([]);
+    getAllHostellers();
+
   }
 
   const openSeatSelectionModal = (hostellerId) => {
@@ -253,6 +255,9 @@ const List = () => {
     },
     {
       name: "Seat Number", selector: (row) => row.seat_no?.seat_no, sortable: true,
+    },
+    {
+      name: "Pending Advance", selector: (row) => row.total_advance_amount - row.advance_amount, sortable: true,
     },
     {
       name: "Status",
@@ -565,7 +570,7 @@ const List = () => {
               </motion.div>
             )}
           </AnimatePresence>
-        </form> 
+        </form>
       </div>
 
       <div>

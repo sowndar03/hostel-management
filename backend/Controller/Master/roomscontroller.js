@@ -351,15 +351,36 @@ const getRooms = async (req, res) => {
 const AvailableSeats = async (req, res) => {
     try {
         const room_id = req.params.id;
-        console.log(room_id);
+        const seat_no = req.params.seat_no;
 
-        const rooms = await Roomstatus.find({
+        const filter = {
             room_id,
-            seat_status: "1",
             trash: "NO",
             status: "1"
-        });
+        };
 
+        if (!seat_no) {
+            filter.seat_status = "1";
+        }
+
+        let rooms;
+
+        if (seat_no) {
+            rooms = await Roomstatus.find({
+                $and: [
+                    { room_id, trash: "NO", status: "1" },
+                    {
+                        $or: [
+                            { seat_status: "1" },
+                            { _id: seat_no }
+                        ]
+                    }
+                ]
+            });
+        } else {
+            rooms = await Roomstatus.find(filter);
+        }
+        
         res.status(200).json({
             message: "Data Fetched Successfully",
             data: rooms,
@@ -368,6 +389,7 @@ const AvailableSeats = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 };
+
 const importSubmit = async (req, res) => {
     try {
         const importedRows = req.importedData;
@@ -508,8 +530,6 @@ const importSubmit = async (req, res) => {
         return res.status(500).json({ message: "Server error while importing" });
     }
 };
-
-
 
 module.exports = {
     list,
