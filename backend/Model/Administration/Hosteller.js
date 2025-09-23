@@ -14,6 +14,7 @@ const hostellerSchema = new mongoose.Schema({
     total_advance_amount: { type: Number },
     rent_status: { type: Number },
     rent: { type: Number },
+    rent_paid: { type: Number },
     photo: { type: String },
     id_proof: { type: String },
     location_id: { type: mongoose.Schema.Types.ObjectId, ref: "Location" },

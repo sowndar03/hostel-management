@@ -35,7 +35,7 @@ const List = () => {
             const result = await api.post(`${api_url}/admin/master/hostellers/searchValues`, data);
             setList(result.data.data);
         } catch (err) {
-            console.log(err);
+            console.error(err);
         }
     }
 
@@ -61,12 +61,17 @@ const List = () => {
         setShowModal(true);
     };
 
+    const closeModal = () => {
+        setShowModal(false);
+        setSelectedHosteller(null);
+    };
+
     const getallLocation = async () => {
         try {
             const res = await api.get(`${api_url}/master/location/list`);
             setLocations(res.data.data);
         } catch (err) {
-            console.log(err);
+            console.error(err);
         }
     };
     const getAllHostels = async (location_id) => {
@@ -74,7 +79,7 @@ const List = () => {
             const res = await api.get(`${api_url}/master/hostel/getHostel/${location_id}`);
             setHostel(res.data.data);
         } catch (err) {
-            console.log(err);
+            console.error(err);
         }
     };
 
@@ -83,7 +88,7 @@ const List = () => {
             const res = await api.get(`${api_url}/master/building/getBuilding/${location_id}/${hostel_id}`);
             setBuildings(res.data.data);
         } catch (err) {
-            console.log(err);
+            console.error(err);
         }
     };
 
@@ -92,7 +97,7 @@ const List = () => {
             const res = await api.get(`${api_url}/master/rooms/getRooms/${location_id}/${hostel_id}/${building_id}`);
             setRooms(res.data.data);
         } catch (err) {
-            console.log(err);
+            console.error(err);
         }
     };
 
@@ -103,7 +108,7 @@ const List = () => {
             );
             setAvailableSeats(result.data.data);
         } catch (err) {
-            console.log(err);
+            console.error(err);
         }
     };
 
@@ -114,7 +119,7 @@ const List = () => {
             );
             setHosteller(result.data.data);
         } catch (err) {
-            console.log(err);
+            console.error(err);
         }
     };
 
@@ -125,7 +130,7 @@ const List = () => {
             setList(res.data.data);
             setHosteller(res.data.data);
         } catch (err) {
-            console.log(err);
+            console.error(err);
         }
     }
 
@@ -158,28 +163,24 @@ const List = () => {
         });
     };
 
-    const handleDelete = (id) => {
+    const handlePartialRent = async (id, status) => {
+        let text = "";
+        let button = "";
+
+        text = "Does the hosteller Paid the rent for the current month?";
+        button = "Paid";
+
         Swal.fire({
             title: "Are you sure?",
-            text: "Do you want to Delete the Hosteller?",
+            text,
             icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
-            confirmButtonText: "Delete",
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: button,
         }).then(async (result) => {
             if (result.isConfirmed) {
-                try {
-                    await api.post(`${api_url}/admin/master/hostellers/delete`, { id });
-                    setList((prevList) => prevList.filter((item) => item._id !== id));
-                    Swal.fire(
-                        "Updated!",
-                        "Hosteller has been Deleted Successfully",
-                        "success"
-                    );
-                } catch (err) {
-                    Swal.fire("Oops...", "Something went wrong!", "error");
-                }
+                openSeatSelectionModal(id);
             }
         });
     };
@@ -217,9 +218,9 @@ const List = () => {
                         </button>
                     );
                 } else if (row.rent_status == 2) {
-                    return <span className="text-yellow-600 font-semibold">PARTIALLY PAID</span>;
+                    return <button onClick={() => handlePartialRent(row._id)} className="text-black font-semibold bg-yellow-400 text-sm rounded hover:bg-yellow-600 px-3 py-1">PARTIALLY PAID</button>;
                 } else if (row.rent_status == 3) {
-                    return <span className="text-green-600 font-semibold">PAID</span>;
+                    return <span className="text-black font-semibold bg-green-500 text-sm rounded hover:bg-green-700 px-3 py-1">PAID</span>;
                 }
             },
         },
@@ -556,10 +557,9 @@ const List = () => {
 
             <Modal
                 isOpen={showModal}
-                onClose={() => setShowModal(false)}
+                onClose={closeModal}
                 hostellerId={selectedHosteller}
                 getAllHostellers={getAllHostellers}
-                setShowModal={setShowModal}
             />
 
         </div>

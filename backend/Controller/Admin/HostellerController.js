@@ -32,6 +32,7 @@ const store = async (req, res) => {
             advance_amount,
             total_advance_amount,
             rent,
+            rent_paid,
             parent_name,
             emergency_contact_no,
             working_professional,
@@ -41,6 +42,14 @@ const store = async (req, res) => {
 
         const photo = req.importedFiles?.photo?.path || null;
         const id_proof = req.importedFiles?.id_proof?.path || null;
+
+        if (rent == rent_paid) {
+            rent_status = 3;
+        } else if (rent_paid != rent) {
+            rent_status = 2;
+        } else if (rent_paid == 0) {
+            rent_status = 1;
+        }
 
         const hosteller = await Hosteller.create({
             location_id,
@@ -59,8 +68,10 @@ const store = async (req, res) => {
             advance_amount,
             rent,
             address,
+            rent_paid,
             photo,
             id_proof,
+            rent_status,
             created_by: req.user.id,
         });
 
@@ -75,7 +86,6 @@ const store = async (req, res) => {
             { $inc: { available_count: -1 } },
             { new: true }
         );
-
 
         res.status(201).json({
             message: "Hosteller added successfully",
@@ -100,11 +110,13 @@ const updates = async (req, res) => {
             phone_no,
             dob,
             parent_name,
+            paid_rent,
             emergency_contact_no,
             working_professional,
             working_place,
             advance_amount,
             rent,
+            rent_paid,
             total_advance_amount,
             address,
         } = req.body;
@@ -118,6 +130,12 @@ const updates = async (req, res) => {
         const photo = req.importedFiles?.photo?.path || existing.photo;
         const id_proof = req.importedFiles?.id_proof?.path || existing.id_proof;
 
+        if (rent == rent_paid) {
+            rent_status = 3;
+        } else if (rent_paid != rent) {
+            rent_status = 2;
+        }
+
         existing.set({
             location_id,
             hostel_id,
@@ -129,12 +147,14 @@ const updates = async (req, res) => {
             dob,
             parent_name,
             advance_amount,
+            rent_paid,
             emergency_contact_no,
             working_professional,
             working_place,
             total_advance_amount,
             rent,
             address,
+            rent_status,
             photo,
             id_proof,
             updated_by: req.user.id,

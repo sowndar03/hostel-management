@@ -45,7 +45,6 @@ const Add = () => {
   const onSubmit = async (data) => {
     try {
       const formData = new FormData();
-
       Object.keys(data).forEach((key) => {
         formData.append(key, data[key]);
       });
@@ -477,7 +476,7 @@ const Add = () => {
               }
             </div>
             <div className="">
-              <label htmlFor="rent" className='block mb-2 text-gray-700 dark:text-white font-semibold'>Rent<span className='text-red-500'>*</span></label>
+              <label htmlFor="rent" className='block mb-2 text-gray-700 dark:text-white font-semibold'>Total Rent<span className='text-red-500'>*</span></label>
               <input
                 type="text"
                 placeholder='Enter Rent'
@@ -490,6 +489,23 @@ const Add = () => {
               {
                 errors.rent && <p className="text-red-500 text-sm mt-1 font-bold">
                   {errors.rent.message}
+                </p>
+              }
+            </div>
+            <div className="">
+              <label htmlFor="rent_paid" className='block mb-2 text-gray-700 dark:text-white font-semibold'>Rent(Paid) - Current Month<span className='text-red-500'>*</span></label>
+              <input
+                type="text"
+                placeholder='Enter the Rent'
+                className='w-full input-style  focus:outline-none focus:ring-2 focus:ring-[#f1f0ff] focus:border-[#f1f0ff] transition' {
+                ...register('rent_paid', {
+                  required: "Rent is Required",
+                })
+
+                } />
+              {
+                errors.rent_paid && <p className="text-red-500 text-sm mt-1 font-bold">
+                  {errors.rent_paid.message}
                 </p>
               }
             </div>

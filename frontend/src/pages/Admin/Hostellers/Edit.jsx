@@ -46,6 +46,7 @@ const Edit = () => {
       const advance_amount = result.data.data.advance_amount;
       const total_advance_amount = result.data.data.total_advance_amount;
       const rent = result.data.data.rent;
+      const rent_paid = result.data.data.rent_paid;
       setValue('location_id', location_id);
       setValue('hostel_id', hostel_id);
       setValue('building_id', building_id);
@@ -63,6 +64,7 @@ const Edit = () => {
       setValue('advance_amount', advance_amount);
       setValue('total_advance_amount', total_advance_amount);
       setValue('rent', rent);
+      setValue('rent_paid', rent_paid);
       setPreview(getImageUrl(photo));
       setIdProof(getImageUrl(id_proof));
       getAllHostels(location_id);
@@ -552,6 +554,23 @@ const Edit = () => {
               }
             </div>
 
+            <div className="">
+              <label htmlFor="rent_paid" className='block mb-2 text-gray-700 dark:text-white font-semibold'>Rent(Paid) - Current Month<span className='text-red-500'>*</span></label>
+              <input
+                type="text"
+                placeholder='Enter the Rent'
+                className='w-full input-style  focus:outline-none focus:ring-2 focus:ring-[#f1f0ff] focus:border-[#f1f0ff] transition' {
+                ...register('rent_paid', {
+                  required: "Rent is Required",
+                })
+
+                } />
+              {
+                errors.rent_paid && <p className="text-red-500 text-sm mt-1 font-bold">
+                  {errors.rent_paid.message}
+                </p>
+              }
+            </div>
 
           </div>
           <h6 className="bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 font-bold p-2 rounded-lg mb-3">
