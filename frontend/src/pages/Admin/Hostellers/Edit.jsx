@@ -47,6 +47,8 @@ const Edit = () => {
       const total_advance_amount = result.data.data.total_advance_amount;
       const rent = result.data.data.rent;
       const rent_paid = result.data.data.rent_paid;
+      const email = result.data.data.email;
+
       setValue('location_id', location_id);
       setValue('hostel_id', hostel_id);
       setValue('building_id', building_id);
@@ -65,6 +67,8 @@ const Edit = () => {
       setValue('total_advance_amount', total_advance_amount);
       setValue('rent', rent);
       setValue('rent_paid', rent_paid);
+      setValue('email', email);
+
       setPreview(getImageUrl(photo));
       setIdProof(getImageUrl(id_proof));
       getAllHostels(location_id);
@@ -607,6 +611,37 @@ const Edit = () => {
               {
                 errors.phone_no && <p className="text-red-500 text-sm mt-1 font-bold">
                   {errors.phone_no.message}
+                </p>
+              }
+            </div>
+            <div className="">
+              <label htmlFor="email" className='block mb-2 text-gray-700 dark:text-white font-semibold'>Email<span className='text-red-500'>*</span></label>
+              <input
+                type="email"
+                placeholder='Enter the Email'
+                className='w-full input-style  focus:outline-none focus:ring-2 focus:ring-[#f1f0ff] focus:border-[#f1f0ff] transition' {
+                ...register('email', {
+                  required: "Email is Required",
+                  validate: async (value) => {
+                    try {
+                      const id = getValues('id');
+                      const res = await api.post(
+                        `${api_url}/admin/master/hostellers/uniqueCheck`,
+                        { email: value, id: id }
+                      );
+                      if (res.data.message === 'Available') {
+                        return true;
+                      }
+                      return res.data.message;
+                    } catch (err) {
+                      return 'Validation failed, please try again';
+                    }
+                  },
+                })
+                } />
+              {
+                errors.email && <p className="text-red-500 text-sm mt-1 font-bold">
+                  {errors.email.message}
                 </p>
               }
             </div>

@@ -4,6 +4,7 @@ const hostellerSchema = new mongoose.Schema({
     user_id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     name: { type: String },
     phone_no: { type: String },
+    email: { type: String },
     dob: { type: Date },
     parent_name: { type: String },
     emergency_contact_no: { type: String },

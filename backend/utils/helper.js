@@ -36,10 +36,18 @@ const getLocationName = async (id) => {
     }
 };
 
+const generatePassword = (name, dob) => {
+    const namePart = name.replace(/\s+/g, '').substring(0, 5).toUpperCase();
+    const date = new Date(dob);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
 
+    return `${namePart}${day}${month}`;
+}
 
 module.exports = {
     string_to_array,
     getUsername,
-    getLocationName
+    getLocationName,
+    generatePassword
 }

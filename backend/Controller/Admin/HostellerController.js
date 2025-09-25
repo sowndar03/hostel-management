@@ -2,6 +2,10 @@ const express = require('express');
 const Hosteller = require('../../Model/Administration/Hosteller');
 const Roomstatus = require('../../Model/Master/Roomstatus');
 const Rooms = require('../../Model/Master/Rooms');
+const Rentmanagement = require('../../Model/RentManagement/Rentmanagement');
+const User = require('../../Model/User');
+const { generatePassword } = require('../../utils/helper');
+const bcrypt = require('bcrypt');
 
 const list = async (req, res) => {
     try {
@@ -29,6 +33,7 @@ const store = async (req, res) => {
             name,
             phone_no,
             dob,
+            email,
             advance_amount,
             total_advance_amount,
             rent,
@@ -51,7 +56,18 @@ const store = async (req, res) => {
             rent_status = 1;
         }
 
+        const password = generatePassword(name, dob);
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+        const user = await User.create({
+            name,
+            email,
+            password: hashedPassword,
+        });
+
         const hosteller = await Hosteller.create({
+            user_id: user._id,
             location_id,
             hostel_id,
             building_id,
@@ -60,6 +76,7 @@ const store = async (req, res) => {
             name,
             phone_no,
             dob,
+            email,
             parent_name,
             emergency_contact_no,
             working_professional,
@@ -87,10 +104,24 @@ const store = async (req, res) => {
             { new: true }
         );
 
+        const now = new Date();
+        const currentMonth = now.getMonth() + 1;
+        const currentYear = now.getFullYear();
+
+        await Rentmanagement.create({
+            hosteller_id: hosteller._id,
+            total_rent: hosteller.rent,
+            rent_paid: rent_paid,
+            rent_status,
+            year: currentYear,
+            month: currentMonth,
+        });
+
         res.status(201).json({
             message: "Hosteller added successfully",
             data: { hosteller, hosteller },
         });
+
     } catch (err) {
         console.error(err.message);
         res.status(500).json({ message: "Server error" });
@@ -109,8 +140,8 @@ const updates = async (req, res) => {
             name,
             phone_no,
             dob,
+            email,
             parent_name,
-            paid_rent,
             emergency_contact_no,
             working_professional,
             working_place,
@@ -145,6 +176,7 @@ const updates = async (req, res) => {
             name,
             phone_no,
             dob,
+            email,
             parent_name,
             advance_amount,
             rent_paid,
@@ -156,6 +188,7 @@ const updates = async (req, res) => {
             address,
             rent_status,
             photo,
+            rent_paid,
             id_proof,
             updated_by: req.user.id,
         });
@@ -412,6 +445,27 @@ const searchValues = async (req, res) => {
 
 }
 
+const uniqueCheck = async (req, res) => {
+
+    const { id, email } = req.body;
+
+    try {
+        const hosteller = await User.findOne({ email, trash: 'NO' });
+
+        if (hosteller) {
+            if (id && hosteller._id.toString === id) {
+                return res.json({ message: "Available" });
+            }
+            return res.json({ message: "Email Already Exists" });
+        }
+        return res.json({ message: "Available" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+
+}
+
 module.exports = {
-    list, store, selectOne, deleteHosteller, statusChange, statusUpdate, getPeoples, getHosteller, searchValues, updates
+    list, store, selectOne, deleteHosteller, statusChange, statusUpdate, getPeoples, getHosteller, searchValues, updates, uniqueCheck
 }

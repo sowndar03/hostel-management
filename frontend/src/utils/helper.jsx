@@ -1,5 +1,4 @@
 import React from "react";
-import api from "../api";
 import moment from 'moment';
 const api_url = import.meta.env.VITE_API_URL;
 const backend_url = import.meta.env.VITE_BACKEND_URL;
@@ -14,6 +13,7 @@ export const getStatus = (status) => {
             return <p style={{ color: "gray" }}>UNKNOWN</p>;
     }
 };
+
 export const getWorkingProfessional = (status) => {
     switch (status) {
         case "1":
@@ -48,7 +48,6 @@ export const getAvailableCount = (seats) => {
         </p>
     );
 };
-
 
 export const displayDateformat = (date) => {
     return moment(date).format("DD-MM-YYYY");

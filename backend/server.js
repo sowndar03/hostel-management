@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const helmet = require('helmet');
 const path = require('path');
 const cors = require('cors');
+require("./cron/cron.js");              
 
 const loginRoutes = require('./Routes/loginroutes');
 const userRoutes = require('./Routes/userroutes');
@@ -16,12 +17,11 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const DB_URL = process.env.DB_URL;
 
-
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin) return callback(null, true); 
+    if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     } else {
@@ -32,11 +32,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.use(
-  '/uploads',
-  cors(corsOptions),
-  express.static(path.join(__dirname, 'uploads'))
-);
+app.use('/uploads', cors(corsOptions), express.static(path.join(__dirname, 'uploads')));
 
 app.use(helmet());
 app.use(express.json());

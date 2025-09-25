@@ -548,6 +548,38 @@ const Add = () => {
                 </p>
               }
             </div>
+
+            <div className="">
+              <label htmlFor="email" className='block mb-2 text-gray-700 dark:text-white font-semibold'>Email<span className='text-red-500'>*</span></label>
+              <input
+                type="email"
+                placeholder='Enter the Email'
+                className='w-full input-style  focus:outline-none focus:ring-2 focus:ring-[#f1f0ff] focus:border-[#f1f0ff] transition' {
+                ...register('email', {
+                  required: "Email is Required",
+                  validate: async (value) => {
+                    try {
+                      const res = await api.post(
+                        `${api_url}/admin/master/hostellers/uniqueCheck`,
+                        { email: value }
+                      );
+                      if (res.data.message === 'Available') {
+                        return true;
+                      }
+                      return res.data.message;
+                    } catch (err) {
+                      return 'Validation failed, please try again';
+                    }
+                  },
+                })
+                } />
+              {
+                errors.email && <p className="text-red-500 text-sm mt-1 font-bold">
+                  {errors.email.message}
+                </p>
+              }
+            </div>
+
             <div className="">
               <label htmlFor="dob" className='block mb-2 text-gray-700 dark:text-white font-semibold'>Date of Birth<span className='text-red-500'>*</span></label>
               <Controller

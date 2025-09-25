@@ -26,7 +26,6 @@ const Modal = ({ isOpen, onClose, hostellerId, getAllHostellers }) => {
         }
     }, [isOpen, hostellerId]);
 
-    // Reset form and data when modal closes
     useEffect(() => {
         if (!isOpen) {
             setHostelData({});
@@ -53,21 +52,17 @@ const Modal = ({ isOpen, onClose, hostellerId, getAllHostellers }) => {
     const onSubmit = async (data) => {
         try {
             setIsLoading(true);
-            
-            // Ensure we have the hosteller ID
+
             if (!hostellerId) {
                 toast.error("Hosteller ID is missing");
                 return;
             }
-            
+
             const res = await api.post(`${api_url}/admin/rent-management/hostellers/rentPaidStatus`, data);
-            
-            // Check if the response indicates success
+
             if (res.status === 200 && res.data.message && res.data.message.includes("successfully")) {
                 toast.success('Rent updated successfully');
-                // Close modal first
                 onClose();
-                // Then refresh the hostellers list after a delay
                 setTimeout(() => {
                     getAllHostellers();
                 }, 200);
@@ -122,13 +117,13 @@ const Modal = ({ isOpen, onClose, hostellerId, getAllHostellers }) => {
                             </p>
                         </div>
 
-                        {hostelData?.paid_rent ? (
+                        {hostelData?.rent_paid ? (
                             <div>
                                 <label className="block mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
                                     Previously Paid
                                 </label>
                                 <p className="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-3 py-2 rounded-lg">
-                                    ₹{hostelData.paid_rent}
+                                    ₹{hostelData.rent_paid}
                                 </p>
                             </div>
                         ) : null}
@@ -140,7 +135,7 @@ const Modal = ({ isOpen, onClose, hostellerId, getAllHostellers }) => {
                             <input
                                 type="number"
                                 placeholder='Enter payment amount'
-                                className='w-full input-style focus:outline-none focus:ring-2 focus:ring-[#f1f0ff] focus:border-[#f1f0ff] transition' 
+                                className='w-full input-style focus:outline-none focus:ring-2 focus:ring-[#f1f0ff] focus:border-[#f1f0ff] transition'
                                 {...register('rent', {
                                     required: "Payment amount is required",
                                     min: {
@@ -150,7 +145,17 @@ const Modal = ({ isOpen, onClose, hostellerId, getAllHostellers }) => {
                                     max: {
                                         value: hostelData.rent || 999999,
                                         message: "Amount cannot exceed total rent"
-                                    }
+                                    },
+                                    validate: (value) => {
+                                        const totalRent = hostelData?.rent || 0;
+                                        const paid = hostelData?.rent_paid || 0;
+                                        const payable = totalRent - paid;
+
+                                        if (Number(value) > payable) {
+                                            return `Amount cannot exceed remaining payable: ₹${payable}`;
+                                        }
+                                        return true;
+                                    },
                                 })}
                             />
                             {errors.rent && (
