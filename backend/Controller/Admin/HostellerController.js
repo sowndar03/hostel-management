@@ -6,6 +6,7 @@ const Rentmanagement = require('../../Model/RentManagement/Rentmanagement');
 const User = require('../../Model/User');
 const { generatePassword } = require('../../utils/helper');
 const bcrypt = require('bcrypt');
+const { ROLES } = require('../../utils/constant');
 
 const list = async (req, res) => {
     try {
@@ -64,6 +65,7 @@ const store = async (req, res) => {
             name,
             email,
             password: hashedPassword,
+            role_id: ROLES.USER,
         });
 
         const hosteller = await Hosteller.create({
@@ -89,6 +91,7 @@ const store = async (req, res) => {
             photo,
             id_proof,
             rent_status,
+            role_id: ROLES.USER,
             created_by: req.user.id,
         });
 
@@ -167,6 +170,12 @@ const updates = async (req, res) => {
             rent_status = 2;
         }
 
+        const user = await User.create({
+            name,
+            email,
+            role_id: ROLES.USER,
+        });
+
         existing.set({
             location_id,
             hostel_id,
@@ -187,6 +196,7 @@ const updates = async (req, res) => {
             rent,
             address,
             rent_status,
+            role_id: ROLES.USER,
             photo,
             rent_paid,
             id_proof,

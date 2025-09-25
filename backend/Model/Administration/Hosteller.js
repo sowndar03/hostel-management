@@ -18,6 +18,7 @@ const hostellerSchema = new mongoose.Schema({
     rent_paid: { type: Number },
     photo: { type: String },
     id_proof: { type: String },
+    role_id: { type: String },
     location_id: { type: mongoose.Schema.Types.ObjectId, ref: "Location" },
     hostel_id: { type: mongoose.Schema.Types.ObjectId, ref: "Master_hostel" },
     building_id: { type: mongoose.Schema.Types.ObjectId, ref: "Master_building" },

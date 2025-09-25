@@ -54,7 +54,7 @@ const AppHeader = ({ sidebarWidth = 250 }) => {
     const menuRef = useRef(null);
 
     return (
-        <header className="fixed top-0 h-[60px] z-50 flex items-center justify-end gap-5 px-6 border-b border-[#d1cfff] bg-white dark:bg-gray-800 text-black dark:text-white" style={{ left: sidebarWidth, right: 0 }}>
+        <header className="fixed top-0 h-[60px] z-100 flex items-center justify-end gap-5 px-6 border-b border-[#d1cfff] bg-white dark:bg-gray-800 text-black dark:text-white" style={{ left: sidebarWidth, right: 0 }}>
             <button
                 onClick={handleTheme}
                 className="mr-4"
