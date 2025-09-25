@@ -31,8 +31,6 @@ const list = async (req, res) => {
         );
 
         res.status(200).json({ data: roomsWithCount });
-
-        res.status(200).json({ data: roomsWithCount });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

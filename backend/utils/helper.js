@@ -1,6 +1,8 @@
 const express = require('express');
 const User = require('../Model/User');
 const Location = require('../Model/Master/Location');
+const Rooms = require('../Model/Master/Rooms');
+const Hostel = require('../Model/Master/Hostel');
 
 const string_to_array = (string, separator = ",") => {
     if (typeof string !== "string" || !string.trim()) {
@@ -45,9 +47,37 @@ const generatePassword = (name, dob) => {
     return `${namePart}${day}${month}`;
 }
 
+const getRoomName = async (id) => {
+    try {
+        const result = await Rooms.findById(id);
+        if (result) {
+            return result.room_no;
+        } else {
+            return "-";
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+const getHostelName = async (id) => {
+    try {
+        const result = await Hostel.findById(id);
+        if (result) {
+            return result.hostel_name;
+        } else {
+            return "-"
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
+
 module.exports = {
     string_to_array,
     getUsername,
     getLocationName,
-    generatePassword
+    generatePassword,
+    getRoomName,
+    getHostelName
 }

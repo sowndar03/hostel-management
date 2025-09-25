@@ -116,6 +116,11 @@ const View = () => {
           </div>
 
           <div className="mb-4">
+            <label className="block mb-2 text-black dark:text-white font-semibold">Phone No.</label>
+            <p className="w-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 px-3 py-2 rounded">{hosteller.email}</p>
+          </div>
+
+          <div className="mb-4">
             <label className="block mb-2 text-black dark:text-white font-semibold">Date of Birth</label>
             <p className="w-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 px-3 py-2 rounded">{displayDateformat(hosteller.dob)}</p>
           </div>

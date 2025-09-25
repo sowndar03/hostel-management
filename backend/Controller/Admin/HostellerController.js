@@ -7,6 +7,9 @@ const User = require('../../Model/User');
 const { generatePassword } = require('../../utils/helper');
 const bcrypt = require('bcrypt');
 const { ROLES } = require('../../utils/constant');
+const mailer = require('../../utils/mailer');
+const welcomeEmail = require('../../utils/mailtemplates/welcomemail');
+const sendMail = require('../../utils/mailer');
 
 const list = async (req, res) => {
     try {
@@ -120,6 +123,9 @@ const store = async (req, res) => {
             month: currentMonth,
         });
 
+        const emailContent = await welcomeEmail(hosteller);
+        await sendMail(hosteller.email, "Welcome to Hostel Management", emailContent);
+
         res.status(201).json({
             message: "Hosteller added successfully",
             data: { hosteller, hosteller },
@@ -170,11 +176,16 @@ const updates = async (req, res) => {
             rent_status = 2;
         }
 
-        const user = await User.create({
-            name,
-            email,
-            role_id: ROLES.USER,
-        });
+        const user = await User.findByIdAndUpdate(
+            existing.user_id,
+            {
+                name,
+                email,
+                role_id: ROLES.USER
+            },
+            { new: true }
+        );
+
 
         existing.set({
             location_id,
@@ -460,10 +471,11 @@ const uniqueCheck = async (req, res) => {
     const { id, email } = req.body;
 
     try {
-        const hosteller = await User.findOne({ email, trash: 'NO' });
+        const hosteller = await Hosteller.findOne({ email, trash: 'NO' });
+
 
         if (hosteller) {
-            if (id && hosteller._id.toString === id) {
+            if (id && hosteller._id.toString() === id) {
                 return res.json({ message: "Available" });
             }
             return res.json({ message: "Email Already Exists" });
