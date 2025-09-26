@@ -2,7 +2,7 @@ const { generatePassword, getHostelName, getRoomName } = require("../helper");
 
 const welcomeEmail = async (hosteller) => {
     const hostelName = await getHostelName(hosteller.hostel_id);
-    const roomName = await getRoomName(hosteller.room_id); // use room_id instead of room_no if needed
+    const roomName = await getRoomName(hosteller.room_id); 
 
     return `
       <div style="font-family: 'Arial', sans-serif; line-height: 1.5; color: #333; max-width: 600px; margin: auto; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
@@ -27,6 +27,10 @@ const welcomeEmail = async (hosteller) => {
             <tr>
               <td style="padding: 8px; font-weight: bold;">Username:</td>
               <td style="padding: 8px;">${hosteller.name}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; font-weight: bold;">Password:</td>
+              <td style="padding: 8px;">${generatePassword(hosteller.name, hosteller.dob)}</td>
             </tr>
           </table>
 

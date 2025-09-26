@@ -126,7 +126,7 @@ const Add = () => {
   }, [theme])
   return (
     <div className='min-h-screen bg-white dark:bg-[#101828]'>
-      <form onSubmit={handleSubmit(onSubmit)} className='rounded shadow-lg p-6'>
+      <form onSubmit={handleSubmit(onSubmit)} className='rounded shadow-lg p-6' autoComplete='off' autoSave='off'>
         <div className="flex justify-between items-center border-b pb-3 mb-4">
           <h2 className="text-lg font-bold text-gray-700 dark:text-white">Hostellers Add</h2>
           <button

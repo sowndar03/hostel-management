@@ -4,13 +4,14 @@ const mongoose = require('mongoose');
 const helmet = require('helmet');
 const path = require('path');
 const cors = require('cors');
-require("./cron/cron.js");              
+require("./cron/cron.js");
 
 const loginRoutes = require('./Routes/loginroutes');
 const userRoutes = require('./Routes/userroutes');
 const masterRoutes = require('./Routes/masterroutes');
 const notificationRoutes = require('./Routes/notificationroutes');
 const adminRoutes = require('./Routes/adminroutes');
+const ticketingRoutes = require('./Routes/ticketingroutes.js');
 const middleware = require('./Middleware/Middleware');
 
 const app = express();
@@ -44,6 +45,7 @@ app.use('/api/user', middlewares, userRoutes);
 app.use('/api/notification', middlewares, notificationRoutes);
 app.use('/api/admin', middlewares, adminRoutes);
 app.use('/api/master', middlewares, masterRoutes);
+app.use('/api/ticketing', middlewares, ticketingRoutes);
 
 mongoose.connect(DB_URL)
   .then(() => console.log('MongoDB connected!'))

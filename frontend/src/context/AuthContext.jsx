@@ -10,11 +10,13 @@ export const AuthContextProvider = ({ children }) => {
     const [notification, setNotification] = useState([]);
     const [loading, setLoading] = useState(true);
     const [unreadCount, setUnreadCount] = useState(0);
+    const [user, setUser] = useState(null);
 
     const fetchUser = async () => {
         try {
             const response = await api.post(`${api_url}/user/loggedUser`);
             setUsername(response.data.user.name);
+            setUser(response.data.user);
             setAuthenticated(true);
         } catch (err) {
             logout();
@@ -46,30 +48,31 @@ export const AuthContextProvider = ({ children }) => {
     const login = (token) => {
         localStorage.setItem("logintoken", token);
         fetchUser();
-        notifications(); 
+        notifications();
     };
 
     const logout = () => {
         localStorage.removeItem("logintoken");
         setAuthenticated(false);
         setUsername(null);
-        setNotification([]); 
+        setNotification([]);
         setUnreadCount(0);
     };
 
     return (
         <AuthContext.Provider
-            value={{ 
-                isAuthenticated, 
-                login, 
-                logout, 
-                username, 
-                loading, 
-                notification, 
-                setNotification, 
-                unreadCount, 
+            value={{
+                isAuthenticated,
+                login,
+                logout,
+                username,
+                user,
+                loading,
+                notification,
+                setNotification,
+                unreadCount,
                 setUnreadCount,
-                notifications 
+                notifications
             }}
         >
             {!loading && children}

@@ -12,6 +12,7 @@ import { BiSolidEdit } from 'react-icons/bi';
 import { AiTwotoneDelete } from 'react-icons/ai';
 import Swal from 'sweetalert2';
 import Modal from './Modal';
+import { CONSTANTS } from '../../../utils/CONSTANTS';
 
 const List = () => {
     const [filterToggle, setFilterToggle] = useState(false);
@@ -46,6 +47,7 @@ const List = () => {
             building_id: "",
             room_id: "",
             hosteller: "",
+            status: "",
         });
         setHostel([]);
         setBuildings([]);
@@ -53,8 +55,13 @@ const List = () => {
         setAvailableSeats([]);
         setHosteller([]);
         getAllHostellers();
-
     }
+
+    const statusOptions = [
+        { value: CONSTANTS.PAID, label: "PAID" },
+        { value: CONSTANTS.PARTIALLY_PAID, label: "PARTIALLY PAID" },
+        { value: CONSTANTS.PENDING, label: "PENDING" },
+    ];
 
     const openSeatSelectionModal = (hostellerId) => {
         setSelectedHosteller(hostellerId);
@@ -74,6 +81,7 @@ const List = () => {
             console.error(err);
         }
     };
+
     const getAllHostels = async (location_id) => {
         try {
             const res = await api.get(`${api_url}/master/hostel/getHostel/${location_id}`);
@@ -133,13 +141,6 @@ const List = () => {
             console.error(err);
         }
     }
-
-    const handleView = (id) => {
-        navigate(`/admin/master/hostellers/view/${id}`);
-    };
-    const handleEdit = (id) => {
-        navigate(`/admin/master/hostellers/edit/${id}`);
-    };
 
     const handleMarkAsPaid = async (id, status) => {
         let text = "";
@@ -208,7 +209,7 @@ const List = () => {
             selector: (row) => row.rent_status,
             sortable: true,
             cell: (row) => {
-                if (row.rent_status === 1) {
+                if (row.rent_status === CONSTANTS.PENDING) {
                     return (
                         <button
                             onClick={() => handleMarkAsPaid(row._id)}
@@ -217,9 +218,9 @@ const List = () => {
                             Mark as Paid
                         </button>
                     );
-                } else if (row.rent_status == 2) {
+                } else if (row.rent_status == CONSTANTS.PARTIALLY_PAID) {
                     return <button onClick={() => handlePartialRent(row._id)} className="text-black font-semibold bg-yellow-400 text-sm rounded hover:bg-yellow-600 px-3 py-1">PARTIALLY PAID</button>;
-                } else if (row.rent_status == 3) {
+                } else if (row.rent_status == CONSTANTS.PAID) {
                     return <span className="text-black font-semibold bg-green-500 text-sm rounded hover:bg-green-700 px-3 py-1">PAID</span>;
                 }
             },
@@ -283,13 +284,6 @@ const List = () => {
                         >
                             Filter
                         </button>
-                        <button
-                            type="button"
-                            className="px-3 py-1 bg-blue-400 text-white rounded hover:bg-blue-700 transition"
-                            onClick={() => navigate("/admin/master/hostellers/add")}
-                        >
-                            Add
-                        </button>
                     </div>
                 </div>
 
@@ -306,7 +300,6 @@ const List = () => {
                             >
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-4">
 
-                                    {/* Location */}
                                     <div>
                                         <label
                                             htmlFor="location_id"
@@ -340,7 +333,6 @@ const List = () => {
                                         />
                                     </div>
 
-                                    {/* Hostel */}
                                     <div>
                                         <label
                                             htmlFor="hostel_id"
@@ -375,7 +367,6 @@ const List = () => {
                                         />
                                     </div>
 
-                                    {/* Building */}
                                     <div>
                                         <label
                                             htmlFor="building_id"
@@ -411,7 +402,6 @@ const List = () => {
                                         />
                                     </div>
 
-                                    {/* Room */}
                                     <div>
                                         <label
                                             htmlFor="room_id"
@@ -451,7 +441,6 @@ const List = () => {
                                         />
                                     </div>
 
-                                    {/* Hosteller */}
                                     <div>
                                         <label
                                             htmlFor="hosteller"
@@ -480,6 +469,72 @@ const List = () => {
                                                 />
                                             )}
                                         />
+                                    </div>
+
+                                    <div className="flex-1">
+                                        <label
+                                            htmlFor="status"
+                                            className="block mb-2 text-gray-700 dark:text-white font-semibold"
+                                        >
+                                            Status
+                                        </label>
+                                        <Controller
+                                            name="status"
+                                            control={control}
+                                            defaultValue=""
+                                            render={({ field }) => (
+                                                <Select
+                                                    {...field}
+                                                    options={statusOptions}
+                                                    placeholder="Select Status"
+                                                    value={statusOptions.find(option => option.value === field.value) || null}
+                                                    onChange={(option) => field.onChange(option.value)}
+                                                    styles={{
+                                                        control: (base, state) => ({
+                                                            ...base,
+                                                            backgroundColor: isDark ? "#1f2937" : "#fff",
+                                                            borderColor: state.isFocused
+                                                                ? "#a78bfa"
+                                                                : isDark
+                                                                    ? "#374151"
+                                                                    : "#d1d5db",
+                                                            boxShadow: state.isFocused
+                                                                ? "0 0 0 2px rgba(167, 139, 250, 0.5)"
+                                                                : "none",
+                                                            "&:hover": { borderColor: "#a78bfa" },
+                                                            color: isDark ? "#f9fafb" : "#111827",
+                                                        }),
+                                                        singleValue: (base) => ({
+                                                            ...base,
+                                                            color: isDark ? "#f9fafb" : "#111827",
+                                                        }),
+                                                        menu: (base) => ({
+                                                            ...base,
+                                                            backgroundColor: isDark ? "#111827" : "white",
+                                                            color: isDark ? "#f9fafb" : "black",
+                                                            zIndex: 20,
+                                                        }),
+                                                        option: (base, state) => ({
+                                                            ...base,
+                                                            backgroundColor: state.isSelected
+                                                                ? "#a78bfa"
+                                                                : state.isFocused
+                                                                    ? isDark
+                                                                        ? "#374151"
+                                                                        : "#ede9fe"
+                                                                    : "transparent",
+                                                            color: state.isSelected
+                                                                ? "white"
+                                                                : isDark
+                                                                    ? "#f9fafb"
+                                                                    : "#111827",
+                                                            cursor: "pointer",
+                                                        }),
+                                                    }}
+                                                />
+                                            )}
+                                        />
+
                                     </div>
                                 </div>
 

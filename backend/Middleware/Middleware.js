@@ -85,6 +85,7 @@ const createImageHandler = (moduleName, isUpdate = false) => {
         upload.fields([
             { name: "photo", maxCount: 1 },
             { name: "id_proof", maxCount: 1 },
+            { name: "issue" },
         ]),
         (req, res, next) => {
             req.importedFiles = {};
@@ -99,9 +100,7 @@ const createImageHandler = (moduleName, isUpdate = false) => {
                     const ext = path.extname(file.originalname).toLowerCase();
 
                     if (!allowedExtensions.image.includes(ext)) {
-                        return res
-                            .status(400)
-                            .json({ message: `Only images allowed for ${field}` });
+                        return res.status(400).json({ message: `Only images allowed for ${field}` });
                     }
 
                     req.importedFiles[field] = {
@@ -111,6 +110,19 @@ const createImageHandler = (moduleName, isUpdate = false) => {
                 }
             });
 
+            if (req.files && req.files["issue"]) {
+                console.log(1);
+                req.importedFiles["issue"] = req.files["issue"].map(file => {
+                    const ext = path.extname(file.originalname).toLowerCase();
+                    if (!allowedExtensions.image.includes(ext)) {
+                        throw new Error("Only images allowed for issue");
+                    }
+                    return {
+                        filename: file.filename,
+                        path: file.path.replace(/\\/g, "/"),
+                    };
+                });
+            }
             next();
         },
     ];

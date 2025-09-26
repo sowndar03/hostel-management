@@ -124,7 +124,14 @@ const store = async (req, res) => {
         });
 
         const emailContent = await welcomeEmail(hosteller);
-        await sendMail(hosteller.email, "Welcome to Hostel Management", emailContent);
+
+        sendMail(
+            hosteller.email,
+            "Welcome to Hostel Management",
+            emailContent
+        ).catch(err => {
+            console.error("Failed to send email:", err);
+        });
 
         res.status(201).json({
             message: "Hosteller added successfully",
@@ -235,7 +242,7 @@ const selectOne = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const buildings = await Hosteller.findOne({ _id: id, trash: "NO" })
+        const hostellers = await Hosteller.findOne({ _id: id, trash: "NO" })
             .populate("location_id", "location_name")
             .populate("hostel_id", "hostel_name")
             .populate("building_id", "building_name")
@@ -243,7 +250,7 @@ const selectOne = async (req, res) => {
             .populate("seat_no", "seat_no")
             .populate("created_by", "name");
 
-        if (!buildings) {
+        if (!hostellers) {
             return res.status(404).json({
                 success: false,
                 message: "Hosteller not found",
@@ -253,7 +260,7 @@ const selectOne = async (req, res) => {
         res.status(200).json({
             success: true,
             message: "Fetched successfully",
-            data: buildings,
+            data: hostellers,
         });
     } catch (err) {
         res.status(500).json({
@@ -263,6 +270,40 @@ const selectOne = async (req, res) => {
     }
 
 }
+
+const selectUsingUserId = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const hostellers = await Hosteller.findOne({ user_id: id, trash: "NO" })
+            .populate("location_id", "location_name")
+            .populate("hostel_id", "hostel_name")
+            .populate("building_id", "building_name")
+            .populate("room_id", "room_no")
+            .populate("seat_no", "seat_no")
+            .populate("created_by", "name");
+
+        if (!hostellers) {
+            return res.status(404).json({
+                success: false,
+                message: "Hosteller not found",
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Fetched successfully",
+            data: hostellers,
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: err.message,
+        });
+    }
+
+}
+
 const statusChange = async (req, res) => {
     try {
         const { id, status } = req.body;
@@ -425,7 +466,7 @@ const getHosteller = async (req, res) => {
 
 const searchValues = async (req, res) => {
 
-    const { location_id, hostel_id, building_id, room_id, hosteller } = req.body;
+    const { location_id, hostel_id, building_id, room_id, hosteller, status } = req.body;
     let query = {};
 
     if (location_id && location_id !== "") {
@@ -439,11 +480,17 @@ const searchValues = async (req, res) => {
     if (building_id && building_id !== "") {
         query.building_id = building_id;
     }
+
     if (room_id && room_id !== "") {
         query.room_id = room_id;
     }
+
     if (hosteller && hosteller !== "") {
         query._id = hosteller;
+    }
+
+    if (status && status !== "") {
+        query.rent_status = status;
     }
 
     query.trash = 'NO';
@@ -489,5 +536,16 @@ const uniqueCheck = async (req, res) => {
 }
 
 module.exports = {
-    list, store, selectOne, deleteHosteller, statusChange, statusUpdate, getPeoples, getHosteller, searchValues, updates, uniqueCheck
+    list,
+    store,
+    selectOne,
+    deleteHosteller,
+    statusChange,
+    statusUpdate,
+    getPeoples,
+    getHosteller,
+    searchValues,
+    updates,
+    uniqueCheck,
+    selectUsingUserId
 }

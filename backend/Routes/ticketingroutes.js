@@ -1,0 +1,9 @@
+const express = require('express');
+const router = express.Router();
+const ticketingcontroller = require('../Controller/Ticketing/ticketingcontroller');
+const { createImageHandler } = require('../Middleware/Middleware');
+
+router.get('/', ticketingcontroller.list);
+router.post('/add',createImageHandler("issue", false), ticketingcontroller.store);
+
+module.exports = router;
