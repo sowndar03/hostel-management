@@ -4,7 +4,15 @@ const mongoose = require('mongoose');
 const helmet = require('helmet');
 const path = require('path');
 const cors = require('cors');
+const { initSocket } = require('./utils/socket.js');
+
 require("./cron/cron.js");
+
+
+const app = express();
+const http = require('http');
+const server = http.createServer(app);
+const io = initSocket(server);
 
 const loginRoutes = require('./Routes/loginroutes');
 const userRoutes = require('./Routes/userroutes');
@@ -14,7 +22,7 @@ const adminRoutes = require('./Routes/adminroutes');
 const ticketingRoutes = require('./Routes/ticketingroutes.js');
 const middleware = require('./Middleware/Middleware');
 
-const app = express();
+
 const PORT = process.env.PORT || 5000;
 const DB_URL = process.env.DB_URL;
 
@@ -51,6 +59,6 @@ mongoose.connect(DB_URL)
   .then(() => console.log('MongoDB connected!'))
   .catch((err) => console.error('DB connection error:', err));
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

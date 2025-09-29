@@ -1,5 +1,7 @@
 import React, { createContext, useState, useEffect } from "react";
 import api from "../api";
+import { io } from "socket.io-client";
+import { toast } from 'react-toastify';
 
 export const AuthContext = createContext();
 const api_url = import.meta.env.VITE_API_URL;
@@ -11,12 +13,43 @@ export const AuthContextProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [unreadCount, setUnreadCount] = useState(0);
     const [user, setUser] = useState(null);
+    const backend_url = import.meta.env.VITE_BACKEND_URL;
 
     const fetchUser = async () => {
         try {
             const response = await api.post(`${api_url}/user/loggedUser`);
             setUsername(response.data.user.name);
             setUser(response.data.user);
+            const socketConnection = io(backend_url, { withCredentials: true });
+            if (response.data.user) {
+                const role_id = response.data.user.role_id;
+                const id = response.data.user._id;
+                if (role_id == 1) {
+                    socketConnection.emit('join-admin-room', id);
+                    socketConnection.on('new-ticket', (ticket) => {
+                        toast.info(`New ticket from user ${ticket.user_id}: ${ticket.concern}`);
+                        setNotification(prev => [
+                            {
+                                notification_type: "Ticket",
+                                module_type: "Ticketing",
+                                module_sub_type: "New Ticket",
+                                title: "New Ticket Raised",
+                                message: `Ticket ID ${ticket.ticket_id} created by User ${ticket.user_id}`,
+                                web_link: `/ticketing/view/${ticket.ticket_id}`,
+                                assigned_user: "admin",
+                                viewed_user: "",
+                                status: 1,
+                                createdAt: new Date().toISOString(),
+                                _id: ticket.ticket_id,
+                            },
+                            ...prev
+                        ]);
+                        setUnreadCount(prev => prev + 1);
+                    });
+                } else {
+                    socketConnection.emit('join-user-room', id);
+                }
+            }
             setAuthenticated(true);
         } catch (err) {
             logout();

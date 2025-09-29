@@ -1,18 +1,19 @@
 const mongoose = require('mongoose');
 
-const ticketingSchema = mongoose.Schema({
-    user_id: {
-        type: mongoose.Schema.Types.ObjectId, ref: "User"
+const fileSchema = new mongoose.Schema({
+    ticketing_id: {
+        type: mongoose.Schema.Types.ObjectId, ref: "Ticket"
     },
-    hosteller_id: {
-        type: mongoose.Schema.Types.ObjectId, ref: "Hosteller"
+    file_path: {
+        type: String
     },
-    concern: { type: String },
-    ticket_status: { type: String },
+    file_name: {
+        type: String
+    },
     created_by: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     updated_by: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     status: { type: Number, required: true, default: 1 },
     trash: { type: String, enum: ["YES", "NO"], default: "NO" },
 }, { timestamps: true });
 
-module.exports = mongoose.model("Ticket", ticketingSchema);
+module.exports = mongoose.model("issue_file", fileSchema);

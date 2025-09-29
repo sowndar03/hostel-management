@@ -111,7 +111,6 @@ const createImageHandler = (moduleName, isUpdate = false) => {
             });
 
             if (req.files && req.files["issue"]) {
-                console.log(1);
                 req.importedFiles["issue"] = req.files["issue"].map(file => {
                     const ext = path.extname(file.originalname).toLowerCase();
                     if (!allowedExtensions.image.includes(ext)) {
