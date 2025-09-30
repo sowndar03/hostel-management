@@ -84,6 +84,20 @@ const loggedUser = async (req, res) => {
     }
 }
 
+const storefcmtoken = async (req, res) => {
+    try {
+        const { id, fcmToken } = req.body;
+        const fcm_token = await User.findByIdAndUpdate(
+            id,
+            { fcm_token: fcmToken },
+            { new: true },
+        );
+        return res.status(201).json({ message: "FCM Token Updated Successfully" });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+}
+
 //Notification
 const notification = async (req, res) => {
     try {
@@ -115,7 +129,7 @@ const markasread = async (req, res) => {
 
         if (!viewed_user.includes(user_id.toString())) {
             viewed_user.push(user_id.toString());
-            notifications.viewed_user = viewed_user.join(","); 
+            notifications.viewed_user = viewed_user.join(",");
             await notifications.save();
 
             const log = new NotificationLog({ notification_id, user_id });
@@ -152,5 +166,6 @@ module.exports = {
     getTheme,
     loggedUser,
     notification,
-    markasread
+    markasread,
+    storefcmtoken
 }

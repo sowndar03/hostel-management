@@ -10,6 +10,7 @@ const ticketingSchema = mongoose.Schema({
     concern: { type: String },
     ticket_status: { type: String },
     created_by: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    closed_by: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     updated_by: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     status: { type: Number, required: true, default: 1 },
     trash: { type: String, enum: ["YES", "NO"], default: "NO" },

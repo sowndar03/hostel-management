@@ -2,9 +2,11 @@ import React, { createContext, useState, useEffect } from "react";
 import api from "../api";
 import { io } from "socket.io-client";
 import { toast } from 'react-toastify';
+import { requestForToken } from "../utils/firebase";
 
 export const AuthContext = createContext();
 const api_url = import.meta.env.VITE_API_URL;
+const app_url = import.meta.env.VITE_APP_URL;
 
 export const AuthContextProvider = ({ children }) => {
     const [isAuthenticated, setAuthenticated] = useState(false);
@@ -20,6 +22,8 @@ export const AuthContextProvider = ({ children }) => {
             const response = await api.post(`${api_url}/user/loggedUser`);
             setUsername(response.data.user.name);
             setUser(response.data.user);
+            registerFCMtoken(response.data.user._id);
+            //Socket
             const socketConnection = io(backend_url, { withCredentials: true });
             if (response.data.user) {
                 const role_id = response.data.user.role_id;
@@ -27,25 +31,30 @@ export const AuthContextProvider = ({ children }) => {
                 if (role_id == 1) {
                     socketConnection.emit('join-admin-room', id);
                     socketConnection.on('new-ticket', (ticket) => {
-                        toast.info(`New ticket from user ${ticket.user_id}: ${ticket.concern}`);
+                        const { ticket_id, hostelName, user_name, web_link } = ticket;
+
+                        toast.info(`New Ticket has been created by ${user_name} from ${hostelName}`);
+
                         setNotification(prev => [
                             {
                                 notification_type: "Ticket",
                                 module_type: "Ticketing",
                                 module_sub_type: "New Ticket",
                                 title: "New Ticket Raised",
-                                message: `Ticket ID ${ticket.ticket_id} created by User ${ticket.user_id}`,
-                                web_link: `/ticketing/view/${ticket.ticket_id}`,
+                                message: `New Ticket has been created by ${user_name} from ${hostelName}`,
+                                web_link: `${web_link}`, 
                                 assigned_user: "admin",
                                 viewed_user: "",
                                 status: 1,
                                 createdAt: new Date().toISOString(),
-                                _id: ticket.ticket_id,
+                                _id: ticket_id,
                             },
                             ...prev
                         ]);
+
                         setUnreadCount(prev => prev + 1);
                     });
+
                 } else {
                     socketConnection.emit('join-user-room', id);
                 }
@@ -57,6 +66,16 @@ export const AuthContextProvider = ({ children }) => {
             setLoading(false);
         }
     };
+
+    const registerFCMtoken = async (id) => {
+        const fcmToken = await requestForToken();
+        if (fcmToken) {
+            await api.post(`${api_url}/user/store-fcm-token`, {
+                id,
+                fcmToken
+            });
+        }
+    }
 
     const notifications = async () => {
         try {

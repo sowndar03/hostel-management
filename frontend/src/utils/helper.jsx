@@ -1,5 +1,6 @@
 import React from "react";
 import moment from 'moment';
+import { CONSTANTS } from "./CONSTANTS";
 const api_url = import.meta.env.VITE_API_URL;
 const backend_url = import.meta.env.VITE_BACKEND_URL;
 
@@ -61,5 +62,18 @@ export const getUploadStatus = (id) => {
             return <p className="text-red-500 font-bold">INPROGRESS</p>;
         case "3":
             return <p className="text-green-500 font-bold">SUCCESS</p>;
+    }
+}
+
+export const getTicketStatus = (id) => {
+    switch (id) {
+        case CONSTANTS.OPEN:
+            return <p className="text-red-500 font-bold">OPEN</p>
+        case CONSTANTS.INPROCESS:
+            return <p className="text-yellow-500 font-bold">ACKNOWLEDGED</p>
+        case CONSTANTS.REOPEN:
+            return <p className="text-red-500 font-bold">REOPEN</p>
+        case CONSTANTS.CLOSED:
+            return <p className="text-green-500 font-bold">CLOSED</p>
     }
 }

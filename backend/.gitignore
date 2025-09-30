@@ -33,3 +33,5 @@ coverage/
 
 # Uploads folder
 uploads/
+
+serviceAccountKey.json

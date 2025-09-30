@@ -2,75 +2,118 @@ const express = require('express');
 const Ticketing = require('../../Model/Ticketing/Ticketing');
 const IssueFiles = require('../../Model/Ticketing/IssueFiles');
 const { TICKETS } = require('../../utils/constant');
-const { onlineAdmins, getIo } = require('../../utils/socket');
 const User = require('../../Model/User');
-const Notification = require('../../Model/Notification');
-const io = getIo();
+const { sendTicketNotification } = require('../../utils/helper');
 
-const list = async () => {
+const list = async (req, res) => {
+    try {
+        const result = await Ticketing.find()
+            .populate({
+                path: 'hosteller_id',
+                populate: [
+                    { path: 'hostel_id' },
+                    { path: 'room_id' }
+                ]
+            }).populate({
+                path: 'created_by',
+            });
 
+
+        return res.status(200).json({
+            message: "Data Fetched Successfully",
+            data: result,
+        });
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
 }
 
 const store = async (req, res) => {
     try {
-        if (req.user.id == req.body.id) {
-            const ticketing = await Ticketing.create({
-                user_id: req.body.id,
-                hosteller_id: req.body.hosteller_id,
-                concern: req.body.concern,
-                created_by: req.user.id,
-                ticket_status: TICKETS.OPEN,
-            });
-
-            const issues = req.importedFiles.issue;
-
-            for (const issue of issues) {
-                await IssueFiles.create({
-                    ticketing_id: ticketing._id,
-                    file_name: issue.file_name,
-                    file_path: issue.path,
-                });
-            }
-
-            const adminUser = await User.find({ role_id: 1 });
-            for (const admin of adminUser) {
-
-                const notificationData = {
-                    notification_type: "Ticket",
-                    module_type: "Ticketing",
-                    module_sub_type: "New Ticket",
-                    title: "New Ticket Raised",
-                    message: `Ticket ID ${ticketing._id} created by User ${ticketing.user_id}`,
-                    web_link: `/ticketing/view/${ticketing._id}`,
-                    assigned_user: `${admin._id}`,
-                    viewed_user: "",
-                };
-                const notification = await Notification.create(notificationData);
-
-                const socketId = onlineAdmins[admin._id.toString()];
-                if (socketId) {
-                    console.log(socketId);
-                    io.to(socketId).emit('new-ticket', {
-                        ticket_id: ticketing._id,
-                        concern: ticketing.concern,
-                        user_id: ticketing.user_id,
-                        created_by: ticketing.created_by,
-                    });
-                }
-            }
-
-            // return res.status(201).json({ message: "Ticket Raised Successfully" });
-        } else {
+        if (req.user.id != req.body.id) {
             return res.status(403).json({ message: "Invalid User" });
         }
+
+        var ticketing = await Ticketing.create({
+            user_id: req.body.id,
+            hosteller_id: req.body.hosteller_id,
+            concern: req.body.concern,
+            created_by: req.user.id,
+            ticket_status: TICKETS.OPEN,
+        });
+
+        const issues = req.importedFiles.issue || [];
+        for (const issue of issues) {
+            await IssueFiles.create({
+                ticketing_id: ticketing._id,
+                file_name: issue.file_name,
+                file_path: issue.path,
+            });
+        }
+
+        ticketing = await Ticketing.findById(ticketing._id).populate('hosteller_id');
+
+        const adminUsers = await User.find({ role_id: 1 });
+        await sendTicketNotification(ticketing, adminUsers);
+
+        return res.status(201).json({ message: "Ticket Raised Successfully" });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ message: err.message });
     }
 };
 
 
+const selectOne = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+
+        const buildings = await Ticketing.findOne({ _id: id, trash: "NO" })
+            .populate({
+                path: 'hosteller_id',
+                populate: [
+                    { path: 'hostel_id' },
+                    { path: 'room_id' }
+                ]
+            }).populate({
+                path: 'created_by',
+            });
+
+        if (!buildings) {
+            return res.status(404).json({
+                success: false,
+                message: "Rooms not found",
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Fetched successfully",
+            data: buildings,
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: err.message,
+        });
+    }
+
+}
+
+const selectIssuesFiles = async () => {
+    try {
+        const { id } = req.params;
+        // const issues = await 
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+}
+
+
 module.exports = {
     list,
-    store
+    store,
+    selectOne,
+    selectIssuesFiles
 }

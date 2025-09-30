@@ -31,16 +31,14 @@ const AppHeader = ({ sidebarWidth = 250 }) => {
 
     const handleNotification = async (id) => {
         try {
-            console.log('Marking notification as read:', id);
             const res = await api.post(`${api_url}/notification/markasread`, { id });
-            console.log('API response:', res.data);
             
             const web_link = res.data.notifications.web_link;
             const newUnreadCount = res.data.unread_count;
             setUnreadCount(newUnreadCount);
             
             notifications();
-            navigate(`/${web_link}`)
+            navigate(`/${web_link}`);
         } catch (err) {
             console.error('Error marking notification as read:', err);
         }

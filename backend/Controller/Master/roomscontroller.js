@@ -212,6 +212,8 @@ const selectOne = async (req, res) => {
     }
 
 }
+
+
 const updates = async (req, res) => {
     try {
         const { building_id, hostel_id, location_id, room_no, room_count, id } = req.body;

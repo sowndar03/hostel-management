@@ -5,13 +5,14 @@ import DataTable from 'react-data-table-component';
 import { IoEye } from 'react-icons/io5';
 import { BiSolidEdit } from 'react-icons/bi';
 import { AiTwotoneDelete } from 'react-icons/ai';
-import { FaUsersViewfinder } from "react-icons/fa6";
+import { FaCheckToSlot, FaUsersViewfinder } from "react-icons/fa6";
 import Swal from 'sweetalert2';
 import { useForm, Controller } from 'react-hook-form';
 import Select from 'react-select';
 import api from '../../api';
-import { getAvailableCount, getStatus } from '../../utils/helper';
+import { getAvailableCount, getStatus, getTicketStatus } from '../../utils/helper';
 import { ThemeContext } from '../../context/ThemeContext';
+import { AuthContext } from '../../context/AuthContext';
 
 const list = () => {
   const [filterToggle, setFilterToggle] = useState(false);
@@ -23,6 +24,7 @@ const list = () => {
   const [locations, setLocations] = useState([]);
   const [hostels, setHostel] = useState([]);
   const [buildings, setBuildings] = useState([]);
+  const { user } = useContext(AuthContext);
 
   const statusOptions = [
     { value: "1", label: "Active" },
@@ -39,9 +41,9 @@ const list = () => {
     formState: { errors, isSubmitting },
   } = useForm();
 
-  const getAllRooms = async () => {
+  const getAllTickets = async () => {
     try {
-      const res = await api.get(`${api_url}/master/rooms/list`);
+      const res = await api.get(`${api_url}/ticketing/list`);
       setList(res.data.data);
     } catch (err) {
       console.log(err);
@@ -50,7 +52,7 @@ const list = () => {
 
   const handleReset = () => {
     reset();
-    getAllRooms();
+    getAllTickets();
   }
 
   const handleSearch = async (data) => {
@@ -60,79 +62,6 @@ const list = () => {
     } catch (err) {
       console.log(err);
     }
-  };
-
-  const handleStatusClick = async (id, status) => {
-    let text = "";
-    let button = "";
-
-    if (status === 1) {
-      text = "Do you want to Inactivate the Rooms?";
-      button = "Yes, Inactivate!";
-    } else {
-      text = "Do you want to Activate the Rooms?";
-      button = "Yes, Activate!";
-    }
-    Swal.fire({
-      title: "Are you sure?",
-      text,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: button,
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          const result = await api.post(`${api_url}/master/rooms/statusChange`, {
-            id,
-            status,
-          });
-          setList((prevList) =>
-            prevList.map((item) =>
-              item._id === id
-                ? { ...item, status: item.status === 1 ? 0 : 1 }
-                : item
-            )
-          );
-          Swal.fire(
-            "Updated!",
-            status === 1
-              ? "Rooms has been inactivated."
-              : "Rooms has been activated.",
-            "success"
-          );
-        } catch (err) {
-          Swal.fire("Oops...", "Something went wrong!", "error");
-        }
-      }
-    });
-  };
-
-  const handleDelete = (id) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "Do you want to Delete the Room?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Delete",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          await api.post(`${api_url}/master/rooms/delete`, { id });
-          setList((prevList) => prevList.filter((item) => item._id !== id));
-          Swal.fire(
-            "Updated!",
-            "Room has been Deleted Successfully",
-            "success"
-          );
-        } catch (err) {
-          Swal.fire("Oops...", "Something went wrong!", "error");
-        }
-      }
-    });
   };
 
   const getallLocation = async () => {
@@ -162,62 +91,43 @@ const list = () => {
   };
 
   const handleView = (id) => {
-    navigate(`/master/room/view/${id}`);
+    navigate(`/ticketing/view/${id}`);
   };
-  const handleEdit = (id) => {
-    navigate(`/master/room/edit/${id}`);
-  };
-  const handlehostellerList = (id) => {
-    navigate(`/master/room/hostellers/list/${id}`);
-  };
+
+  const handleApproval = (id) => {
+    navigate(`/ticketing/approval/${id}`);
+  }
 
   const columns = [
     {
       name: "SNO", selector: (row, index) => (index + 1)
     },
     {
-      name: "Location",
-      selector: (row) => row.location_id?.location_name || "-",
-      sortable: true,
-    },
-    {
       name: "Hostel",
-      selector: (row) => row.hostel_id?.hostel_name || "-",
+      selector: (row) => row.hosteller_id.hostel_id?.hostel_name || "-",
       sortable: true,
     },
     {
-      name: "Building", selector: (row) => row.building_id?.building_name, sortable: true,
+      name: "Room Number", selector: (row) => row.hosteller_id?.room_id?.room_no, sortable: true,
     },
     {
-      name: "Room Number", selector: (row) => row.room_no, sortable: true,
-    },
-    {
-      name: "Count", selector: (row) => row.room_count, sortable: true,
-    },
-    {
-      name: "Available Seats", selector: (row) => getAvailableCount(row.availableSeats), sortable: true, wrap: true, style: {
-        paddingTop: "6px",
-        paddingBottom: "6px",
-        paddingLeft: "8px",
-        paddingRight: "8px",
-      },
+      name: "Raised By", selector: (row) => row.hosteller_id.name, sortable: true,
     },
     {
       name: "Status",
       cell: (row) => (
         <span
-          onClick={() => handleStatusClick(row._id, row.status)}
           className="cursor-pointer text-blue-600 focus:outline-none active:outline-none"
         >
-          {getStatus(row.status)}
+          {getTicketStatus(row.status)}
         </span>
       ),
       sortable: true,
       ignoreRowClick: true,
     },
     {
-      name: "Created By",
-      selector: (row) => row.created_by?.name || "-",
+      name: "Closed By",
+      selector: (row) => row.closed_by?.name || "-",
       sortable: true,
     },
     {
@@ -229,21 +139,14 @@ const list = () => {
             size={20}
             className="text-green-600  hover:text-green-800 cursor-pointer"
           />
-          <BiSolidEdit
-            size={20}
-            onClick={() => handleEdit(row._id)}
-            className="text-blue-600  hover:text-blue-800 cursor-pointer"
-          />
-          <AiTwotoneDelete
-            size={20}
-            className="text-red-600 hover:text-red-800 cursor-pointer"
-            onClick={() => handleDelete(row._id)}
-          />
-          <FaUsersViewfinder
-            size={25}
-            className="text-green-600 hover:text-green-800 cursor-pointer"
-            onClick={() => handlehostellerList(row._id)}
-          />
+          {user?.role_id == 1 && (
+            <FaCheckToSlot
+              onClick={() => handleApproval(row._id)}
+              size={20}
+              className="text-blue-400  hover:text-blue-600 cursor-pointer"
+            />
+          )
+          }
         </div>
       ),
       ignoreRowClick: true,
@@ -251,7 +154,7 @@ const list = () => {
   ];
   const arrowColor = isDark ? "#ffffff" : "#111827";
   useEffect(() => {
-    getAllRooms();
+    getAllTickets();
     getallLocation();
     setIsDark(theme == "dark");
   }, [theme]);
@@ -269,20 +172,17 @@ const list = () => {
             >
               Filter
             </button>
-            <button
-              type="button"
-              className="px-3 py-1 bg-blue-400 text-white rounded hover:bg-blue-700 transition"
-              onClick={() => navigate("/master/room/add")}
-            >
-              Add
-            </button>
-            <button
-              type="button"
-              className="px-3 py-1 m-2 bg-green-600 text-white rounded hover:bg-green-800 transition"
-              onClick={() => navigate("/master/room/import")}
-            >
-              Import
-            </button>
+
+            {user?.role_id != 1 && (
+              <button
+                type="button"
+                className="px-3 py-1 bg-blue-400 text-white rounded hover:bg-blue-700 transition"
+                onClick={() => navigate("/ticketing/add")}
+              >
+                Add
+              </button>
+            )
+            }
           </div>
         </div>
 
