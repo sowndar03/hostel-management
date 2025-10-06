@@ -11,4 +11,5 @@ export const CONSTANTS = {
     REOPEN: "3",
     CLOSED: "4",
     NO_ISSUES_SOLVED: "5",
+    USER_CLOSED: "6",
 };

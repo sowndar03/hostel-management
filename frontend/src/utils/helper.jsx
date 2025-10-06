@@ -76,9 +76,11 @@ export const getTicketStatus = (status) => {
         case CONSTANTS.REOPEN:
             return <p className="text-red-500 font-bold">REOPEN</p>;
         case CONSTANTS.CLOSED:
-            return <p className="text-green-500 font-bold">CLOSED</p>;
+            return <p className="text-yellow-500 font-bold">Waiting For User Confirmation</p>;
         case CONSTANTS.NO_ISSUES_SOLVED:
             return <p className="text-green-500 font-bold">NO Issues - Closed</p>;
+        case CONSTANTS.USER_CLOSED:
+            return <p className="text-green-500 font-bold">CLOSED</p>;
         default:
             return <p className="text-gray-500 font-bold">{status}</p>;
     }

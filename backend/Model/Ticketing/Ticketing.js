@@ -7,11 +7,24 @@ const ticketingSchema = mongoose.Schema({
     hosteller_id: {
         type: mongoose.Schema.Types.ObjectId, ref: "Hosteller"
     },
+    location_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Location",
+    },
+    hostel_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Master_hostel"
+    },
+    building_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Master_building"
+    },
     concern: { type: String },
     ticket_status: { type: String },
     acknowledgment_remarks: { type: String },
     closed_remarks: { type: String },
-    reopen_remarks: { type: String },
+    user_remarks: { type: String },
+    user_updated_at: { type: Date },
     acknowledged_at: { type: Date },
     closed_at: { type: Date },
     created_by: { type: mongoose.Schema.Types.ObjectId, ref: "User" },

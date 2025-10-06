@@ -28,8 +28,12 @@ const list = () => {
   const { user } = useContext(AuthContext);
 
   const statusOptions = [
-    { value: "1", label: "Active" },
-    { value: "0", label: "Inactive" },
+    { value: "1", label: "OPEN" },
+    { value: "2", label: "INPROCESS" },
+    { value: "3", label: "REOPEN" },
+    { value: "4", label: "WAITING FOR USER CONFIRMATION" },
+    { value: "5", label: "NO ISSUES SOLVED" },
+    { value: "6", label: "CLOSED" },
   ];
 
   const {
@@ -52,13 +56,20 @@ const list = () => {
   };
 
   const handleReset = () => {
-    reset();
+    reset({
+      location_id: null,
+      hostel_id: null,
+      building_id: null,
+      status: null,
+    });
+    setHostel([]);
+    setBuildings([]);
     getAllTickets();
   }
 
   const handleSearch = async (data) => {
     try {
-      const result = await api.post(`${api_url}/master/rooms/searchValues`, data);
+      const result = await api.post(`${api_url}/ticketing/searchValues`, data);
       setList(result.data.data);
     } catch (err) {
       console.log(err);
@@ -73,6 +84,7 @@ const list = () => {
       console.log(err);
     }
   };
+
   const getAllHostels = async (location_id) => {
     try {
       const res = await api.get(`${api_url}/master/hostel/getHostel/${location_id}`);
@@ -105,7 +117,7 @@ const list = () => {
     },
     {
       name: "Hostel",
-      selector: (row) => row.hosteller_id.hostel_id?.hostel_name || "-",
+      selector: (row) => row.hosteller_id?.hostel_id?.hostel_name || "-",
       sortable: true,
     },
     {
@@ -140,14 +152,22 @@ const list = () => {
             size={20}
             className="text-green-600  hover:text-green-800 cursor-pointer"
           />
-          {checkUserRole(CONSTANTS.ROLE_ADMIN) && (
-            <FaCheckToSlot
-              onClick={() => handleApproval(row._id)}
-              size={20}
-              className="text-blue-400  hover:text-blue-600 cursor-pointer"
-            />
-          )
-          }
+          {checkUserRole(CONSTANTS.ROLE_ADMIN) &&
+            (row.ticket_status === CONSTANTS.OPEN || row.ticket_status === CONSTANTS.INPROCESS || row.ticket_status === CONSTANTS.REOPEN) && (
+              <FaCheckToSlot
+                onClick={() => handleApproval(row._id)}
+                size={20}
+                className="text-blue-400 hover:text-blue-600 cursor-pointer"
+              />
+            )}
+          {checkUserRole(CONSTANTS.ROLE_USER) &&
+            (row.ticket_status === CONSTANTS.CLOSED) && (
+              <FaCheckToSlot
+                onClick={() => handleApproval(row._id)}
+                size={20}
+                className="text-blue-400 hover:text-blue-600 cursor-pointer"
+              />
+            )}
         </div>
       ),
       ignoreRowClick: true,
@@ -164,7 +184,7 @@ const list = () => {
     <div className='min-h-screen bg-white dark:bg-[#101828] p-6'>
       <div className="border-b pb-3 mb-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-lg font-bold text-gray-700 dark:text-white">Ticket List</h2>
+          <h2 className="text-lg font-bold text-gray-700 dark:text-white">Tickets</h2>
           <div>
             <button
               type="button"
@@ -374,14 +394,72 @@ const list = () => {
                     )}
                   </div>
 
-                  <div className="">
-                    <label htmlFor="building" className='block mb-2 text-gray-700 dark:text-white font-semibold'>Room <span className='text-red-500'>*</span></label>
-                    <input
-                      type="text"
-                      placeholder='Enter Room Number'
-                      className='w-full input-style  focus:outline-none focus:ring-2 focus:ring-[#f1f0ff] focus:border-[#f1f0ff] transition' {
-                      ...register('room_no')
-                      } />
+                  <div className="flex-1">
+                    <label
+                      htmlFor="status"
+                      className="block mb-2 text-gray-700 dark:text-white font-semibold"
+                    >
+                      Status
+                    </label>
+                    <Controller
+                      name='status'
+                      defaultValue={null}
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          options={statusOptions}
+                          placeholder="Select Status"
+                          className="w-full"
+                          value={
+                            statusOptions
+                              .find((option) => option.value === field.value) || null
+                          }
+                          onChange={(option) => field.onChange(option?.value || null)}
+                          styles={{
+                            control: (base, state) => ({
+                              ...base,
+                              backgroundColor: isDark ? "#1f2937" : "#fff",
+                              borderColor: state.isFocused
+                                ? "#a78bfa"
+                                : isDark
+                                  ? "#374151"
+                                  : "#d1d5db",
+                              boxShadow: state.isFocused
+                                ? "0 0 0 2px rgba(167, 139, 250, 0.5)"
+                                : "none",
+                              "&:hover": { borderColor: "#a78bfa" },
+                              color: isDark ? "#f9fafb" : "#111827",
+                            }),
+                            singleValue: (base) => ({
+                              ...base,
+                              color: isDark ? "#f9fafb" : "#111827",
+                            }),
+                            menu: (base) => ({
+                              ...base,
+                              backgroundColor: isDark ? "#111827" : "white",
+                              color: isDark ? "#f9fafb" : "black",
+                              zIndex: 20,
+                            }),
+                            option: (base, state) => ({
+                              ...base,
+                              backgroundColor: state.isSelected
+                                ? "#a78bfa"
+                                : state.isFocused
+                                  ? isDark
+                                    ? "#374151"
+                                    : "#ede9fe"
+                                  : "transparent",
+                              color: state.isSelected
+                                ? "white"
+                                : isDark
+                                  ? "#f9fafb"
+                                  : "#111827",
+                              cursor: "pointer",
+                            }),
+                          }}
+                        />
+                      )}
+                    />
                   </div>
                 </div>
 
