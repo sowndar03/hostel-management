@@ -4,6 +4,8 @@ const IssueFiles = require('../../Model/Ticketing/IssueFiles');
 const { TICKETS } = require('../../utils/constant');
 const User = require('../../Model/User');
 const { sendTicketNotification } = require('../../utils/helper');
+const { messaging } = require('firebase-admin');
+const Constant = require('../../utils/constant');
 
 const list = async (req, res) => {
     try {
@@ -101,12 +103,44 @@ const selectOne = async (req, res) => {
 
 }
 
-const selectIssuesFiles = async () => {
+const selectIssuesFiles = async (req, res) => {
     try {
         const { id } = req.params;
-        // const issues = await 
+        const issues = await IssueFiles.find({
+            ticketing_id: id
+        });
+        res.status(200).json({ messaging: "Fetched Successfully", data: issues });
     } catch (err) {
         res.status(500).json({ message: err.message });
+    }
+}
+
+const first_approvals = async (req, res) => {
+    try {
+        const { id, ticket_status, remarks } = req.body;
+        const login_id = req.body.id; // ✅ if id is actually the user’s login_id, maybe rename for clarity
+
+        let updateFields = { ticket_status }; // always update status
+
+        if (ticket_status == Constant.TICKETS.NO_ISSUES_SOLVED || ticket_status == Constant.TICKETS.CLOSED) {
+            updateFields.closed_remarks = remarks;
+            updateFields.closed_at = new Date();
+            updateFields.closed_by = login_id;
+        } else if (ticket_status == Constant.TICKETS.INPROCESS) {
+            updateFields.acknowledgment_remarks = remarks;
+            updateFields.acknowledged_at = new Date();
+            updateFields.acknowledged_by = login_id;
+        }
+
+        const result = await Ticketing.findByIdAndUpdate(
+            id,
+            { $set: updateFields },
+            { new: true }
+        );
+
+        return res.status(200).json({ message: "Updated Successfully" });
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
     }
 }
 
@@ -115,5 +149,6 @@ module.exports = {
     list,
     store,
     selectOne,
-    selectIssuesFiles
+    selectIssuesFiles,
+    first_approvals
 }

@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useContext } from "react";
 import moment from 'moment';
 import { CONSTANTS } from "./CONSTANTS";
+import { AuthContext } from "../context/AuthContext";
 const api_url = import.meta.env.VITE_API_URL;
 const backend_url = import.meta.env.VITE_BACKEND_URL;
 
@@ -65,15 +66,47 @@ export const getUploadStatus = (id) => {
     }
 }
 
-export const getTicketStatus = (id) => {
-    switch (id) {
+export const getTicketStatus = (status) => {
+ 
+    switch (status) {
         case CONSTANTS.OPEN:
-            return <p className="text-red-500 font-bold">OPEN</p>
+            return <p className="text-red-500 font-bold">OPEN</p>;
         case CONSTANTS.INPROCESS:
-            return <p className="text-yellow-500 font-bold">ACKNOWLEDGED</p>
+            return <p className="text-yellow-500 font-bold">ACKNOWLEDGED</p>;
         case CONSTANTS.REOPEN:
-            return <p className="text-red-500 font-bold">REOPEN</p>
+            return <p className="text-red-500 font-bold">REOPEN</p>;
         case CONSTANTS.CLOSED:
-            return <p className="text-green-500 font-bold">CLOSED</p>
+            return <p className="text-green-500 font-bold">CLOSED</p>;
+        case CONSTANTS.NO_ISSUES_SOLVED:
+            return <p className="text-green-500 font-bold">NO Issues - Closed</p>;
+        default:
+            return <p className="text-gray-500 font-bold">{status}</p>;
     }
+};
+
+
+export const todayDate = () => {
+    return moment().format("DD-MM-YYYY");
+};
+
+export const todayDateandTime = () => {
+    return moment().format("DD-MM-YYYY HH:mm:ss");
+};
+
+export const checkUserRole = (role) => {
+    const { user } = useContext(AuthContext);
+    const current_user_role = string_to_array(user.role_id);
+    return current_user_role.includes(role);
+}
+
+// explode - string to array - PHP
+// split - string to array - JS
+export const string_to_array = (str, separator = ",") => {
+    return str.split(separator);
+};
+
+// implode  - array to string
+// join - array to string
+export const array_to_string = (arr, separator = ",") => {
+    return arr.join(separator);
 }

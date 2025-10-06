@@ -5,10 +5,11 @@ const Constant = {
     },
 
     TICKETS: {
-        OPEN: 1,
-        INPROCESS: 2,
-        REOPEN: 3,
-        CLOSED: 4
+        OPEN: "1",
+        INPROCESS: "2",
+        REOPEN: "3",
+        CLOSED: "4",
+        NO_ISSUES_SOLVED: "5",
     },
 }
 

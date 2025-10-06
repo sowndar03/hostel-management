@@ -7,5 +7,6 @@ router.get('/list', ticketingcontroller.list);
 router.post('/add',createImageHandler("issue", false), ticketingcontroller.store);
 router.get('/view/:id', ticketingcontroller.selectOne);
 router.get('/issueFiles/:id', ticketingcontroller.selectIssuesFiles);
+router.post('/first_approval', ticketingcontroller.first_approvals);
 
 module.exports = router;

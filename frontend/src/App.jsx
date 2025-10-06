@@ -45,6 +45,7 @@ import CurrentMonthList from './pages/RentManagement/CurrentMonthRent/List';
 import TicketingList from './pages/Ticketing/List';
 import TicketingAdd from './pages/Ticketing/Add';
 import TicketingView from './pages/Ticketing/View';
+import TicketingApproval from './pages/Ticketing/Approval';
 
 function App() {
 
@@ -108,6 +109,7 @@ function App() {
                 <Route path='list' element={<TicketingList />}></Route>
                 <Route path='add' element={<TicketingAdd />}></Route>
                 <Route path='view/:id' element={<TicketingView />}></Route>
+                <Route path='approval/:id' element={<TicketingApproval />}></Route>
               </Route>
             </Route>
           </Routes>

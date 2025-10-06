@@ -10,9 +10,10 @@ import Swal from 'sweetalert2';
 import { useForm, Controller } from 'react-hook-form';
 import Select from 'react-select';
 import api from '../../api';
-import { getAvailableCount, getStatus, getTicketStatus } from '../../utils/helper';
+import { checkUserRole, getAvailableCount, getStatus, getTicketStatus } from '../../utils/helper';
 import { ThemeContext } from '../../context/ThemeContext';
 import { AuthContext } from '../../context/AuthContext';
+import { CONSTANTS } from '../../utils/CONSTANTS';
 
 const list = () => {
   const [filterToggle, setFilterToggle] = useState(false);
@@ -119,7 +120,7 @@ const list = () => {
         <span
           className="cursor-pointer text-blue-600 focus:outline-none active:outline-none"
         >
-          {getTicketStatus(row.status)}
+          {getTicketStatus(row.ticket_status)}
         </span>
       ),
       sortable: true,
@@ -139,7 +140,7 @@ const list = () => {
             size={20}
             className="text-green-600  hover:text-green-800 cursor-pointer"
           />
-          {user?.role_id == 1 && (
+          {checkUserRole(CONSTANTS.ROLE_ADMIN) && (
             <FaCheckToSlot
               onClick={() => handleApproval(row._id)}
               size={20}
