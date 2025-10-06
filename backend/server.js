@@ -21,7 +21,7 @@ const notificationRoutes = require('./Routes/notificationroutes');
 const adminRoutes = require('./Routes/adminroutes');
 const ticketingRoutes = require('./Routes/ticketingroutes.js');
 const middleware = require('./Middleware/Middleware');
-
+const dashboardRoutes = require('./Routes/dashboardroutes.js');
 
 const PORT = process.env.PORT || 5000;
 const DB_URL = process.env.DB_URL;
@@ -54,6 +54,7 @@ app.use('/api/notification', middlewares, notificationRoutes);
 app.use('/api/admin', middlewares, adminRoutes);
 app.use('/api/master', middlewares, masterRoutes);
 app.use('/api/ticketing', middlewares, ticketingRoutes);
+app.use('/api/dashboard', middlewares, dashboardRoutes);
 
 mongoose.connect(DB_URL)
   .then(() => console.log('MongoDB connected!'))
