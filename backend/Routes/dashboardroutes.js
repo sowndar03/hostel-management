@@ -8,5 +8,6 @@ router.get('/hostelWiseStudent', dashboardController.hostelWiseStudent);
 router.get('/monthWiseHostellerCount', dashboardController.monthWiseHostellerCount);
 router.get('/advanceAmount', dashboardController.advanceAmount);
 router.get('/currentMonthRentStatus', dashboardController.currentMonthRentStatus);
+router.get('/user/card/tickets', dashboardController.ticketStatusCard);
 
 module.exports = router;

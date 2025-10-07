@@ -6,10 +6,14 @@ import { ThemeContext } from "../context/ThemeContext";
 import { MdAdminPanelSettings } from "react-icons/md";
 import { FaFileInvoiceDollar } from "react-icons/fa";
 import { FaTicketAlt } from "react-icons/fa";
-    
+import { checkUserRole } from "../utils/helper";
+import { CONSTANTS } from "../utils/CONSTANTS";
+
 const LeftMenu = ({ collapsed, setCollapsed, isMobile }) => {
     const { theme } = useContext(ThemeContext);
     const app_name = import.meta.env.VITE_APP_NAME;
+    const hasAdminRole = checkUserRole(CONSTANTS.ROLE_ADMIN);
+    const hasUserRole = checkUserRole(CONSTANTS.ROLE_USER);
 
     const colors = theme === "dark"
         ? {
@@ -75,21 +79,26 @@ const LeftMenu = ({ collapsed, setCollapsed, isMobile }) => {
                 <MenuItem icon={<FiHome />} component={<NavLink to="/dashboard" />}>
                     Dashboard
                 </MenuItem>
+                {
+                    hasAdminRole && (
+                        <>
+                            <SubMenu icon={<MdAdminPanelSettings className="text-2xl mr-2" />} label="Administration">
+                                <MenuItem component={<NavLink to='/administration/uploads/list' />}>Upload Logs</MenuItem>
+                                <MenuItem component={<NavLink to='/admin/master/hostellers/list' />}>Hostellers</MenuItem>
+                            </SubMenu>
 
-                <SubMenu icon={<MdAdminPanelSettings className="text-2xl mr-2" />} label="Administration">
-                    <MenuItem component={<NavLink to='/administration/uploads/list' />}>Upload Logs</MenuItem>
-                    <MenuItem component={<NavLink to='/admin/master/hostellers/list' />}>Hostellers</MenuItem>
-                </SubMenu>
-
-                <SubMenu icon={<FiUser className="text-xl mr-2" />} label="Master">
-                    <MenuItem component={<NavLink to="/master/location/list" />}>Location</MenuItem>
-                    <MenuItem component={<NavLink to="/master/hostel/list" />}>Hostel</MenuItem>
-                    <MenuItem component={<NavLink to="/master/building/list" />}>Building</MenuItem>
-                    <MenuItem component={<NavLink to="/master/room/list" />}>Rooms</MenuItem>
-                </SubMenu>
-                <SubMenu icon={<FaFileInvoiceDollar className="text-xl mr-2" />} label="Rent Management">
-                    <MenuItem component={<NavLink to='/rent-management/hostellers/list' />}>Current Month Rent</MenuItem>
-                </SubMenu>
+                            <SubMenu icon={<FiUser className="text-xl mr-2" />} label="Master">
+                                <MenuItem component={<NavLink to="/master/location/list" />}>Location</MenuItem>
+                                <MenuItem component={<NavLink to="/master/hostel/list" />}>Hostel</MenuItem>
+                                <MenuItem component={<NavLink to="/master/building/list" />}>Building</MenuItem>
+                                <MenuItem component={<NavLink to="/master/room/list" />}>Rooms</MenuItem>
+                            </SubMenu>
+                            <SubMenu icon={<FaFileInvoiceDollar className="text-xl mr-2" />} label="Rent Management">
+                                <MenuItem component={<NavLink to='/rent-management/hostellers/list' />}>Current Month Rent</MenuItem>
+                            </SubMenu>
+                        </>
+                    )
+                }
                 <SubMenu icon={<FaTicketAlt className="text-xl mr-2" />} label="Ticketing">
                     <MenuItem component={<NavLink to='/ticketing/list' />}>Ticketing</MenuItem>
                 </SubMenu>

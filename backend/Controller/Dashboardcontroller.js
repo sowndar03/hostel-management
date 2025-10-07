@@ -3,6 +3,7 @@ const Constant = require('../utils/constant');
 const Ticketing = require('../Model/Ticketing/Ticketing');
 const Hosteller = require('../Model/Administration/Hosteller');
 const Hostel = require('../Model/Master/Hostel');
+const mongoose = require('mongoose');
 
 const ticketOpenClose = async (req, res) => {
     try {
@@ -210,11 +211,50 @@ const currentMonthRentStatus = async (req, res) => {
     }
 }
 
+const ticketStatusCard = async (req, res) => {
+    try {
+        const TICKET_STATUS_MAP = {
+            [Constant.TICKETS.OPEN]: "Open",
+            [Constant.TICKETS.INPROCESS]: "Inprocess",
+            [Constant.TICKETS.REOPEN]: "Reopen",
+            [Constant.TICKETS.CLOSED]: "Waiting For User Confirmation",
+            [Constant.TICKETS.NO_ISSUES_SOLVED]: "No Issues Solved",
+            [Constant.TICKETS.USER_CLOSED]: "Closed",
+        };
+
+        const user_id = new mongoose.Types.ObjectId(req.user.id); 
+        const results = await Ticketing.aggregate([
+            { $match: { user_id } },
+            {
+                $group: {
+                    _id: "$ticket_status",
+                    count: { $sum: 1 },
+                }
+            }
+        ]);
+
+        const resultMap = results.reduce((acc, curr) => {
+            acc[curr._id] = curr.count;
+            return acc;
+        }, {});
+
+        const mappedResult = Object.keys(TICKET_STATUS_MAP).map(key => ({
+            name: TICKET_STATUS_MAP[key],
+            value: resultMap[key] || 0
+        }));
+
+        return res.status(200).json({ data: mappedResult });
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+}
+
 module.exports = {
     ticketOpenClose,
     tickeStatusWise,
     hostelWiseStudent,
     monthWiseHostellerCount,
     advanceAmount,
-    currentMonthRentStatus
+    currentMonthRentStatus,
+    ticketStatusCard
 }
