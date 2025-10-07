@@ -97,10 +97,11 @@ export const AuthContextProvider = ({ children }) => {
         }
     }, []);
 
-    const login = (token) => {
+    const login = async (token) => {
         localStorage.setItem("logintoken", token);
-        fetchUser();
-        notifications();
+        setLoading(true);
+        await fetchUser();
+        await notifications();
     };
 
     const logout = () => {
@@ -127,7 +128,7 @@ export const AuthContextProvider = ({ children }) => {
                 notifications
             }}
         >
-            {!loading && children}
+            {children}
         </AuthContext.Provider>
     );
 };

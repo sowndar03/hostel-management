@@ -3,7 +3,7 @@ import viteLogo from '/vite.svg'
 import { ToastContainer } from "react-toastify";
 import LoginForm from './pages/login/LoginForm'
 import { Route, Routes } from 'react-router-dom'
-import Dashboard from './pages/dashboard'
+import Dashboard from './pages/Dashboard/Dashboard';
 import { AuthContextProvider as AuthProvider } from './context/AuthContext'
 import PublicRoutes from './Routes/PublicRoutes'
 import PrivateRoutes from './Routes/PrivateRoutes'

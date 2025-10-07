@@ -2,10 +2,13 @@ import React from 'react';
 import { useContext } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import LoadingScreen from "../components/LoadingScreen";
 
 const PublicRoutes = ({ children }) => {
-    const { isAuthenticated } = useContext(AuthContext);
+    const { isAuthenticated, loading } = useContext(AuthContext);
     const location = useLocation();
+
+    if (loading) return <LoadingScreen />;
 
     if (isAuthenticated) {
         if (location.pathname === "/login" || location.pathname === "/register") {

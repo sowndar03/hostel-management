@@ -21,7 +21,7 @@ const LoginForm = () => {
     const onSubmit = async (data) => {
         try {
             const result = await axios.post(`${api_url}/login`, data);
-            login(result.data.token);
+            await login(result.data.token);
             reset();
             navigate("/dashboard");
         } catch (err) {

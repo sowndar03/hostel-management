@@ -380,7 +380,7 @@ const AvailableSeats = async (req, res) => {
         } else {
             rooms = await Roomstatus.find(filter);
         }
-        
+
         res.status(200).json({
             message: "Data Fetched Successfully",
             data: rooms,
@@ -408,7 +408,7 @@ const importSubmit = async (req, res) => {
         }
 
         const errorsArray = [];
-        const validRows = [];
+        const roomsToInsert = [];
 
         for (let row = 0; row < importedRows.length; row++) {
             const currentRow = importedRows[row];
@@ -480,13 +480,13 @@ const importSubmit = async (req, res) => {
                     errors: rowErrors
                 });
             } else {
-                validRows.push({
+                roomsToInsert.push({
                     location_id,
                     hostel_id,
                     building_id,
                     room_no: roomNumber,
                     room_count: peopleCount,
-                    created_by: req.user.id,
+                    created_by: req.user.id
                 });
             }
         }
@@ -505,7 +505,23 @@ const importSubmit = async (req, res) => {
             });
         }
 
-        await Rooms.insertMany(validRows);
+        const insertedRooms = await Rooms.insertMany(roomsToInsert);
+
+        for (const room of insertedRooms) {
+            const roomStatusDocs = [];
+            for (let i = 1; i <= room.room_count; i++) {
+                roomStatusDocs.push({
+                    room_id: room._id,
+                    seat_no: i,
+                    seat_status: 1, 
+                    user_id: null,
+                    created_by: req.user.id
+                });
+            }
+            if (roomStatusDocs.length > 0) {
+                await Roomstatus.insertMany(roomStatusDocs);
+            }
+        }
 
         await Upload.create({
             file_name: req.file?.originalname || "Unknown File",
@@ -530,6 +546,7 @@ const importSubmit = async (req, res) => {
         return res.status(500).json({ message: "Server error while importing" });
     }
 };
+
 
 module.exports = {
     list,

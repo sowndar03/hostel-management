@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const hostelSchema = new mongoose.Schema({
-    location_id: { type: String },
+    location_id: { type: mongoose.Schema.Types.ObjectId, ref: "Location" },
     hostel_name: { type: String },
     created_by: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     updated_by: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
