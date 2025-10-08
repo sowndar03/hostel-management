@@ -46,6 +46,9 @@ import TicketingList from './pages/Ticketing/List';
 import TicketingAdd from './pages/Ticketing/Add';
 import TicketingView from './pages/Ticketing/View';
 import TicketingApproval from './pages/Ticketing/Approval';
+import ProtectedRoutes from './Routes/ProtectedRoutes';
+import { CONSTANTS } from './utils/CONSTANTS';
+import Unauthorized from './pages/Unauthorized';
 
 function App() {
 
@@ -60,58 +63,61 @@ function App() {
               <Route path='/dashboard' element={<Dashboard />} />
               <Route path='/home' element={<Home />} />
 
-              <Route path="/master">
-                <Route path='location'>
-                  <Route path="list" element={<List />} />
-                  <Route path="add" element={<Add />} />
-                  <Route path="view/:id" element={<View />} />
-                  <Route path="edit/:id" element={<Edit />} />
+              <Route element={<ProtectedRoutes role={[CONSTANTS.ROLE_ADMIN]} />}>
+                <Route path="/master">
+                  <Route path='location'>
+                    <Route path="list" element={<List />} />
+                    <Route path="add" element={<Add />} />
+                    <Route path="view/:id" element={<View />} />
+                    <Route path="edit/:id" element={<Edit />} />
+                  </Route>
+
+                  <Route path='hostel'>
+                    <Route path="list" element={<HostelList />} />
+                    <Route path="add" element={<HostelAdd />} />
+                    <Route path="view/:id" element={<HostelView />} />
+                    <Route path="edit/:id" element={<HostelEdit />} />
+                  </Route>
+                  <Route path='building'>
+                    <Route path="list" element={<BuildingList />} />
+                    <Route path="add" element={<BuildingAdd />} />
+                    <Route path="view/:id" element={<BuildingView />} />
+                    <Route path="edit/:id" element={<BuildingEdit />} />
+                  </Route>
+                  <Route path='room'>
+                    <Route path="list" element={<RoomList />} />
+                    <Route path="add" element={<RoomAdd />} />
+                    <Route path="view/:id" element={<RoomView />} />
+                    <Route path="edit/:id" element={<RoomEdit />} />
+                    <Route path="import" element={<Import />} />
+                  </Route>
+                </Route>
+                <Route path='admin/master/hostellers'>
+                  <Route path="list" element={<HostellersList />} />
+                  <Route path="add" element={<HostellersAdd />} />
+                  <Route path="view/:id" element={<HostellersView />} />
+                  <Route path="edit/:id" element={<HostellersEdit />} />
+                </Route>
+                <Route path="master/room/hostellers/list/:id" element={<HostllerRoomList />} />
+
+                <Route path='administration/uploads'>
+                  <Route path="list" element={<UploadList />} />
+                  <Route path="view/:id" element={<UploadView />} />
                 </Route>
 
-                <Route path='hostel'>
-                  <Route path="list" element={<HostelList />} />
-                  <Route path="add" element={<HostelAdd />} />
-                  <Route path="view/:id" element={<HostelView />} />
-                  <Route path="edit/:id" element={<HostelEdit />} />
+                <Route path='rent-management'>
+                  <Route path='hostellers/list' element={<CurrentMonthList />}></Route>
                 </Route>
-                <Route path='building'>
-                  <Route path="list" element={<BuildingList />} />
-                  <Route path="add" element={<BuildingAdd />} />
-                  <Route path="view/:id" element={<BuildingView />} />
-                  <Route path="edit/:id" element={<BuildingEdit />} />
+
+                <Route path='ticketing'>
+                  <Route path='list' element={<TicketingList />}></Route>
+                  <Route path='add' element={<TicketingAdd />}></Route>
+                  <Route path='view/:id' element={<TicketingView />}></Route>
+                  <Route path='approval/:id' element={<TicketingApproval />}></Route>
                 </Route>
-                <Route path='room'>
-                  <Route path="list" element={<RoomList />} />
-                  <Route path="add" element={<RoomAdd />} />
-                  <Route path="view/:id" element={<RoomView />} />
-                  <Route path="edit/:id" element={<RoomEdit />} />
-                  <Route path="import" element={<Import />} />
-                </Route>
-              </Route>
-              <Route path='admin/master/hostellers'>
-                <Route path="list" element={<HostellersList />} />
-                <Route path="add" element={<HostellersAdd />} />
-                <Route path="view/:id" element={<HostellersView />} />
-                <Route path="edit/:id" element={<HostellersEdit />} />
-              </Route>
-              <Route path="master/room/hostellers/list/:id" element={<HostllerRoomList />} />
-
-              <Route path='administration/uploads'>
-                <Route path="list" element={<UploadList />} />
-                <Route path="view/:id" element={<UploadView />} />
-              </Route>
-
-              <Route path='rent-management'>
-                <Route path='hostellers/list' element={<CurrentMonthList />}></Route>
-              </Route>
-
-              <Route path='ticketing'>
-                <Route path='list' element={<TicketingList />}></Route>
-                <Route path='add' element={<TicketingAdd />}></Route>
-                <Route path='view/:id' element={<TicketingView />}></Route>
-                <Route path='approval/:id' element={<TicketingApproval />}></Route>
               </Route>
             </Route>
+            <Route path='/unauthorized' element={<Unauthorized />}></Route>
           </Routes>
           <ToastContainer position="top-right" autoClose={3000} />
         </div>
