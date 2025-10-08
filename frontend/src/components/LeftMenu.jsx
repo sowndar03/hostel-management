@@ -92,6 +92,7 @@ const LeftMenu = ({ collapsed, setCollapsed, isMobile }) => {
                                 <MenuItem component={<NavLink to="/master/hostel/list" />}>Hostel</MenuItem>
                                 <MenuItem component={<NavLink to="/master/building/list" />}>Building</MenuItem>
                                 <MenuItem component={<NavLink to="/master/room/list" />}>Rooms</MenuItem>
+                                <MenuItem component={<NavLink to='/master/zone/list' />}>Zones</MenuItem>
                             </SubMenu>
                             <SubMenu icon={<FaFileInvoiceDollar className="text-xl mr-2" />} label="Rent Management">
                                 <MenuItem component={<NavLink to='/rent-management/hostellers/list' />}>Current Month Rent</MenuItem>

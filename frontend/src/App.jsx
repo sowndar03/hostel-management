@@ -26,6 +26,11 @@ import BuildingAdd from './pages/Master/Building/Add';
 import BuildingView from './pages/Master/Building/View';
 import BuildingEdit from './pages/Master/Building/Edit';
 
+import ZoneList from './pages/Master/Zones/List';
+import ZoneAdd from './pages/Master/Zones/Add';
+import ZoneView from './pages/Master/Zones/View';
+import ZoneEdit from './pages/Master/Zones/Edit';
+
 import RoomList from './pages/Master/Rooms/List';
 import RoomAdd from './pages/Master/Rooms/Add';
 import RoomView from './pages/Master/Rooms/View';
@@ -90,6 +95,12 @@ function App() {
                     <Route path="view/:id" element={<RoomView />} />
                     <Route path="edit/:id" element={<RoomEdit />} />
                     <Route path="import" element={<Import />} />
+                  </Route>
+                  <Route path='zone'>
+                    <Route path="list" element={<ZoneList />} />
+                    <Route path="add" element={<ZoneAdd />} />
+                    <Route path="view/:id" element={<ZoneView />} />
+                    <Route path="edit/:id" element={<ZoneEdit />} />
                   </Route>
                 </Route>
                 <Route path='admin/master/hostellers'>

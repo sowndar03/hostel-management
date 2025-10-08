@@ -4,6 +4,7 @@ const locationController = require('../Controller/Master/locationcontroller');
 const hostelController = require('../Controller/Master/hostelcontroller');
 const buildingcontroller = require('../Controller/Master/buildingcontroller');
 const roomscontroller = require('../Controller/Master/roomscontroller');
+const zonecontroller = require('../Controller/Master/zonecontroller');
 const { importExcelHandler } = require('../Middleware/Middleware');
 
 router.get('/location/list', locationController.list);
@@ -46,5 +47,16 @@ router.get('/rooms/availableSeats/:id', roomscontroller.AvailableSeats);
 router.get('/rooms/availableSeats/:id/:seat_no', roomscontroller.AvailableSeats);
 router.get('/rooms/getRooms/:location_id/:hostel_id/:building_id', roomscontroller.getRooms);
 router.post('/rooms/import/submit', importExcelHandler('rooms'), roomscontroller.importSubmit);
+
+
+router.get('/zone/list', zonecontroller.list);
+router.post('/zone/add', zonecontroller.store);
+router.post('/zone/uniqueCheck', zonecontroller.uniqueCheck);
+router.post('/zone/statusChange', zonecontroller.statusChange);
+router.post('/zone/delete', zonecontroller.deleteHostel);
+router.get('/zone/view/:id', zonecontroller.selectOne);
+router.post('/zone/edit/submit', zonecontroller.updates);
+router.post('/zone/searchValues', zonecontroller.searchValues);
+router.get('/zone/getBuilding/:location_id/:hostel_id', zonecontroller.getBuilding);
 
 module.exports = router;

@@ -7,7 +7,6 @@ import api from '../../../api';
 import { ThemeContext } from '../../../context/ThemeContext';
 
 
-// Controller tells react-hook-form how to manage the value of react-select.
 
 const Add = () => {
     const { theme } = useContext(ThemeContext);
