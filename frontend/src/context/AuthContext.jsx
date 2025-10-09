@@ -23,7 +23,6 @@ export const AuthContextProvider = ({ children }) => {
             setUsername(response.data.user.name);
             setUser(response.data.user);
             registerFCMtoken(response.data.user._id);
-            //Socket
             const socketConnection = io(backend_url, { withCredentials: true });
             if (response.data.user) {
                 const role_id = response.data.user.role_id;
@@ -61,7 +60,6 @@ export const AuthContextProvider = ({ children }) => {
             }
             setAuthenticated(true);
         } catch (err) {
-            logout();
         } finally {
             setLoading(false);
         }

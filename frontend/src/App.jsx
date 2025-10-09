@@ -119,13 +119,13 @@ function App() {
                 <Route path='rent-management'>
                   <Route path='hostellers/list' element={<CurrentMonthList />}></Route>
                 </Route>
+              </Route>
 
-                <Route path='ticketing'>
-                  <Route path='list' element={<TicketingList />}></Route>
-                  <Route path='add' element={<TicketingAdd />}></Route>
-                  <Route path='view/:id' element={<TicketingView />}></Route>
-                  <Route path='approval/:id' element={<TicketingApproval />}></Route>
-                </Route>
+              <Route path='ticketing'>
+                <Route path='list' element={<TicketingList />}></Route>
+                <Route path='add' element={<TicketingAdd />}></Route>
+                <Route path='view/:id' element={<TicketingView />}></Route>
+                <Route path='approval/:id' element={<TicketingApproval />}></Route>
               </Route>
             </Route>
             <Route path='/unauthorized' element={<Unauthorized />}></Route>

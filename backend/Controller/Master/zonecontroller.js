@@ -64,8 +64,6 @@ const store = async (req, res) => {
 const uniqueCheck = async (req, res) => {
     try {
         const { location_id, hostel_id, id } = req.body;
-        console.log(req.body);
-
         const result = await Zone.findOne({ location_id, hostel_id, trash: 'NO' });
 
         if (result) {
@@ -171,18 +169,18 @@ const selectOne = async (req, res) => {
 
 const updates = async (req, res) => {
     try {
-        console.log(req.body);
-        const { building, hostel_id, location_id, id } = req.body;
+        const { hostel_id, location_id, id, zone_lat, zone_lng } = req.body;
 
-        // const result = await Zone.findByIdAndUpdate(
-        //     id,
-        //     {
-        //         location_id,
-        //         hostel_id: hostel_id,
-        //         building_name: building,
-        //     },
-        //     { new: true }
-        // );
+        const result = await Zone.findByIdAndUpdate(
+            id,
+            {
+                location_id,
+                hostel_id,
+                zone_lng,
+                zone_lat,
+            },
+            { new: true }
+        );
 
         if (!result) {
             return res.status(404).json({ message: "Zone not found" });

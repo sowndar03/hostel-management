@@ -70,6 +70,7 @@ const Edit = () => {
         zone_lng: zone.zone_lng,
       });
 
+
       getAllHostels(zone.location_id._id);
     } catch (err) {
       toast.error("Failed to fetch zone data");
@@ -94,9 +95,7 @@ const Edit = () => {
   };
 
   const handleReset = () => {
-    const currentId = getValues('id');
     reset({
-      id: currentId,
       location_id: null,
       hostel_id: null,
       zone_lat: "",
@@ -126,7 +125,7 @@ const Edit = () => {
           </button>
         </div>
 
-        <input type="hidden" {...register('id')} />
+        <input type="hidden" {...register('id')} value={getValues('id') || id} />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
           <div>
@@ -165,8 +164,9 @@ const Edit = () => {
                 required: "Hostel is required",
                 validate: async (value) => {
                   const location_id = getValues('location_id');
+                  const id = getValues('id');
                   try {
-                    const res = await api.post(`${api_url}/master/zone/uniqueCheck`, { hostel_id: value, location_id });
+                    const res = await api.post(`${api_url}/master/zone/uniqueCheck`, { hostel_id: value, location_id, id });
                     return res.data.message === 'Available' ? true : res.data.message || "This hostel already exists";
                   } catch {
                     return "Validation failed, please try again";
@@ -197,8 +197,6 @@ const Edit = () => {
             />
             {errors.hostel_id && <p className="text-red-500 text-sm mt-1 font-bold">{errors.hostel_id.message}</p>}
           </div>
-
-          {/* Latitude */}
           <div>
             <label className="block mb-2 text-gray-700 dark:text-white font-semibold">
               Latitude <span className='text-red-500'>*</span>
@@ -213,7 +211,6 @@ const Edit = () => {
             {errors.zone_lat && <p className="text-red-500 text-sm mt-1 font-bold">{errors.zone_lat.message}</p>}
           </div>
 
-          {/* Longitude */}
           <div>
             <label className="block mb-2 text-gray-700 dark:text-white font-semibold">
               Longitude <span className='text-red-500'>*</span>
@@ -229,7 +226,6 @@ const Edit = () => {
           </div>
         </div>
 
-        {/* Map */}
         <div className="col-span-1 md:col-span-3 mb-3">
           <MapRadiusSelector
             lat={getValues("zone_lat")}
@@ -243,7 +239,6 @@ const Edit = () => {
           />
         </div>
 
-        {/* Buttons */}
         <div className="flex space-x-3">
           <button type="reset" className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition" onClick={handleReset}>
             Reset
