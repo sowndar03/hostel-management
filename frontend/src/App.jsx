@@ -54,6 +54,7 @@ import TicketingApproval from './pages/Ticketing/Approval';
 import ProtectedRoutes from './Routes/ProtectedRoutes';
 import { CONSTANTS } from './utils/CONSTANTS';
 import Unauthorized from './pages/Unauthorized';
+import Profile from './pages/Profile/Profile';
 
 function App() {
 
@@ -67,6 +68,7 @@ function App() {
             <Route element={<PrivateRoutes><MainLayout /></PrivateRoutes>}>
               <Route path='/dashboard' element={<Dashboard />} />
               <Route path='/home' element={<Home />} />
+              <Route path='/profile' element={<Profile />} />
 
               <Route element={<ProtectedRoutes role={[CONSTANTS.ROLE_ADMIN]} />}>
                 <Route path="/master">

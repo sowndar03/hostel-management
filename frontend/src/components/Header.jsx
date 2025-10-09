@@ -32,17 +32,23 @@ const AppHeader = ({ sidebarWidth = 250 }) => {
     const handleNotification = async (id) => {
         try {
             const res = await api.post(`${api_url}/notification/markasread`, { id });
-            
+
             const web_link = res.data.notifications.web_link;
             const newUnreadCount = res.data.unread_count;
             setUnreadCount(newUnreadCount);
-            
+
             notifications();
             navigate(`/${web_link}`);
         } catch (err) {
             console.error('Error marking notification as read:', err);
         }
     }
+
+    const handleProfile = () => {
+        setOpen(!open);
+        navigate('/profile')
+    }
+
 
     const { theme, setTheme, handleTheme } = useContext(ThemeContext);
     const { logout, username, notification, unreadCount, setUnreadCount, notifications } = useContext(AuthContext);
@@ -151,9 +157,10 @@ const AppHeader = ({ sidebarWidth = 250 }) => {
                 {open && (
                     <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg">
                         <button
+                            onClick={handleProfile}
                             className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
                         >
-                            Settings
+                            Profile
                         </button>
                         <button onClick={logout}
                             className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
