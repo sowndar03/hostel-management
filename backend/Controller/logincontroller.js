@@ -160,6 +160,51 @@ const markasread = async (req, res) => {
     }
 }
 
+const passWordCheck = async (req, res) => {
+    try {
+        const { password } = req.body;
+        const logged_user = req.user.id;
+
+        const user = await User.findById(logged_user);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        let msg = "";
+        let isPasswordCorrect = false;
+        if (!isMatch) {
+            isPasswordCorrect = false;
+            msg = "Old password is incorrect";
+        } else {
+            isPasswordCorrect = true;
+            msg = "Password verified successfully";
+        }
+        return res.status(200).json({ message: msg, data: isPasswordCorrect });
+    } catch (err) {
+        console.log(err.message);
+        return res.json('error', err.message);
+    }
+}
+
+const passwordChange = async (req, res) => {
+    try {
+        const { old_password, new_password } = req.body;
+        const hashedPassword = await bcrypt.hash(new_password, 10);
+        const logged_user = req.user.id;
+
+        const user = await User.findByIdAndUpdate(
+            logged_user,
+            { password: hashedPassword },
+            { new: true } 
+        );
+        return res.status(200).json({ message: "Password updated successfully" });
+    } catch (err) {
+        console.log(err.message);
+        return res.json('error', err.message);
+    }
+}
+
 module.exports = {
     store,
     setTheme,
@@ -167,5 +212,7 @@ module.exports = {
     loggedUser,
     notification,
     markasread,
-    storefcmtoken
+    storefcmtoken,
+    passWordCheck,
+    passwordChange
 }

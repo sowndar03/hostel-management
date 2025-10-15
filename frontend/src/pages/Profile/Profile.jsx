@@ -40,10 +40,10 @@ const Profile = () => {
         setPasswordModal(!passwordModal)
     }
     const handleCoverPicture = () => {
-
+        document.getElementById('coverFileInput').click();
     }
     const handleProfileImage = () => {
-
+        document.getElementById('profileInput').click();
     }
 
 
@@ -63,6 +63,24 @@ const Profile = () => {
             {footer && <div className="flex justify-between gap-3 mt-4">{footer}</div>}
         </div>
     );
+
+    const handleProfileUpload = () => {
+
+    }
+
+    const handleCoverUpload = () => {
+        const file = e.target.files[0];
+        if(!file){
+            return 
+        }
+        const formData = new FormData();
+        formData.append('cover_picture', file);
+        try{
+
+        }catch(err){
+            console.log(err);
+        }
+    }
 
     return (
         <>
@@ -99,15 +117,31 @@ const Profile = () => {
                                 { label: 'Date of Birth', value: displayDateformat(hosteller.dob) },
                             ],
                             <>
-                                <button onClick={handleProfileImage} className="font-bold px-4 py-2 bg-violet-500 text-white rounded">
+                                <button onClick={handleProfileImage} className="cursor-pointer font-bold px-4 py-2 bg-violet-500 text-white rounded">
                                     Edit Profile Image
                                 </button>
-                                <button onClick={handleCoverPicture} className="font-bold px-4 py-2 bg-indigo-500 text-white rounded">
+                                <button onClick={handleCoverPicture} className="cursor-pointer font-bold px-4 py-2 bg-indigo-500 text-white rounded">
                                     Edit Cover Picture
                                 </button>
                                 <button onClick={handlePasswordChange} className="font-bold px-4 py-2 bg-green-500 text-white rounded">
                                     Change Password
                                 </button>
+
+                                <input
+                                    type="file"
+                                    id="profileInput"
+                                    accept="image/*"
+                                    style={{ display: 'none' }}
+                                    onChange={handleProfileUpload}
+                                />
+
+                                <input
+                                    type="file"
+                                    id="coverFileInput"
+                                    accept="image/*"
+                                    style={{ display: 'none' }}
+                                    onChange={handleCoverUpload}
+                                />
                             </>
                         )}
                     </div>
