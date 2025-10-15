@@ -196,12 +196,52 @@ const passwordChange = async (req, res) => {
         const user = await User.findByIdAndUpdate(
             logged_user,
             { password: hashedPassword },
-            { new: true } 
+            { new: true }
         );
         return res.status(200).json({ message: "Password updated successfully" });
     } catch (err) {
         console.log(err.message);
         return res.json('error', err.message);
+    }
+}
+
+const coverImageUpload = async (req, res) => {
+    try {
+        const { cover_image } = req.importedFiles;
+        const loggedUser = req.user.id;
+        const user = await User.findByIdAndUpdate(
+            loggedUser,
+            {
+                cover_image: cover_image.path
+            },
+            {
+                new: true,
+            }
+        );
+        return res.status(200).json({ data: user, messge: "Cover Image Updated Successfully" });
+    } catch (err) {
+        console.log(err.message);
+        return res.status(500).json({ message: err.message });
+    }
+}
+
+const profileImageUpload = async (req, res) => {
+    try {
+        const { profile_picture } = req.importedFiles;
+        const loggedUser = req.user.id;
+        const user = await User.findByIdAndUpdate(
+            loggedUser,
+            {
+                profile_picture: profile_picture.path
+            },
+            {
+                new: true,
+            }
+        );
+        return res.status(200).json({ data: user, messge: "Cover Image Updated Successfully" });
+    } catch (err) {
+        console.log(err.message);
+        return res.status(500).json({ message: err.message });
     }
 }
 
@@ -214,5 +254,7 @@ module.exports = {
     markasread,
     storefcmtoken,
     passWordCheck,
-    passwordChange
+    passwordChange,
+    coverImageUpload,
+    profileImageUpload
 }

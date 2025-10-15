@@ -5,7 +5,7 @@ const UserSchema = mongoose.Schema({
     email: { type: String, required: true },
     password: { type: String, required: true },
     role_id: { type: String, required: true },
-    cover_picture: { type: String },
+    cover_image: { type: String },
     profile_picture: { type: String },
     fcm_token: { type: String },
     theme: { type: String, default: "light" },

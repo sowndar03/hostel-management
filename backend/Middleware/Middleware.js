@@ -85,6 +85,8 @@ const createImageHandler = (moduleName, isUpdate = false) => {
         upload.fields([
             { name: "photo", maxCount: 1 },
             { name: "id_proof", maxCount: 1 },
+            { name: "cover_image", maxCount: 1 },
+            { name: "profile_picture", maxCount: 1 },
             { name: "issue" },
         ]),
         (req, res, next) => {
@@ -94,7 +96,7 @@ const createImageHandler = (moduleName, isUpdate = false) => {
                 return res.status(400).json({ message: "No files uploaded" });
             }
 
-            ["photo", "id_proof"].forEach((field) => {
+            ["photo", "id_proof", "cover_image", "profile_picture"].forEach((field) => {
                 if (req.files && req.files[field]) {
                     const file = req.files[field][0];
                     const ext = path.extname(file.originalname).toLowerCase();
