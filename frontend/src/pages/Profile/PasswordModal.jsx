@@ -22,6 +22,19 @@ const PasswordModal = ({ close }) => {
         }
     };
 
+    useEffect(() => {
+
+        const handleClickOutside = (events) => {
+            if (modalRef.current && !modalRef.current.contains(events.target)) {
+                close();
+            }
+        }
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [close])
+
     const newPassword = watch("new_password");
 
     return (
@@ -35,7 +48,7 @@ const PasswordModal = ({ close }) => {
                 </div>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="p-4 text-left">
-                    
+
                     <div className="mb-4">
                         <label htmlFor="old_password" className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                             Old Password
@@ -68,7 +81,7 @@ const PasswordModal = ({ close }) => {
                         {checkingPassword && !errors.old_password && <p className="text-blue-500 text-sm mt-1">Verifying password...</p>}
                     </div>
 
-                   
+
                     <div className="mb-4 relative">
                         <label htmlFor="new_password" className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                             New Password
@@ -91,7 +104,7 @@ const PasswordModal = ({ close }) => {
                         {errors.new_password && <p className="text-red-500 text-sm mt-1">{errors.new_password.message}</p>}
                     </div>
 
-                    
+
                     <div className="mb-4 relative">
                         <label htmlFor="confirm_password" className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                             Confirm Password
@@ -117,7 +130,7 @@ const PasswordModal = ({ close }) => {
                         {errors.confirm_password && <p className="text-red-500 text-sm mt-1">{errors.confirm_password.message}</p>}
                     </div>
 
-                    
+
                     <div className="flex justify-end gap-2 border-t border-gray-200 pt-3">
                         <button
                             type="button"

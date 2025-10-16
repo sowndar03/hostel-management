@@ -12,78 +12,48 @@ import { toast } from 'react-toastify';
 const Profile = () => {
     const { user, setUser } = useContext(AuthContext);
     const api_url = import.meta.env.VITE_API_URL;
-    const [hosteller, setHosteller] = useState([]);
+    const [hosteller, setHosteller] = useState({});
     const hasAdmin = checkUserRole(CONSTANTS.ROLE_ADMIN);
     const [passwordModal, setPasswordModal] = useState(false);
     const [users, setUsers] = useState(user);
 
-    const cover_pictures = users.cover_image
-        ? getImageUrl(users.cover_image)
-        : cover_picture;
+    const cover_pictures = users.cover_image ? getImageUrl(users.cover_image) : cover_picture;
+    const profile_picture = users.profile_picture ? getImageUrl(users.profile_picture) : user_png;
 
-    const profile_picture = users.profile_picture
-        ? getImageUrl(users.profile_picture)
-        : user_png;
-
+    // Fetch hosteller details
     const getHostellerDetails = async () => {
-        const id = user._id;
         if (!hasAdmin) {
             try {
+                const id = user._id;
                 const result = await api.get(`${api_url}/admin/master/hostellers/userId/${id}`);
                 setHosteller(result.data.data);
             } catch (err) {
-                console.log(err.message);
+                console.error(err.message);
             }
         }
-    };
-
-    const handlePasswordChange = () => {
-        setPasswordModal(!passwordModal);
-    };
-
-    const handleCoverPicture = () => {
-        document.getElementById('coverFileInput').click();
-    };
-
-    const handleProfileImage = () => {
-        document.getElementById('profileInput').click();
     };
 
     useEffect(() => {
         getHostellerDetails();
     }, []);
 
-    const renderCard = (title, items, footer = null) => (
-        <div className="bg-white rounded-xl shadow-md p-6 flex flex-col gap-4">
-            <h6 className="text-violet-600 font-semibold text-lg border-b pb-2">{title}</h6>
-            {items.map((item, idx) => (
-                <div key={idx} className="flex justify-between">
-                    <span>{item.label}:</span>
-                    <span>{item.value}</span>
-                </div>
-            ))}
-            {footer && <div className="flex justify-between gap-3 mt-4">{footer}</div>}
-        </div>
-    );
+    const handlePasswordChange = () => setPasswordModal(!passwordModal);
+    const handleCoverPicture = () => document.getElementById('coverFileInput').click();
+    const handleProfileImage = () => document.getElementById('profileInput').click();
 
     const handleProfileUpload = async (e) => {
         try {
             const file = e.target.files[0];
             if (!file) return;
-
             const formData = new FormData();
             formData.append('profile_picture', file);
-
             const result = await api.post(`${api_url}/login/profileImageUpload`, formData, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
-
-            toast.success('Profile Image Updated Successfully');
             const updatedProfile = result.data.data.profile_picture;
-
             setUsers(prev => ({ ...prev, profile_picture: updatedProfile }));
             setUser(prev => ({ ...prev, profile_picture: updatedProfile }));
-
+            toast.success('Profile Image Updated Successfully');
         } catch (err) {
             console.error(err);
             toast.error("Failed to update profile image");
@@ -94,28 +64,36 @@ const Profile = () => {
         try {
             const file = e.target.files[0];
             if (!file) return;
-
             const formData = new FormData();
             formData.append('cover_image', file);
-
             const result = await api.post(`${api_url}/login/coverImageUplaod`, formData, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
-
-            toast.success('Cover Image Updated Successfully');
             const updatedCover = result.data.data.cover_image;
             setUsers(prev => ({ ...prev, cover_image: updatedCover }));
             setUser(prev => ({ ...prev, cover_image: updatedCover }));
-
+            toast.success('Cover Image Updated Successfully');
         } catch (err) {
             console.error(err);
             toast.error("Failed to update cover image");
         }
     };
 
+    const renderCard = (title, data, footer = null) => (
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 flex flex-col gap-2 w-full">
+            <h6 className="text-violet-600 font-semibold text-lg border-b pb-2">{title}</h6>
+            {Object.entries(data).map(([key, value]) => (
+                <div key={key} className="flex justify-between">
+                    <span className="capitalize">{key.replace('_', ' ')}:</span>
+                    <span>{value || 'N/A'}</span>
+                </div>
+            ))}
+            {footer && <div className="flex flex-wrap gap-2 mt-4">{footer}</div>}
+        </div>
+    );
     return (
         <>
-            <div className="relative rounded-xl shadow-lg mt-6 bg-gray-50 dark:bg-gray-900 overflow-hidden">
+            <div className="relative rounded-xl shadow-lg mt-6 bg-gray-50 dark:bg-gray-900 overflow-hidden min-h-screen">
 
                 <div className="w-full h-52 sm:h-64 md:h-72 overflow-hidden">
                     <ModalImage
@@ -125,7 +103,7 @@ const Profile = () => {
                         className="w-full h-full object-cover"
                     />
 
-                    <div className="absolute bottom-0 left-1/8 top-48 z-10">
+                    <div className="absolute left-1/8 md:top-48 z-10">
                         <ModalImage
                             small={profile_picture}
                             large={profile_picture}
@@ -135,32 +113,33 @@ const Profile = () => {
                     </div>
                 </div>
 
-
-                <div className="mt-20 md:mt-18 px-6 pb-12 grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="p-6">
+                <div className="md:mt-24 px-4 sm:px-6 pb-12 grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                    <div className="flex flex-col gap-4">
                         {renderCard(
                             'Personal Details',
                             !hasAdmin
-                                ? [
-                                    { label: 'Name', value: hosteller.name },
-                                    { label: 'Email', value: hosteller.email },
-                                    { label: 'Phone No', value: hosteller.phone_no },
-                                    { label: 'Address', value: hosteller.address },
-                                    { label: 'Date of Birth', value: displayDateformat(hosteller.dob) },
-                                ]
-                                : [{ label: 'Name', value: user.name },
-                                { label: 'Email', value: user.email },
-                                ],
+                                ? {
+                                    Name: hosteller.name,
+                                    Email: hosteller.email,
+                                    Phone: hosteller.phone_no,
+                                    Address: hosteller.address,
+                                    'Date of Birth': displayDateformat(hosteller.dob),
+                                }
+                                : {
+                                    Name: user.name,
+                                    Email: user.email,
+                                },
                             <>
                                 <button
                                     onClick={handleProfileImage}
-                                    className="cursor-pointer font-bold px-4 py-2 bg-violet-500 text-white rounded"
+                                    className="font-bold px-4 py-2 bg-violet-500 text-white rounded"
                                 >
                                     Edit Profile Image
                                 </button>
                                 <button
                                     onClick={handleCoverPicture}
-                                    className="cursor-pointer font-bold px-4 py-2 bg-indigo-500 text-white rounded"
+                                    className="font-bold px-4 py-2 bg-indigo-500 text-white rounded"
                                 >
                                     Edit Cover Picture
                                 </button>
@@ -190,35 +169,26 @@ const Profile = () => {
                         )}
                     </div>
 
-                    <div className="flex flex-col gap-4 h-full md:my-6">
-                        {
-                            !hasAdmin ? (
-                                <div className="flex-1">
-                                    {renderCard('Hostel Details', [
-                                        { label: 'Location', value: hosteller.location_id?.location_name },
-                                        { label: 'Hostel', value: hosteller.hostel_id?.hostel_name },
-                                        { label: 'Room No', value: hosteller.room_id?.room_no },
-                                    ])}
-                                </div>
-                            ) : <div className="bg-white rounded-xl shadow-md p-6 flex flex-col gap-4 h-30">
-                                <h6 className="text-violet-600 font-semibold text-lg border-b pb-2">Hostel Details</h6>
-                                <div className='flex justify-center items-center'>
-                                    No Hostel Detail</div>
-                            </div>
-                        }
-                        {
-                            !hasAdmin ? (
-                                <div className="flex-1">
-                                    {renderCard('Family Details', [
-                                        { label: 'Parent Name', value: hosteller.parent_name },
-                                        { label: 'Emergency Contact', value: hosteller.emergency_contact_no },
-                                    ])}
-                                </div>
-                            ) : <div className="bg-white rounded-xl shadow-md p-6 flex flex-col gap-4 h-30">
-                                <h6 className="text-violet-600 font-semibold text-lg border-b pb-2">Parent Details</h6>
-                                <div className='flex justify-center items-center'>
-                                    No Parent Details</div>
-                            </div>}
+                    {/* Hostel & Family Details */}
+                    <div className="flex flex-col gap-4">
+                        {!hasAdmin ? (
+                            <>
+                                {renderCard('Hostel Details', {
+                                    Location: hosteller.location_id?.location_name,
+                                    Hostel: hosteller.hostel_id?.hostel_name,
+                                    'Room No': hosteller.room_id?.room_no,
+                                })}
+                                {renderCard('Family Details', {
+                                    'Parent Name': hosteller.parent_name,
+                                    'Emergency Contact': hosteller.emergency_contact_no,
+                                })}
+                            </>
+                        ) : (
+                            <>
+                                {renderCard('Hostel Details', { Info: 'No Hostel Detail' })}
+                                {renderCard('Family Details', { Info: 'No Family Details' })}
+                            </>
+                        )}
                     </div>
                 </div>
             </div >

@@ -16,7 +16,7 @@ const Dashboard = () => {
     const hasUserRole = checkUserRole(CONSTANTS.ROLE_USER);
 
     return (
-        <div className="m-5">
+        <div className="m-5 min-h-screen">
             <div className="flex justify-between items-center border-b pb-3 mb-4">
                 <h2 className="text-lg font-bold text-black dark:text-white">Dashboard</h2>
             </div>
