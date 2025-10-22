@@ -45,6 +45,7 @@ const getLocationName = async (id) => {
     }
 };
 
+
 const generatePassword = (name, dob) => {
     const namePart = name.replace(/\s+/g, '').substring(0, 5).toUpperCase();
     const date = new Date(dob);
@@ -136,6 +137,12 @@ const sendTicketNotification = async (ticketing, admins) => {
     }
 };
 
+const currentTime = () => {
+    const date = new Date();
+    const timeString = date.toTimeString().split(" ")[0];
+    return timeString;
+}
+
 module.exports = {
     string_to_array,
     getUsername,
@@ -143,5 +150,6 @@ module.exports = {
     generatePassword,
     getRoomName,
     getHostelName,
-    sendTicketNotification
+    sendTicketNotification,
+    currentTime
 }

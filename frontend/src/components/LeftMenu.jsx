@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { Sidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar";
-import { FiHome, FiUser, FiMenu, FiX } from "react-icons/fi";
+import { FiHome, FiUser, FiMenu, FiX, FiUserPlus } from "react-icons/fi";
 import { NavLink } from "react-router-dom";
 import { ThemeContext } from "../context/ThemeContext";
 import { MdAdminPanelSettings } from "react-icons/md";
@@ -103,7 +103,11 @@ const LeftMenu = ({ collapsed, setCollapsed, isMobile }) => {
                 <SubMenu icon={<FaTicketAlt className="text-xl mr-2" />} label="Ticketing">
                     <MenuItem component={<NavLink to='/ticketing/list' />}>Ticketing</MenuItem>
                 </SubMenu>
-            </Menu>
+
+                <SubMenu icon={<FiUserPlus className="text-xl mr-2" />} label="Hosteller In/Out Management">
+                    <MenuItem component={<NavLink to='/check-in-out/list'/>}>In/Out Entry</MenuItem>
+            </SubMenu>
+        </Menu>
         </Sidebar >
     );
 };

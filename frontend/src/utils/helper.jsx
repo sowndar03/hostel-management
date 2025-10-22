@@ -67,7 +67,7 @@ export const getUploadStatus = (id) => {
 }
 
 export const getTicketStatus = (status) => {
- 
+
     switch (status) {
         case CONSTANTS.OPEN:
             return <p className="text-red-500 font-bold">OPEN</p>;
@@ -112,3 +112,14 @@ export const string_to_array = (str, separator = ",") => {
 export const array_to_string = (arr, separator = ",") => {
     return arr.join(separator);
 }
+
+export const getEntryStatus = (status) => {
+    switch (status) {
+        case CONSTANTS.CHECK_IN:
+            return <p style={{ color: "green", fontWeight: "bold" }}>CHECK IN</p>;
+        case CONSTANTS.CHECK_OUT:
+            return <p style={{ color: "red", fontWeight: "bold" }}>CHECK OUT</p>;
+        default:
+            return <p style={{ color: "gray" }}>UNKNOWN</p>;
+    }
+};

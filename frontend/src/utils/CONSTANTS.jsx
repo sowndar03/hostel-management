@@ -12,4 +12,7 @@ export const CONSTANTS = {
     CLOSED: "4",
     NO_ISSUES_SOLVED: "5",
     USER_CLOSED: "6",
+
+    CHECK_IN: 2,
+    CHECK_OUT: 1
 };

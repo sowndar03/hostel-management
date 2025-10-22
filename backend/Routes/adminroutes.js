@@ -1,8 +1,9 @@
 const express = require('express');
-const   router = express.Router();
+const router = express.Router();
 const uploadController = require('../Controller/Admin/Uploadcontroller');
 const hostellerController = require('../Controller/Admin/HostellerController');
 const rentManagementController = require('../Controller/RentMangement/Rentmanagement');
+const VisitorManagement = require('../Controller/VisitorManagement/VisitorManagement');
 
 const { createImageHandler } = require('../Middleware/Middleware');
 
@@ -23,6 +24,11 @@ router.post('/master/hostellers/searchValues', hostellerController.searchValues)
 router.post('/master/hostellers/uniqueCheck', hostellerController.uniqueCheck);
 
 router.post('/rent-management/hostellers/rentPaidStatus', rentManagementController.paidStatusUpdate);
+
+router.get('/check-in-out/list', VisitorManagement.list);
+router.post('/check-in-out/store', VisitorManagement.store);
+router.get('/check-in-out/hosteller/list', VisitorManagement.hosteller_list);
+router.post('/check-in-out/changeStatus', VisitorManagement.changeStatus);
 
 
 module.exports = router;

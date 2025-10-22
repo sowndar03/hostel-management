@@ -56,6 +56,9 @@ import { CONSTANTS } from './utils/CONSTANTS';
 import Unauthorized from './pages/Unauthorized';
 import Profile from './pages/Profile/Profile';
 
+import CheckInOutList from './pages/Visitors/List';
+import CheckInOutAdd from './pages/Visitors/Add';
+
 function App() {
 
   return (
@@ -128,6 +131,11 @@ function App() {
                 <Route path='add' element={<TicketingAdd />}></Route>
                 <Route path='view/:id' element={<TicketingView />}></Route>
                 <Route path='approval/:id' element={<TicketingApproval />}></Route>
+              </Route>
+
+              <Route path='check-in-out'>
+                <Route path='list' element={<CheckInOutList />}></Route>
+                <Route path='add' element={<CheckInOutAdd />}></Route>
               </Route>
             </Route>
             <Route path='/unauthorized' element={<Unauthorized />}></Route>

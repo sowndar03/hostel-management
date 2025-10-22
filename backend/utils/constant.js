@@ -12,6 +12,11 @@ const Constant = {
         NO_ISSUES_SOLVED: "5",
         USER_CLOSED: "6",
     },
+
+    CHECK:{
+        IN: 2,
+        OUT: 1
+    }
 }
 
 module.exports = Constant;
