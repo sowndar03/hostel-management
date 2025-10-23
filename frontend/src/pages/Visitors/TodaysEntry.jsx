@@ -10,7 +10,7 @@ import { useForm, Controller } from 'react-hook-form';
 import Select from 'react-select';
 import { CONSTANTS } from '../../utils/CONSTANTS';
 
-const list = () => {
+const TodaysEntry = () => {
     const [filterToggle, setFilterToggle] = useState(false);
     const navigate = useNavigate();
     const [list, setList] = useState([]);
@@ -34,11 +34,7 @@ const list = () => {
 
     const getAllVisitors = async () => {
         try {
-            const res = await api.get(`${api_url}/admin/check-in-out/list`, {
-                params: {
-                    hasAdmin
-                }
-            });
+            const res = await api.get(`${api_url}/admin/check-in-out/todays/list`);
             setList(res.data.data);
         } catch (err) {
             console.log(err);
@@ -185,7 +181,7 @@ const list = () => {
         <div className='min-h-screen bg-white dark:bg-[#101828] p-6'>
             <div className="border-b pb-3 mb-4">
                 <div className="flex justify-between items-center">
-                    <h2 className="text-lg font-bold text-gray-700 dark:text-white">Hosteller In/Out Management List</h2>
+                    <h2 className="text-lg font-bold text-gray-700 dark:text-white">Hosteller In/Out Management Today's List</h2>
                     <div>
                         <button
                             type="button"
@@ -381,4 +377,4 @@ const list = () => {
     )
 }
 
-export default list
+export default TodaysEntry

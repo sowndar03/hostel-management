@@ -26,9 +26,11 @@ router.post('/master/hostellers/uniqueCheck', hostellerController.uniqueCheck);
 router.post('/rent-management/hostellers/rentPaidStatus', rentManagementController.paidStatusUpdate);
 
 router.get('/check-in-out/list', VisitorManagement.list);
+router.get('/check-in-out/todays/list', VisitorManagement.todaysList);
 router.post('/check-in-out/store', VisitorManagement.store);
 router.get('/check-in-out/hosteller/list', VisitorManagement.hosteller_list);
 router.post('/check-in-out/changeStatus', VisitorManagement.changeStatus);
+router.post('/check-in-out/searchValues', VisitorManagement.searchValues);
 
 
 module.exports = router;

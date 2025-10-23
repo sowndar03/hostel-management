@@ -1,10 +1,11 @@
 const express = require('express');
 const { database } = require('firebase-admin');
 const VisitorManagement = require('../../Model/VisitorManagement/VisitorManagement');
-const { model } = require('mongoose');
+const { model, now } = require('mongoose');
 const Hosteller = require('../../Model/Administration/Hosteller');
 const Constant = require('../../utils/constant');
 const { currentTime } = require('../../utils/helper');
+const moment = require('moment');
 
 const list = async (req, res) => {
     try {
@@ -55,6 +56,31 @@ const list = async (req, res) => {
         }
     } catch (err) {
         return res.status(500).json({ message: err.message });
+    }
+}
+
+const todaysList = async (req, res) => {
+    try {
+        const startOfDay = moment().startOf('day').toDate();
+        const endOfDay = moment().endOf('day').toDate();
+
+        const result = await VisitorManagement.find({
+            date: { $gte: startOfDay, $lte: endOfDay }
+        })
+            .populate({
+                path: 'hosteller_id',
+                populate: [
+                    { path: 'hostel_id', model: 'Master_hostel' },
+                    { path: 'location_id', model: 'Location' }
+                ]
+            })
+            .populate('created_by')
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({ data: result });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
     }
 }
 
@@ -117,7 +143,7 @@ const hosteller_list = async (req, res) => {
 
 const changeStatus = async (req, res) => {
     try {
-        const {  _id  } = req.body;
+        const { _id } = req.body;
         const result = await VisitorManagement.findByIdAndUpdate(
             _id,
             {
@@ -128,7 +154,30 @@ const changeStatus = async (req, res) => {
         );
         return res.status(200).json({ message: "Updated Successfully" });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        return res.status(500).json({ message: err.message });
+    }
+}
+
+const searchValues = async (req, res) => {
+    try {
+        const { hosteller_id } = req.body;
+        const result = await VisitorManagement.find({ hosteller_id: hosteller_id })
+            .populate({
+                path: 'hosteller_id',
+                populate: [
+                    {
+                        path: 'hostel_id',
+                        model: 'Master_hostel'
+                    }, {
+                        path: 'location_id',
+                        model: 'Location',
+                    }
+                ]
+            })
+            .populate('created_by').sort({ createdAt: -1 });
+        res.status(200).json({ data: result });
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
     }
 }
 
@@ -137,5 +186,7 @@ module.exports = {
     list,
     store,
     hosteller_list,
-    changeStatus
+    changeStatus,
+    searchValues,
+    todaysList
 }

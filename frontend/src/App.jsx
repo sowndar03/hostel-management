@@ -58,6 +58,7 @@ import Profile from './pages/Profile/Profile';
 
 import CheckInOutList from './pages/Visitors/List';
 import CheckInOutAdd from './pages/Visitors/Add';
+import TodaysEntry from './pages/Visitors/TodaysEntry';
 
 function App() {
 
@@ -136,6 +137,7 @@ function App() {
               <Route path='check-in-out'>
                 <Route path='list' element={<CheckInOutList />}></Route>
                 <Route path='add' element={<CheckInOutAdd />}></Route>
+                <Route path='todays-entry' element={<TodaysEntry />}></Route>
               </Route>
             </Route>
             <Route path='/unauthorized' element={<Unauthorized />}></Route>

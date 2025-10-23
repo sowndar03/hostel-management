@@ -105,9 +105,14 @@ const LeftMenu = ({ collapsed, setCollapsed, isMobile }) => {
                 </SubMenu>
 
                 <SubMenu icon={<FiUserPlus className="text-xl mr-2" />} label="Hosteller In/Out Management">
-                    <MenuItem component={<NavLink to='/check-in-out/list'/>}>In/Out Entry</MenuItem>
-            </SubMenu>
-        </Menu>
+                    <MenuItem component={<NavLink to='/check-in-out/list' />}>In/Out Entry</MenuItem>
+                    {
+                        hasAdminRole && (
+                            <MenuItem component={<NavLink to='/check-in-out/todays-entry' />}>Today's In/Out Entry</MenuItem>
+                        )
+                    }
+                </SubMenu>
+            </Menu>
         </Sidebar >
     );
 };

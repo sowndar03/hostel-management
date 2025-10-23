@@ -108,13 +108,77 @@ const Add = () => {
                 const selectedOptions = options.filter(opt => field.value.includes(opt.value));
                 return (
                   <Select
-                    isMulti
                     options={options}
                     value={selectedOptions}
-                    onChange={(selected) => field.onChange(selected.map(opt => opt.value))}
+                    onChange={(selected) => {
+                      const values = selected ? selected.map(opt => opt.value) : [];
+                      field.onChange(values);
+                    }}
                     placeholder="Select Hostellers"
+                    isMulti
                     className="react-select-container"
                     classNamePrefix="react-select"
+                    styles={{
+                      control: (provided, state) => ({
+                        ...provided,
+                        backgroundColor: isDark ? '#1e293b' : '#ffffff',
+                        borderColor: isDark ? '#374151' : '#d1d5db',
+                        color: isDark ? '#f9fafb' : '#111827',
+                        '&:hover': {
+                          borderColor: isDark ? '#4b5563' : '#9ca3af'
+                        },
+                        '&:focus': {
+                          borderColor: isDark ? '#6366f1' : '#3b82f6',
+                          boxShadow: isDark ? '0 0 0 1px #6366f1' : '0 0 0 1px #3b82f6'
+                        }
+                      }),
+                      menu: (provided) => ({
+                        ...provided,
+                        backgroundColor: isDark ? '#1e293b' : '#ffffff',
+                        border: isDark ? '1px solid #374151' : '1px solid #d1d5db',
+                        boxShadow: isDark ? '0 10px 15px -3px rgba(0, 0, 0, 0.3)' : '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                      }),
+                      option: (provided, state) => ({
+                        ...provided,
+                        backgroundColor: state.isSelected 
+                          ? (isDark ? '#6366f1' : '#3b82f6')
+                          : state.isFocused 
+                          ? (isDark ? '#334155' : '#f3f4f6')
+                          : isDark ? '#1e293b' : '#ffffff',
+                        color: isDark ? '#f9fafb' : '#111827',
+                        '&:hover': {
+                          backgroundColor: isDark ? '#334155' : '#f3f4f6'
+                        }
+                      }),
+                      multiValue: (provided) => ({
+                        ...provided,
+                        backgroundColor: isDark ? '#374151' : '#e5e7eb'
+                      }),
+                      multiValueLabel: (provided) => ({
+                        ...provided,
+                        color: isDark ? '#f9fafb' : '#111827'
+                      }),
+                      multiValueRemove: (provided) => ({
+                        ...provided,
+                        color: isDark ? '#f9fafb' : '#111827',
+                        '&:hover': {
+                          backgroundColor: isDark ? '#ef4444' : '#dc2626',
+                          color: '#ffffff'
+                        }
+                      }),
+                      placeholder: (provided) => ({
+                        ...provided,
+                        color: isDark ? '#9ca3af' : '#6b7280'
+                      }),
+                      singleValue: (provided) => ({
+                        ...provided,
+                        color: isDark ? '#f9fafb' : '#111827'
+                      }),
+                      input: (provided) => ({
+                        ...provided,
+                        color: isDark ? '#f9fafb' : '#111827'
+                      })
+                    }}
                   />
                 );
               }}
